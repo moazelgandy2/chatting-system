@@ -1,0 +1,33 @@
+"use client";
+
+import AttractiveButton from "@/components/kokonutui/btn-03";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Fingerprint, Shield } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { z } from "zod";
+import { LoginForm } from "./login-form";
+
+export const AuthPageWrapper = () => {
+  const i18n = useTranslations();
+  return (
+    <div className="w-full flex flex-col items-center justify-center h-full overflow-hidden">
+      <Card className="w-full max-w-sm p-4 flex flex-col items-center justify-center gap-4">
+        <CardHeader className="w-full">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <h1 className="text-2xl font-bold text-center">
+              {i18n("auth.title")}
+            </h1>
+            <Shield className="w-8 h-8" />
+          </div>
+          <p className="text-sm text-center text-muted-foreground">
+            {i18n("auth.subtitle")}
+          </p>
+        </CardHeader>
+        <CardContent className="w-full flex flex-col items-center justify-center gap-4">
+          <LoginForm />
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
