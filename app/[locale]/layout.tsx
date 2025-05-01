@@ -23,7 +23,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={`${locale === "ar" ? "rtl" : "ltr"}`}
-      className="dark w-full"
+      className="dark w-full "
     >
       <body>
         <NextIntlClientProvider messages={messages}>
