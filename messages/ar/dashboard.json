@@ -1,6 +1,19 @@
 {
   "dashboard": {
     "title": "تجربه",
-    "subtitle": "Marketopia"
+    "subtitle": "Marketopia",
+    "navigation": {
+      "home": "الرئيسية",
+      "chats": "المحادثات",
+      "media": "الوسائط",
+      "auth": "المصادقة",
+      "chatId": "محادثة",
+      "chat": "محادثة",
+      "settings": "الإعدادات",
+      "profile": "الملف الشخصي",
+      "users": "المستخدمين",
+      "notifications": "الإشعارات",
+      "dashboard": "لوحة التحكم"
+    }
   }
 }

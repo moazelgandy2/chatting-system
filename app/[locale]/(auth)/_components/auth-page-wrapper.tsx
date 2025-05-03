@@ -7,6 +7,7 @@ import { Fingerprint, Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
 import { LoginForm } from "./login-form";
+import Image from "next/image";
 
 export const AuthPageWrapper = () => {
   const i18n = useTranslations();
@@ -18,7 +19,12 @@ export const AuthPageWrapper = () => {
             <h1 className="text-2xl font-bold text-center">
               {i18n("auth.title")}
             </h1>
-            <Shield className="w-8 h-8" />
+            <Image
+              src={"/logo.png"}
+              width={28}
+              height={28}
+              alt="Logo"
+            />
           </div>
           <p className="text-sm text-center text-muted-foreground">
             {i18n("auth.subtitle")}

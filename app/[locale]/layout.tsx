@@ -3,6 +3,12 @@ import { getMessages } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import "../globals.css";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Marktopia",
+  description: "Marktopia chatting system home page",
+};
 
 export default async function LocaleLayout({
   children,

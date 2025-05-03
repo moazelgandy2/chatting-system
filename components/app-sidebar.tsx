@@ -1,23 +1,8 @@
 "use client";
 
 import * as React from "react";
-import {
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  ImageIcon,
-  LifeBuoy,
-  Map,
-  MessageSquare,
-  PieChart,
-  Send,
-  Settings2,
-  SquareTerminal,
-} from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -31,59 +16,23 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "./ui/scroll-area";
 import Image from "next/image";
-
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Chats",
-      url: "#",
-      icon: MessageSquare,
-      isActive: true,
-      items: [
-        {
-          title: "Chat 1",
-          url: "#",
-        },
-        {
-          title: "Chat 2",
-          url: "#",
-        },
-        {
-          title: "Chat 3",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Media",
-      url: "#",
-      icon: ImageIcon,
-      isActive: true,
-      items: [
-        {
-          title: "Package 1",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
-    },
-  ],
-};
+import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { createData } from "@/data";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const locale = useLocale();
+  const t = useTranslations();
+  const data = createData(t);
+
+  const side = React.useMemo(
+    () => (locale === "ar" ? "right" : "left"),
+    [locale]
+  );
+
   return (
     <Sidebar
+      side={side}
       variant="inset"
       {...props}
     >
@@ -94,7 +43,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               size="lg"
               asChild
             >
-              <a href="#">
+              <Link href="/">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg border text-sidebar-primary-foreground">
                   <Image
                     src={"/logo.png"}
@@ -107,7 +56,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Marketopia</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -8,7 +8,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, Languages } from "lucide-react";
+import { ChevronDown, Languages, LoaderCircleIcon } from "lucide-react";
 import React, { useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { Locale, usePathname, useRouter } from "../i18n/routing";
@@ -16,7 +16,7 @@ import { useLocale } from "next-intl";
 
 const locales = [
   { value: "en", label: "English" },
-  { value: "ar", label: "Arabic" },
+  { value: "ar", label: "العربيه" },
 ] as const;
 
 type LocaleValue = (typeof locales)[number]["value"];
@@ -45,14 +45,28 @@ export function LocaleSwitcherDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button disabled={isPending}>
+        <Button
+          className="w-full justify-between"
+          variant={"outline"}
+          disabled={isPending}
+        >
           <Languages className="size-4" />
-          <span className="uppercase">{locale}</span>
+
+          {isPending ? (
+            <span className="uppercase animate-pulse">
+              <LoaderCircleIcon className="size-4 animate-spin" />
+            </span>
+          ) : (
+            <span className="uppercase text-base">
+              {locales.find((l) => l.value === locale)?.label ?? "English"}
+            </span>
+          )}
           <ChevronDown className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuRadioGroup
+          className="w-full"
           defaultValue={locale}
           value={locale}
           onValueChange={onChange as (value: string) => void}
@@ -61,6 +75,7 @@ export function LocaleSwitcherDropdown() {
             <DropdownMenuRadioItem
               key={val.value}
               value={val.value}
+              className="w-full text-white"
             >
               {val.label}
             </DropdownMenuRadioItem>

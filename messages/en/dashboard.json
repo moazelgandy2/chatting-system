@@ -1,6 +1,19 @@
 {
   "dashboard": {
     "title": "test",
-    "subtitle": "Marketopia"
+    "subtitle": "Marketopia",
+    "navigation": {
+      "home": "Home",
+      "chats": "Chats",
+      "media": "Media",
+      "auth": "Authentication",
+      "chatId": "Chat",
+      "chat": "Chat",
+      "settings": "Settings",
+      "profile": "Profile",
+      "users": "Users",
+      "notifications": "Notifications",
+      "dashboard": "Dashboard"
+    }
   }
 }
