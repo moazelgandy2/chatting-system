@@ -12,7 +12,7 @@
 
 # testing
 /coverage
-
+TODOS.ts
 # next.js
 /.next/
 /out/

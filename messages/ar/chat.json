@@ -1,0 +1,42 @@
+{
+  "chat": {
+    "messageArea": {
+      "placeholder": "اكتب رسالتك هنا...",
+      "send": "إرسال",
+      "typing": "يكتب...",
+      "emptyState": "لا توجد رسائل بعد. ابدأ محادثة!",
+      "you": "أنت",
+      "agent": "الوكيل",
+      "newChat": "محادثة جديدة",
+      "recentChats": "المحادثات الأخيرة",
+      "startConversation": "ابدأ محادثة جديدة للحصول على المساعدة",
+      "salesInquiry": "استفسار المبيعات",
+      "technicalSupport": "الدعم الفني",
+      "productFeedback": "تعليقات المنتج",
+      "online": "متصل",
+      "offline": "غير متصل - إعادة الاتصال..."
+    },
+    "notifications": {
+      "messageSent": "تم إرسال الرسالة",
+      "messageDelivered": "تم استلام الرسالة",
+      "messageRead": "تمت قراءة الرسالة",
+      "connectionLost": "فقد الاتصال، جاري إعادة الاتصال..."
+    },
+    "chats": {
+      "title": "المحادثات",
+      "createNew": "إنشاء محادثة جديدة",
+      "filter": "تصفية المحادثات",
+      "search": "البحث في المحادثات",
+      "noResults": "لم يتم العثور على محادثات",
+      "loadMore": "تحميل المزيد"
+    },
+    "quota": {
+      "title": "الباقه",
+      "details": "التفاصيل",
+      "viewDetails": "عرض التفاصيل",
+      "accepted": "مقبول",
+      "edited": "طلب تعديل",
+      "rejected": "مرفوض"
+    }
+  }
+}

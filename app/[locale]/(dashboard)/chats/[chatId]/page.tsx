@@ -1,12 +1,18 @@
+import ChatPageWrapper from "./_components/chat-page-wrapper";
+
 export default async function ChatPage({
   params,
 }: {
-  params: Promise<{ chatId: string }>;
+  params: Promise<{ chatId: string; locale: string }>;
 }) {
-  const { chatId } = await params;
+  const { chatId, locale } = await params;
+
   return (
-    <div className="flex h-full w-full items-center justify-center">
-      Chat {chatId}
+    <div className="flex px-2 h-full overflow-hidden w-full items-center justify-center">
+      <ChatPageWrapper
+        chatId={chatId}
+        locale={locale}
+      />
     </div>
   );
 }

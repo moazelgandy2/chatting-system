@@ -1,0 +1,42 @@
+{
+  "chat": {
+    "messageArea": {
+      "placeholder": "Type your message here...",
+      "send": "Send",
+      "typing": "is typing...",
+      "emptyState": "No messages yet. Start a conversation!",
+      "you": "You",
+      "agent": "Agent",
+      "newChat": "New Chat",
+      "recentChats": "Recent Chats",
+      "startConversation": "Start a new conversation to get help",
+      "salesInquiry": "Sales Inquiry",
+      "technicalSupport": "Technical Support",
+      "productFeedback": "Product Feedback",
+      "online": "Online",
+      "offline": "Offline - Reconnecting..."
+    },
+    "notifications": {
+      "messageSent": "Message sent",
+      "messageDelivered": "Message delivered",
+      "messageRead": "Message read",
+      "connectionLost": "Connection lost, reconnecting..."
+    },
+    "chats": {
+      "title": "Chats",
+      "createNew": "Create new chat",
+      "filter": "Filter chats",
+      "search": "Search chats",
+      "noResults": "No chats found",
+      "loadMore": "Load more"
+    },
+    "quota": {
+      "title": "Package",
+      "details": "Details",
+      "viewDetails": "View Details",
+      "accepted": "Accepted",
+      "edited": "Edited",
+      "rejected": "Rejected"
+    }
+  }
+}

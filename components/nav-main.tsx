@@ -1,6 +1,8 @@
 "use client";
 
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import { ChevronRight, Loader2, UserIcon, type LucideIcon } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { useEffect, useState } from "react";
 
 import {
   Collapsible,
@@ -18,7 +20,37 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
+
+function LinkStatus() {
+  const { pending } = useLinkStatus();
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (!pending) {
+      setProgress(0);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 90) {
+          clearInterval(timer);
+          return prev;
+        }
+        return prev + 10;
+      });
+    }, 200);
+
+    return () => clearInterval(timer);
+  }, [pending]);
+
+  return pending ? (
+    <div className="absolute bottom-0 left-0 right-0 w-full">
+      <Progress value={progress} />
+    </div>
+  ) : null;
+}
 
 export function NavMain({
   items,
@@ -44,7 +76,7 @@ export function NavMain({
             asChild
             defaultOpen={item.isActive}
           >
-            <SidebarMenuItem>
+            <SidebarMenuItem className="relative">
               <SidebarMenuButton
                 asChild
                 tooltip={item.title}
@@ -69,7 +101,9 @@ export function NavMain({
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
                             <Link href={subItem.url}>
+                              <UserIcon className="w-2 h-2" />
                               <span>{subItem.title}</span>
+                              <LinkStatus />
                             </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>

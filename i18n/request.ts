@@ -13,6 +13,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale,
     messages: {
       ...(await import(`../messages/${locale}/dashboard.json`)),
+      ...(await import(`../messages/${locale}/chat.json`)),
       ...(await import(`../messages/${locale}/auth.json`)),
     },
   };
