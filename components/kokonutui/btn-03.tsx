@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { motion, useAnimation } from "motion/react";
-import { Magnet } from "lucide-react";
+import { Loader2Icon, Magnet } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -12,6 +12,7 @@ interface AttractiveButtonProps
   attractRadius?: number;
   defaultText: string;
   attractingText: string;
+  isLoading?: boolean;
   icon: React.ReactNode;
 }
 
@@ -27,6 +28,7 @@ export default function AttractiveButton({
   attractRadius = 50,
   defaultText = "Hover me",
   attractingText = "Attracting",
+  isLoading,
   icon,
   ...props
 }: AttractiveButtonProps) {
@@ -84,6 +86,7 @@ export default function AttractiveButton({
       onMouseLeave={handleInteractionEnd}
       onTouchStart={handleInteractionStart}
       onTouchEnd={handleInteractionEnd}
+      disabled={isLoading}
       {...props}
     >
       {particles.map((_, index) => (
@@ -100,11 +103,18 @@ export default function AttractiveButton({
           )}
         />
       ))}
-      <span className="relative w-full flex items-center justify-center gap-2">
-        {icon}
+      {!isLoading ? (
+        <span className="relative w-full flex items-center justify-center gap-2">
+          {icon}
 
-        {isAttracting ? attractingText : defaultText}
-      </span>
+          {isAttracting ? attractingText : defaultText}
+        </span>
+      ) : (
+        <span className="relative w-full flex items-center justify-center gap-2">
+          <Loader2Icon className="w-4 h-4 animate-spin" />
+        </span>
+      )}
+      {isLoading}
     </Button>
   );
 }

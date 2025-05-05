@@ -8,7 +8,7 @@ export default async function ChatPage({
   const { chatId, locale } = await params;
 
   return (
-    <div className="flex px-2 h-full overflow-hidden w-full items-center justify-center">
+    <div className="flex relative px-2 h-full overflow-hidden w-full items-center justify-center">
       <ChatPageWrapper
         chatId={chatId}
         locale={locale}

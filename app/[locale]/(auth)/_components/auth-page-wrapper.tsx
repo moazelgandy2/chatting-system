@@ -1,11 +1,8 @@
 "use client";
 
-import AttractiveButton from "@/components/kokonutui/btn-03";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Fingerprint, Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { z } from "zod";
+
 import { LoginForm } from "./login-form";
 import Image from "next/image";
 

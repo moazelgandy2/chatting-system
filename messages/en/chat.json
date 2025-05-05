@@ -34,9 +34,14 @@
       "title": "Package",
       "details": "Details",
       "viewDetails": "View Details",
+      "hideDetails": "Hide Details",
+      "detailedStats": "Detailed Statistics",
+      "expandedDescription": "This chart shows your usage statistics for the current billing period. Monitor your allocation to ensure optimal service utilization.",
       "accepted": "Accepted",
       "edited": "Edited",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "usage": "Usage Information",
+      "close": "Close"
     }
   }
 }

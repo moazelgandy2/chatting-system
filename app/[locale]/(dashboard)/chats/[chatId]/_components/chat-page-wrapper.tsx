@@ -46,13 +46,13 @@ export default function ChatPageWrapper({
         id: generateId(),
         content: `Welcome to chat #${chatId}`,
         sender: "agent",
-        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
       },
       {
         id: generateId(),
         content: `How can I help you today?`,
         sender: "agent",
-        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000 + 1000), // 1 day ago + 1 second
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000 + 1000),
       },
     ];
 
