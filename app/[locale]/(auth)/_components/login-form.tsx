@@ -49,12 +49,13 @@ export function LoginForm() {
         },
         body: JSON.stringify(values),
       });
+      const data = await res.json();
 
       if (!res.ok) {
-        throw new Error("Login failed");
+        console.error(data.error);
+        throw new Error(data.error);
       }
 
-      const data = await res.json();
       console.log(data);
 
       toast.custom((t) => (
