@@ -4,7 +4,7 @@ import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import { Metadata } from "next";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Marktopia",
@@ -34,7 +34,11 @@ export default async function LocaleLayout({
     >
       <body>
         <NextIntlClientProvider messages={messages}>
-          <Toaster />
+          <Toaster
+            position={locale === "ar" ? "top-left" : "top-right"}
+            expand
+            visibleToasts={5}
+          />
           {children}
         </NextIntlClientProvider>
       </body>

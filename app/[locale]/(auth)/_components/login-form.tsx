@@ -20,8 +20,9 @@ import { useTranslations } from "next-intl";
 import AttractiveButton from "@/components/kokonutui/btn-03";
 import { Fingerprint } from "lucide-react";
 import { useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Notification from "@/components/kokonutui/notification";
 
 export function LoginForm() {
   const t = useTranslations();
@@ -56,14 +57,24 @@ export function LoginForm() {
       const data = await res.json();
       console.log(data);
 
-      toast.success(data.message);
+      toast.custom((t) => (
+        <Notification
+          message={data.message}
+          type="success"
+        />
+      ));
 
       router.push("/");
 
       console.log(values);
     } catch (error: any) {
       console.error(error);
-      toast.error(error.message || t("auth.login.error"));
+      toast.custom((t) => (
+        <Notification
+          message={error.message}
+          type="error"
+        />
+      ));
     } finally {
       setIsSubmitting(false);
     }
