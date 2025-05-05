@@ -5,9 +5,29 @@ interface AuthState {
   session: SessionType | null;
 }
 
+function getSessionFromCookie(): SessionType | null {
+  if (typeof document === "undefined") return null;
+
+  try {
+    const sessionCookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("session="));
+
+    if (sessionCookie) {
+      const sessionValue = sessionCookie.split("=")[1];
+      const decodedValue = decodeURIComponent(sessionValue);
+      return JSON.parse(decodedValue);
+    }
+  } catch (error) {
+    console.error("Error reading session from cookie:", error);
+  }
+
+  return null;
+}
+
 export function useAuth() {
   const [authState, setAuthState] = useState<AuthState>({
-    session: null,
+    session: getSessionFromCookie(),
   });
 
   const refreshUserData = async () => {

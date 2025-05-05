@@ -27,6 +27,9 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { logout } from "@/actions/auth";
+import { Badge } from "./ui/badge";
+import { useRouter } from "next/navigation";
+import { NavUserSkeleton } from "./skeletons/nav-user";
 
 export function NavUser({
   user,
@@ -39,6 +42,10 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const { session } = useAuth();
+
+  if (!session) {
+    return <NavUserSkeleton />;
+  }
 
   return (
     <SidebarMenu>
@@ -58,10 +65,24 @@ export function NavUser({
                   {session?.user.name.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
+
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  {session?.user.name}
-                </span>
+                <div className="flex items-center justify-between flex-row-reverse gap-2 truncate text-sm leading-tight">
+                  <span className="truncate font-semibold">
+                    {session?.user.name}
+                  </span>
+                  <Badge
+                    variant="outline"
+                    className="text-[10px]"
+                  >
+                    <span
+                      className="size-1.5 rounded-full bg-green-500"
+                      aria-hidden="true"
+                    ></span>
+                    {session?.user.role.slice(0, 1).toUpperCase() +
+                      session?.user.role.slice(1)}
+                  </Badge>
+                </div>
                 <span className="truncate text-xs">{session?.user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -80,8 +101,11 @@ export function NavUser({
                     src={user.avatar}
                     alt={session?.user.name}
                   />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {session?.user.name.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
+
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
                     {session?.user.name}

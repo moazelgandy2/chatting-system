@@ -13,7 +13,8 @@
       "profile": "Profile",
       "users": "Users",
       "notifications": "Notifications",
-      "dashboard": "Dashboard"
+      "dashboard": "Dashboard",
+      "packages": "Packages"
     }
   }
 }

@@ -13,7 +13,9 @@
       "profile": "الملف الشخصي",
       "users": "المستخدمين",
       "notifications": "الإشعارات",
-      "dashboard": "لوحة التحكم"
+      "dashboard": "لوحة التحكم",
+
+      "packages": "الباقات"
     }
   }
 }

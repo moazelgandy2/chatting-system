@@ -1,0 +1,29 @@
+{
+  "intro": {
+    "step1": {
+      "title": "Welcome to Marketopia System",
+      "short_description": "Your Marketopia System",
+      "full_description": "Welcome to the Marketopia System! You can manage and view all your data."
+    },
+    "step2": {
+      "title": "Step 2: System Settings",
+      "short_description": "Customize your system",
+      "full_description": "Customize your Marketopia system according to your needs. You can adjust general settings, add users, and configure permissions."
+    },
+    "step3": {
+      "title": "Step 3: Add Data",
+      "short_description": "Add your data",
+      "full_description": "Add your data to the Marketopia system. You can add products, users, transactions, and more."
+    },
+    "step4": {
+      "title": "Step 4: View Data",
+      "short_description": "View your data",
+      "full_description": "View your data in the Marketopia system. You can use analysis and reporting tools to better understand your data."
+    },
+
+    "next": "Next",
+    "previous": "Previous",
+    "skip": "Skip",
+    "dont_show_again": "Don't show again"
+  }
+}

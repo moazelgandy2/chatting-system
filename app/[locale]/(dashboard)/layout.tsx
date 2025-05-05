@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 
 import { NavHeader } from "@/components/nav-header";
 import { Metadata } from "next";
+import IntroComponent from "@/components/intro-components";
 
 export const metadata: Metadata = {
   title: "Marktopia",
@@ -19,6 +20,7 @@ export default async function RootLayout({
       <AppSidebar />
       <SidebarInset>
         <NavHeader />
+        <IntroComponent />
         {children}
       </SidebarInset>
     </SidebarProvider>

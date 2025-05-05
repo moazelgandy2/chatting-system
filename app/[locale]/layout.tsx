@@ -32,7 +32,7 @@ export default async function LocaleLayout({
       dir={`${locale === "ar" ? "rtl" : "ltr"}`}
       className="dark w-full"
     >
-      <body>
+      <body className="w-full">
         <NextIntlClientProvider messages={messages}>
           <Toaster
             position={locale === "ar" ? "top-left" : "top-right"}

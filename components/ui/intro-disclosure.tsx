@@ -27,19 +27,31 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Progress } from "@/components/ui/progress";
+import { useTranslations } from "next-intl";
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = React.useState<boolean | null>(null);
+  const [isMounted, setIsMounted] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    const media = window.matchMedia(query);
-    setMatches(media.matches);
+    if (!isMounted) return;
+    setIsMounted(true);
+  }, [isMounted]);
 
-    const listener = (e: MediaQueryListEvent) => setMatches(e.matches);
-    media.addEventListener("change", listener);
-    return () => media.removeEventListener("change", listener);
+  React.useEffect(() => {
+    // Only execute this code in browser environments
+    if (typeof window !== "undefined") {
+      const media = window.matchMedia(query);
+      setMatches(media.matches);
+      console.log("media=>", media);
+
+      const listener = (e: MediaQueryListEvent) => setMatches(e.matches);
+      media.addEventListener("change", listener);
+      return () => media.removeEventListener("change", listener);
+    }
   }, [query]);
 
+  // Default to false when running on server or before effect runs
   return matches ?? false;
 }
 
@@ -47,29 +59,35 @@ function useFeatureVisibility(featureId: string) {
   const [isVisible, setIsVisible] = React.useState<boolean | null>(null);
 
   React.useEffect(() => {
-    const storedValue = localStorage.getItem(`feature_${featureId}`);
-    setIsVisible(storedValue ? JSON.parse(storedValue) : true);
+    // Only execute this code in browser environments
+    if (typeof window !== "undefined") {
+      const storedValue = localStorage.getItem(`feature_${featureId}`);
+      setIsVisible(storedValue ? JSON.parse(storedValue) : true);
+    }
   }, [featureId]);
 
   const hideFeature = () => {
-    localStorage.setItem(`feature_${featureId}`, JSON.stringify(false));
-    setIsVisible(false);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`feature_${featureId}`, JSON.stringify(false));
+      setIsVisible(false);
+    }
   };
 
+  // Default to false when running on server or before effect runs
   return { isVisible: isVisible === null ? false : isVisible, hideFeature };
 }
 
 function useSwipe(onSwipe: (direction: "left" | "right") => void) {
-  const handleDragEnd = (
-    event: MouseEvent | TouchEvent | PointerEvent,
-    info: PanInfo
-  ) => {
-    if (info.offset.x > 100) {
-      onSwipe("right");
-    } else if (info.offset.x < -100) {
-      onSwipe("left");
-    }
-  };
+  const handleDragEnd = React.useCallback(
+    (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      if (info.offset.x > 100) {
+        onSwipe("right");
+      } else if (info.offset.x < -100) {
+        onSwipe("left");
+      }
+    },
+    [onSwipe]
+  );
 
   return { handleDragEnd };
 }
@@ -256,7 +274,7 @@ function StepContent({
   stepRef,
 }: StepContentProps & { stepRef: React.RefObject<HTMLButtonElement> }) {
   const [skipNextTime, setSkipNextTime] = React.useState(false);
-
+  const t = useTranslations("intro");
   const renderActionButton = (action: Step["action"]) => {
     if (!action) return null;
 
@@ -295,9 +313,9 @@ function StepContent({
   };
 
   return (
-    <div className="flex h-full flex-col w-full mx-auto">
+    <div className="flex h-full flex-col mx-auto">
       {isDesktop && (
-        <div className="w-full  px-2 py-3">
+        <div className="flex-1  px-2 py-3">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -362,7 +380,7 @@ function StepContent({
               onClick={onSkip}
               className="text-muted-foreground hover:bg-card rounded-full"
             >
-              Skip all
+              {t("skip")}
             </Button>
             <div className="space-x-2">
               {currentStep > 0 && (
@@ -372,7 +390,7 @@ function StepContent({
                   variant="ghost"
                   className="rounded-full hover:bg-transparent"
                 >
-                  Previous
+                  {t("previous")}
                 </Button>
               )}
               <Button
@@ -386,7 +404,7 @@ function StepContent({
                 ref={stepRef}
                 className="rounded-full"
               >
-                {currentStep === steps.length - 1 ? "Done" : "Next"}
+                {currentStep === steps.length - 1 ? "Done" : t("next")}
               </Button>
             </div>
             {/* Don't show again checkbox */}
@@ -401,7 +419,7 @@ function StepContent({
               htmlFor="skipNextTime"
               className="text-sm text-muted-foreground"
             >
-              Don't show this again
+              {t("dont_show_again")}
             </label>
           </div>
         </motion.div>
@@ -423,31 +441,21 @@ export function IntroDisclosure({
   const [currentStep, setCurrentStep] = React.useState(0);
   const [completedSteps, setCompletedSteps] = React.useState<number[]>([0]);
   const [direction, setDirection] = React.useState<1 | -1>(1);
+  const [isMounted, setIsMounted] = React.useState(false);
   const isDesktopQuery = useMediaQuery("(min-width: 768px)");
   const isDesktop = forceVariant ? forceVariant === "desktop" : isDesktopQuery;
   const { isVisible, hideFeature } = useFeatureVisibility(featureId);
   const stepRef = React.useRef<HTMLButtonElement>(null);
-
-  // Close the dialog if feature is hidden
-  React.useEffect(() => {
-    if (!isVisible) {
-      setOpen(false);
+  const t = useTranslations("intro");
+  const { handleDragEnd } = useSwipe((direction) => {
+    if (direction === "left") {
+      handleNext();
+    } else {
+      handlePrevious();
     }
-  }, [isVisible, setOpen]);
+  });
 
-  // Focus management
-  React.useEffect(() => {
-    if (open && stepRef.current) {
-      stepRef.current.focus();
-    }
-  }, [open, currentStep]);
-
-  // Early return if feature should be hidden
-  if (!isVisible || !open) {
-    return null;
-  }
-
-  const handleNext = () => {
+  const handleNext = React.useCallback(() => {
     setDirection(1);
     setCompletedSteps((prev) =>
       prev.includes(currentStep) ? prev : [...prev, currentStep]
@@ -458,53 +466,67 @@ export function IntroDisclosure({
       setOpen(false);
       onComplete?.();
     }
-  };
+  }, [currentStep, steps.length, setOpen, onComplete]);
 
-  const handlePrevious = () => {
+  const handlePrevious = React.useCallback(() => {
     setDirection(-1);
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
-  };
+  }, [currentStep]);
 
-  const handleSkip = () => {
+  const handleSkip = React.useCallback(() => {
     setOpen(false);
     onSkip?.();
-  };
+  }, [setOpen, onSkip]);
 
-  const handleStepSelect = (index: number) => {
-    setDirection(index > currentStep ? 1 : -1);
-    // Mark all steps up to and including the selected step as completed
-    setCompletedSteps((prev) => {
-      const newCompletedSteps = new Set(prev);
-      // If moving forward, mark all steps up to the selected one as completed
-      if (index > currentStep) {
-        for (let i = currentStep; i <= index; i++) {
-          newCompletedSteps.add(i);
+  const handleStepSelect = React.useCallback(
+    (index: number) => {
+      setDirection(index > currentStep ? 1 : -1);
+      setCompletedSteps((prev) => {
+        const newCompletedSteps = new Set(prev);
+        if (index > currentStep) {
+          for (let i = currentStep; i <= index; i++) {
+            newCompletedSteps.add(i);
+          }
         }
+        return Array.from(newCompletedSteps);
+      });
+      setCurrentStep(index);
+    },
+    [currentStep]
+  );
+
+  const handleKeyDown = React.useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+        handleNext();
+      } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        handlePrevious();
       }
-      return Array.from(newCompletedSteps);
-    });
-    setCurrentStep(index);
-  };
+    },
+    [handleNext, handlePrevious]
+  );
 
-  const handleSwipe = (swipeDirection: "left" | "right") => {
-    if (swipeDirection === "left") {
-      handleNext();
-    } else {
-      handlePrevious();
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isVisible) {
+      setOpen(false);
     }
-  };
+  }, [isVisible, setOpen]);
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-      handleNext();
-    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-      handlePrevious();
+  React.useEffect(() => {
+    if (open && stepRef.current) {
+      stepRef.current.focus();
     }
-  };
+  }, [open, currentStep]);
 
-  const { handleDragEnd } = useSwipe(handleSwipe);
+  if (!isVisible || !open || !isMounted) {
+    return null;
+  }
 
   if (isDesktop) {
     return (
@@ -513,11 +535,11 @@ export function IntroDisclosure({
         onOpenChange={setOpen}
       >
         <DialogContent
-          className="w-full bg-blue-500 p-0 gap-0 overflow-hidden "
+          className="w-full p-0 gap-0 overflow-hidden sm:max-w-[90%]"
           onKeyDown={handleKeyDown}
         >
           <DialogHeader className="p-6 space-y-2 bg-muted border-b border-border">
-            <DialogTitle>Feature Tour</DialogTitle>
+            <DialogTitle>Marketopia</DialogTitle>
             {showProgressBar && (
               <div className="flex mt-2 w-full justify-center  ">
                 <Progress
@@ -565,131 +587,133 @@ export function IntroDisclosure({
       open={open}
       onOpenChange={setOpen}
     >
-      <DrawerContent className="h-[95vh] max-h-[95vh] w-full bg-orange-500 p-8">
-        <motion.div
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          onDragEnd={handleDragEnd}
-          onKeyDown={handleKeyDown}
-          className="h-full flex flex-col max-w-3xl mx-auto"
-        >
-          <DrawerHeader className="text-left  pb-4 space-y-4">
-            {showProgressBar && (
-              <Progress
-                value={((currentStep + 1) / steps.length) * 100}
-                className="mb-4"
-              />
-            )}
-            <DrawerTitle>{steps[currentStep]?.title}</DrawerTitle>
-          </DrawerHeader>
-
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-4 space-y-4 pb-32">
-              {/* Step tabs */}
-              <div className="grid grid-cols-2 gap-2 mb-6">
-                {steps.map((step, index) => (
-                  <StepTab
-                    key={index}
-                    step={step}
-                    isActive={currentStep === index}
-                    onClick={() => handleStepSelect(index)}
-                    isCompleted={completedSteps.includes(index)}
-                  />
-                ))}
-              </div>
-              {/* Preview */}
-              <div className="relative aspect-[16/9] ring-2 ring-border ring-offset-8 ring-offset-background rounded-lg overflow-hidden">
-                <StepPreview
-                  step={steps[currentStep]}
-                  direction={direction}
+      <DrawerContent className="h-[95vh] max-h-[95vh]">
+        {isMounted && (
+          <motion.div
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            onDragEnd={handleDragEnd}
+            onKeyDown={handleKeyDown}
+            className="h-full flex flex-col mx-auto"
+          >
+            <DrawerHeader className="text-left  pb-4 space-y-4">
+              {showProgressBar && (
+                <Progress
+                  value={((currentStep + 1) / steps.length) * 100}
+                  className="mb-4"
                 />
-              </div>
+              )}
+              <DrawerTitle>{steps[currentStep]?.title}</DrawerTitle>
+            </DrawerHeader>
 
-              {/* Step content */}
-              <div className="space-y-4 border border-border p-3 rounded-lg">
-                <p className="text-muted-foreground">
-                  {steps[currentStep]?.short_description}
-                </p>
-                {steps[currentStep]?.action && (
-                  <Button
-                    asChild
-                    className="w-full"
-                    variant={
-                      steps[currentStep]?.action?.href ? "outline" : "default"
-                    }
-                  >
-                    {steps[currentStep]?.action?.href ? (
-                      <a
-                        href={steps[currentStep]?.action?.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2"
-                      >
-                        {steps[currentStep]?.action?.label}
-                        <ExternalLinkIcon className="h-4 w-4" />
-                      </a>
-                    ) : (
-                      <button onClick={steps[currentStep]?.action?.onClick}>
-                        {steps[currentStep]?.action?.label}
-                      </button>
-                    )}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-4 space-y-4 pb-32">
+                {/* Step tabs */}
+                <div className="grid grid-cols-2 gap-2 mb-6">
+                  {steps.map((step, index) => (
+                    <StepTab
+                      key={index}
+                      step={step}
+                      isActive={currentStep === index}
+                      onClick={() => handleStepSelect(index)}
+                      isCompleted={completedSteps.includes(index)}
+                    />
+                  ))}
+                </div>
+                {/* Preview */}
+                <div className="relative aspect-[16/9] ring-2 ring-border ring-offset-8 ring-offset-background rounded-lg overflow-hidden">
+                  <StepPreview
+                    step={steps[currentStep]}
+                    direction={direction}
+                  />
+                </div>
 
-          {/* Fixed bottom navigation */}
-          <div className="absolute bottom-0 left-0 right-0 border-t bg-background">
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-4">
-                <Button
-                  variant="ghost"
-                  onClick={onSkip}
-                  className="text-muted-foreground hover:bg-card rounded-full"
-                >
-                  Skip all
-                </Button>
-                <div className="space-x-2">
-                  {currentStep > 0 && (
+                {/* Step content */}
+                <div className="space-y-4 border border-border p-3 rounded-lg">
+                  <p className="text-muted-foreground">
+                    {steps[currentStep]?.short_description}
+                  </p>
+                  {steps[currentStep]?.action && (
                     <Button
-                      onClick={handlePrevious}
-                      size="sm"
-                      variant="ghost"
-                      className="rounded-full hover:bg-transparent"
+                      asChild
+                      className="w-full"
+                      variant={
+                        steps[currentStep]?.action?.href ? "outline" : "default"
+                      }
                     >
-                      Previous
+                      {steps[currentStep]?.action?.href ? (
+                        <a
+                          href={steps[currentStep]?.action?.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2"
+                        >
+                          {steps[currentStep]?.action?.label}
+                          <ExternalLinkIcon className="h-4 w-4" />
+                        </a>
+                      ) : (
+                        <button onClick={steps[currentStep]?.action?.onClick}>
+                          {steps[currentStep]?.action?.label}
+                        </button>
+                      )}
                     </Button>
                   )}
-                  <Button
-                    onClick={() => {
-                      handleNext();
-                    }}
-                    size="sm"
-                    ref={stepRef}
-                    className="rounded-full"
-                  >
-                    {currentStep === steps.length - 1 ? "Done" : "Next"}
-                  </Button>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="skipNextTime"
-                  onCheckedChange={(checked) => {
-                    hideFeature();
-                  }}
-                />
-                <label
-                  htmlFor="skipNextTime"
-                  className="text-sm text-muted-foreground"
-                >
-                  Don't show this again
-                </label>
+            </div>
+
+            {/* Fixed bottom navigation */}
+            <div className="absolute bottom-0 left-0 right-0 border-t bg-background">
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <Button
+                    variant="ghost"
+                    onClick={onSkip}
+                    className="text-muted-foreground hover:bg-card rounded-full"
+                  >
+                    {t("skip_all")}
+                  </Button>
+                  <div className="space-x-2">
+                    {currentStep > 0 && (
+                      <Button
+                        onClick={handlePrevious}
+                        size="sm"
+                        variant="ghost"
+                        className="rounded-full hover:bg-transparent"
+                      >
+                        {t("previous")}
+                      </Button>
+                    )}
+                    <Button
+                      onClick={() => {
+                        handleNext();
+                      }}
+                      size="sm"
+                      ref={stepRef}
+                      className="rounded-full"
+                    >
+                      {currentStep === steps.length - 1 ? "Done" : t("next")}
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="skipNextTime"
+                    onCheckedChange={(checked) => {
+                      hideFeature();
+                    }}
+                  />
+                  <label
+                    htmlFor="skipNextTime"
+                    className="text-sm text-muted-foreground"
+                  >
+                    {t("dont_show_again")}
+                  </label>
+                </div>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
       </DrawerContent>
     </Drawer>
   );

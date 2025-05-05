@@ -1,4 +1,10 @@
-import { ImageIcon, LifeBuoy, MessageSquare } from "lucide-react";
+import {
+  GalleryHorizontalEnd,
+  ImageIcon,
+  LifeBuoy,
+  MessageSquare,
+  UserIcon,
+} from "lucide-react";
 
 export const createData = (
   t: (key: string, params?: Record<string, any>) => string
@@ -16,15 +22,14 @@ export const createData = (
         icon: MessageSquare,
         isActive: true,
         items: [
+          { icon: UserIcon, title: "Chat 1", url: "/chats/1" },
           {
-            title: "Chat 1",
-            url: "/chats/1",
-          },
-          {
+            icon: UserIcon,
             title: "Chat 2",
             url: "/chats/2",
           },
           {
+            icon: UserIcon,
             title: "Chat 3",
             url: "/chats/3",
           },
@@ -37,8 +42,9 @@ export const createData = (
         isActive: true,
         items: [
           {
+            icon: GalleryHorizontalEnd,
             title: "Package 1",
-            url: "#",
+            url: "/packages/1",
           },
         ],
       },

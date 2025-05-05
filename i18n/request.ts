@@ -14,6 +14,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     messages: {
       ...(await import(`../messages/${locale}/dashboard.json`)),
       ...(await import(`../messages/${locale}/chat.json`)),
+      ...(await import(`../messages/${locale}/intro.json`)),
       ...(await import(`../messages/${locale}/auth.json`)),
     },
   };
