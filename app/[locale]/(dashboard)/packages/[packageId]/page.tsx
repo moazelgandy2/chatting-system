@@ -1,4 +1,4 @@
-import { IntroDisclosureDemo } from "./package-page-wrapper";
+import { PackagePageWrapper } from "./package-page-wrapper";
 
 export default async function PackageDetailsPage({
   params,
@@ -7,5 +7,5 @@ export default async function PackageDetailsPage({
 }) {
   const { packageId } = await params;
 
-  return <IntroDisclosureDemo />;
+  return <PackagePageWrapper packageId={packageId} />;
 }

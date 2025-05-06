@@ -15,7 +15,8 @@
       "notifications": "الإشعارات",
       "dashboard": "لوحة التحكم",
 
-      "packages": "الباقات"
+      "packages": "الباقات",
+      "notFound": "غير موجود"
     }
   }
 }
