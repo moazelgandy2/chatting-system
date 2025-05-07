@@ -29,3 +29,36 @@ export type ApiErrorType = {
     message: string;
   };
 };
+
+export type PackageStatus = "active" | "expired";
+export type SubmissionStatus = "accepted" | "rejected" | "edited" | "pending";
+
+export interface Package {
+  id: string;
+  name: string;
+  status: PackageStatus;
+  startDate: string;
+  endDate: string;
+  clientName: string;
+  items: ContentItem[];
+}
+
+export interface ContentItem {
+  id: string;
+  type: string;
+  icon: string;
+  totalAllowed: number;
+  used: number;
+  description: string;
+  submissions: Submission[];
+}
+
+export interface Submission {
+  id: string;
+  title: string;
+  status: SubmissionStatus;
+  dateSubmitted: string;
+  thumbnailUrl: string;
+  description: string;
+  featured?: boolean;
+}
