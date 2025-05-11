@@ -110,14 +110,6 @@ export const mockPackage: Package = {
           thumbnailUrl: "/placeholder.svg",
           description: "Showing the creative process and team collaboration.",
         },
-        {
-          id: "sub-005",
-          title: "Product Tips & Tricks",
-          status: "pending",
-          dateSubmitted: "2025-03-05",
-          thumbnailUrl: "/placeholder.svg",
-          description: "Helpful ways to use our products effectively.",
-        },
       ],
     },
     {

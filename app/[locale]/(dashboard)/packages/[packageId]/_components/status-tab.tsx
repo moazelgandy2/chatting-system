@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { SubmissionStatus } from "@/types";
 import { CheckCircle, X, RotateCw, Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface StatusTabsProps {
   activeStatus: SubmissionStatus | "all";
@@ -14,7 +15,6 @@ interface StatusTabsProps {
     accepted: number;
     rejected: number;
     edited: number;
-    pending: number;
   };
 }
 
@@ -23,38 +23,34 @@ const StatusTabs = ({
   setActiveStatus,
   counts,
 }: StatusTabsProps) => {
+  const t = useTranslations("package");
   const tabs = [
-    { value: "all" as const, label: "All", icon: null },
+    { value: "all" as const, label: t("itemDetails.items"), icon: null },
     {
       value: "accepted" as const,
-      label: "Accepted",
+      label: t("quota.accepted"),
       icon: <CheckCircle className="w-3 h-3" />,
     },
     {
       value: "rejected" as const,
-      label: "Rejected",
+      label: t("quota.rejected"),
       icon: <X className="w-3 h-3" />,
     },
     {
       value: "edited" as const,
-      label: "Edited",
+      label: t("quota.edited"),
       icon: <RotateCw className="w-3 h-3" />,
-    },
-    {
-      value: "pending" as const,
-      label: "Pending",
-      icon: <Clock className="w-3 h-3" />,
     },
   ];
 
   return (
-    <div className="flex overflow-x-auto no-scrollbar gap-1 border-b border-border pb-2 mb-4">
+    <div className="flex overflow-x-auto no-scrollbar gap-4 border-b border-border pb-2 mb-4">
       {tabs.map((tab) => (
         <motion.button
           key={tab.value}
           onClick={() => setActiveStatus(tab.value)}
           className={cn(
-            "relative px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center space-x-1.5 min-w-[80px]",
+            "relative justify-center px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-1.5 whitespace-nowrap flex-shrink-0",
             activeStatus === tab.value
               ? "text-primary bg-primary/10"
               : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -68,7 +64,7 @@ const StatusTabs = ({
           </span>
           <span
             className={cn(
-              "ml-1.5 text-xs rounded-full px-2 py-0.5 flex items-center justify-center",
+              "text-xs rounded-full px-2 py-0.5 flex items-center justify-center",
               activeStatus === tab.value ? "bg-primary/20" : "bg-muted"
             )}
           >

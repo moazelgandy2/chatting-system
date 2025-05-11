@@ -7,11 +7,11 @@ export async function getLocalizedData(
   if (!routing.locales.includes(locale)) {
     throw new Error(`Locale "${locale}" not found`);
   }
-
   const messages = {
     ...(await import(`../messages/${locale}/dashboard.json`)).default,
     ...(await import(`../messages/${locale}/chat.json`)).default,
     ...(await import(`../messages/${locale}/auth.json`)).default,
+    ...(await import(`../messages/${locale}/package.json`)).default,
   };
 
   const translator = createTranslator({

@@ -1,0 +1,42 @@
+{
+  "package": {
+    "details": {
+      "packageContent": "Package Content Items",
+      "clickTooltip": "Click on any item to view submissions and manage content",
+      "searchItems": "Search items...",
+      "noMatchingItems": "No matching items found",
+      "tryDifferent": "Try a different search term",
+      "active": "Active",
+      "expired": "Expired",
+      "client": "Client",
+      "start": "Start",
+      "end": "End",
+      "daysRemaining": "{count} days remaining",
+      "used": "Used",
+      "remaining": "Remaining",
+      "total": "Total",
+      "usage": "Usage",
+      "viewDetails": "View Details",
+      "submissions": "submission | submissions"
+    },
+    "quota": {
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "edited": "Edited"
+    },
+    "itemDetails": {
+      "all": "All submissions for this content type",
+      "accepted": "Submissions that have been approved",
+      "rejected": "Submissions that have been declined",
+      "edited": "Submissions with requested changes",
+      "items": "items",
+      "newestFirst": "Newest first",
+      "close": "Close drawer",
+      "view": "View",
+      "download": "Download",
+      "resubmit": "Resubmit",
+      "noSubmissions": "No {status} submissions found",
+      "tryChangingFilter": "Try changing the filter"
+    }
+  }
+}

@@ -31,7 +31,7 @@ export type ApiErrorType = {
 };
 
 export type PackageStatus = "active" | "expired";
-export type SubmissionStatus = "accepted" | "rejected" | "edited" | "pending";
+export type SubmissionStatus = "accepted" | "rejected" | "edited";
 
 export interface Package {
   id: string;

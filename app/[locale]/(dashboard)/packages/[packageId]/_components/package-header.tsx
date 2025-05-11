@@ -4,14 +4,16 @@ import { motion } from "framer-motion";
 import { Package } from "@/types";
 import { Calendar, CheckCircle, Clock, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useTranslations } from "next-intl";
 
 interface PackageHeaderProps {
   packageData: Package;
 }
 
 const PackageHeader = ({ packageData }: PackageHeaderProps) => {
+  const t = useTranslations("package");
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString(undefined, {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -24,9 +26,7 @@ const PackageHeader = ({ packageData }: PackageHeaderProps) => {
   );
   const totalUsed = packageData.items.reduce((acc, item) => acc + item.used, 0);
   const usagePercentage = Math.round((totalUsed / totalItems) * 100);
-
-  // Calculate days remaining if active
-  let timeRemaining = "";
+  let timeRemaining: React.ReactNode = "";
   let daysRemaining = 0;
   if (packageData.status === "active") {
     const now = new Date();
@@ -34,7 +34,7 @@ const PackageHeader = ({ packageData }: PackageHeaderProps) => {
     daysRemaining = Math.ceil(
       (end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
     );
-    timeRemaining = `${daysRemaining} days remaining`;
+    timeRemaining = t.rich("details.daysRemaining", { count: daysRemaining });
   }
 
   const isLowOnTime = packageData.status === "active" && daysRemaining <= 10;
@@ -57,29 +57,29 @@ const PackageHeader = ({ packageData }: PackageHeaderProps) => {
                   : "bg-amber-500/20 text-amber-500"
               }`}
             >
+              {" "}
               {packageData.status === "active" ? (
                 <>
                   <CheckCircle className="w-3 h-3 mr-1" />
-                  Active
+                  {t("details.active")}
                 </>
               ) : (
                 <>
                   <Clock className="w-3 h-3 mr-1" />
-                  Expired
+                  {t("details.expired")}
                 </>
               )}
             </span>
           </div>
           <p className="text-muted-foreground mb-4">
-            Client:{" "}
+            {t("details.client")}:{" "}
             <span className="font-medium">{packageData.clientName}</span>
-          </p>
-
+          </p>{" "}
           <div className="flex flex-wrap items-center text-sm text-muted-foreground gap-x-6 gap-y-2">
             <div className="flex items-center">
               <Calendar className="w-4 h-4 mr-1" />
               <span>
-                Start:{" "}
+                {t("details.start")}:{" "}
                 <span className="text-foreground">
                   {formatDate(packageData.startDate)}
                 </span>
@@ -88,7 +88,7 @@ const PackageHeader = ({ packageData }: PackageHeaderProps) => {
             <div className="flex items-center">
               <Calendar className="w-4 h-4 mr-1" />
               <span>
-                End:{" "}
+                {t("details.end")}:{" "}
                 <span className="text-foreground">
                   {formatDate(packageData.endDate)}
                 </span>
@@ -110,29 +110,36 @@ const PackageHeader = ({ packageData }: PackageHeaderProps) => {
         <div className="flex gap-6 items-center">
           <div className="flex flex-col gap-4 items-center">
             <div className="grid grid-cols-3 gap-3 text-center">
+              {" "}
               <div>
                 <div className="text-3xl font-bold text-primary">
                   {totalUsed}
                 </div>
-                <div className="text-xs text-muted-foreground">Used</div>
+                <div className="text-xs text-muted-foreground">
+                  {t("details.used")}
+                </div>
               </div>
               <div>
                 <div className="text-3xl font-bold">
                   {totalItems - totalUsed}
                 </div>
-                <div className="text-xs text-muted-foreground">Remaining</div>
+                <div className="text-xs text-muted-foreground">
+                  {t("details.remaining")}
+                </div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-muted-foreground">
                   {totalItems}
                 </div>
-                <div className="text-xs text-muted-foreground">Total</div>
+                <div className="text-xs text-muted-foreground">
+                  {t("details.total")}
+                </div>
               </div>
             </div>
 
             <div className="w-full">
               <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                <span>Usage</span>
+                <span>{t("details.usage")}</span>
                 <span>{usagePercentage}%</span>
               </div>
               <Progress

@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Submission } from "@/types";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import {
   Calendar,
   Eye,
@@ -21,6 +22,7 @@ interface SubmissionCardProps {
 }
 
 const SubmissionCard = ({ submission, index }: SubmissionCardProps) => {
+  const t = useTranslations("package");
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "accepted":
@@ -29,7 +31,7 @@ const SubmissionCard = ({ submission, index }: SubmissionCardProps) => {
           borderColor: "border-green-500/30",
           textColor: "text-green-500",
           icon: <Check className="w-3 h-3 mr-1" />,
-          tooltip: "Approved submission",
+          tooltip: t("itemDetails.accepted"),
         };
       case "rejected":
         return {
@@ -37,7 +39,7 @@ const SubmissionCard = ({ submission, index }: SubmissionCardProps) => {
           borderColor: "border-red-500/30",
           textColor: "text-red-500",
           icon: <X className="w-3 h-3 mr-1" />,
-          tooltip: "Declined submission",
+          tooltip: t("itemDetails.rejected"),
         };
       case "edited":
         return {
@@ -45,7 +47,7 @@ const SubmissionCard = ({ submission, index }: SubmissionCardProps) => {
           borderColor: "border-amber-500/30",
           textColor: "text-amber-500",
           icon: <RotateCw className="w-3 h-3 mr-1" />,
-          tooltip: "Edited submission",
+          tooltip: t("itemDetails.edited"),
         };
       case "pending":
         return {
@@ -101,7 +103,7 @@ const SubmissionCard = ({ submission, index }: SubmissionCardProps) => {
           <div className="flex justify-between items-start">
             <h3 className="font-medium text-sm line-clamp-1">
               {submission.title}
-            </h3>
+            </h3>{" "}
             <div
               className={cn(
                 "text-xs px-2 py-0.5 rounded-full font-medium capitalize flex items-center",
@@ -110,7 +112,7 @@ const SubmissionCard = ({ submission, index }: SubmissionCardProps) => {
               )}
             >
               {statusConfig.icon}
-              {submission.status}
+              {t(`quota.${submission.status}`)}
             </div>
           </div>
 
@@ -119,32 +121,33 @@ const SubmissionCard = ({ submission, index }: SubmissionCardProps) => {
           </p>
 
           <div className="flex items-center justify-between mt-2">
+            {" "}
             <div className="flex items-center text-xs text-muted-foreground">
               <Calendar className="w-3 h-3 mr-1" />
-              {new Date(submission.dateSubmitted).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
+              {new Date(submission.dateSubmitted).toLocaleDateString(
+                undefined,
+                {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                }
+              )}
             </div>
-
             <div className="flex gap-2">
               <button className="text-xs flex items-center gap-1 text-primary hover:text-primary/80 transition-colors px-2 py-0.5 rounded-full bg-primary/10 shadow-sm">
                 <Eye className="w-3 h-3" />
-                View
+                {t("itemDetails.view") || "View"}
               </button>
-
               {submission.status === "accepted" && (
                 <button className="text-xs flex items-center gap-1 text-primary hover:text-primary/80 transition-colors px-2 py-0.5 rounded-full bg-primary/10 shadow-sm">
                   <Download className="w-3 h-3" />
-                  Download
+                  {t("itemDetails.download") || "Download"}
                 </button>
-              )}
-
+              )}{" "}
               {submission.status === "rejected" && (
                 <button className="text-xs flex items-center gap-1 text-primary hover:text-primary/80 transition-colors px-2 py-0.5 rounded-full bg-primary/10 shadow-sm">
                   <RotateCw className="w-3 h-3" />
-                  Resubmit
+                  {t("itemDetails.resubmit") || "Resubmit"}
                 </button>
               )}
             </div>

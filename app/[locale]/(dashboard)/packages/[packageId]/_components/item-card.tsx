@@ -14,7 +14,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "./hover-card";
+import { useTranslations } from "next-intl";
 
 interface ItemCardProps {
   item: ContentItem;
@@ -23,6 +23,7 @@ interface ItemCardProps {
 }
 
 const ItemCard = ({ item, onClick, index }: ItemCardProps) => {
+  const t = useTranslations("package");
   const getIcon = () => {
     switch (item.icon) {
       case "image":
@@ -59,7 +60,6 @@ const ItemCard = ({ item, onClick, index }: ItemCardProps) => {
       <div className="p-5 relative overflow-hidden">
         {/* Background design element */}
         <div className="absolute -right-8 -top-8 w-24 h-24 bg-primary/5 rounded-full blur-xl" />
-
         <div className="flex justify-between items-start mb-5 relative">
           <div className="flex items-center">
             <div className="p-2.5 rounded-lg bg-primary/10 text-primary mr-3 shadow-sm">
@@ -72,40 +72,28 @@ const ItemCard = ({ item, onClick, index }: ItemCardProps) => {
               </p>
             </div>
           </div>
-          <HoverCard>
-            <HoverCardTrigger asChild>
-              <div className="relative cursor-help">
-                <ProgressCircle
-                  progress={progress}
-                  size={52}
-                  strokeWidth={5}
-                  className="text-primary"
-                />
-              </div>
-            </HoverCardTrigger>
-            <HoverCardContent className="w-64">
-              <div className="space-y-1">
-                <h4 className="text-sm font-medium">Usage Statistics</h4>
-                <p className="text-xs text-muted-foreground">
-                  You've used {item.used} out of {item.totalAllowed} available{" "}
-                  {item.type.toLowerCase()}.
-                </p>
-                <div className="flex justify-between text-xs">
-                  <span>Progress: {percentage}%</span>
-                  <span>Remaining: {remaining}</span>
-                </div>
-              </div>
-            </HoverCardContent>
-          </HoverCard>
-        </div>
-
+          <div>
+            <div className="relative cursor-help">
+              <ProgressCircle
+                progress={progress}
+                size={52}
+                strokeWidth={5}
+                className="text-primary"
+              />
+            </div>
+          </div>
+        </div>{" "}
         <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="p-2 rounded-md bg-muted/50">
-            <div className="text-xs text-muted-foreground">Used</div>
+          <div className="p-2 rounded-md bg-muted/50 relative z-10">
+            <div className="text-xs text-muted-foreground">
+              {t("details.used")}
+            </div>
             <div className="font-medium text-base">{item.used}</div>
           </div>
-          <div className="p-2 rounded-md bg-muted/50 relative">
-            <div className="text-xs text-muted-foreground">Remaining</div>
+          <div className="p-2 rounded-md bg-muted/50 relative z-10">
+            <div className="text-xs text-muted-foreground">
+              {t("details.remaining")}
+            </div>
             <div className="font-medium text-base flex items-center">
               {remaining}
               {isLow && (
@@ -115,22 +103,22 @@ const ItemCard = ({ item, onClick, index }: ItemCardProps) => {
               )}
             </div>
           </div>
-        </div>
-
+        </div>{" "}
         <div className="mt-5 flex justify-between items-center">
+          {" "}
           <Badge
             variant={item.submissions.length > 0 ? "outline" : "secondary"}
             className="text-xs"
           >
-            {item.submissions.length} submission
-            {item.submissions.length !== 1 && "s"}
+            {item.submissions.length}{" "}
+            {t.rich("details.submissions", { count: item.submissions.length })}
           </Badge>
           <motion.div
             className="flex items-center text-primary text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity"
             initial={{ x: -5 }}
             whileHover={{ x: 0 }}
           >
-            View Details
+            {t("details.viewDetails")}
             <ArrowRight className="ml-1 w-3 h-3" />
           </motion.div>
         </div>

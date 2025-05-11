@@ -7,6 +7,7 @@ import ItemCard from "./_components/item-card";
 import ItemDetailDrawer from "./_components/item-details";
 import { ContentItem } from "@/types";
 import { Info, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Tooltip,
   TooltipContent,
@@ -25,6 +26,7 @@ const containerVariants = {
 };
 
 export function PackagePageWrapper({ packageId }: { packageId: string }) {
+  const t = useTranslations("package");
   const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,31 +49,31 @@ export function PackagePageWrapper({ packageId }: { packageId: string }) {
     : mockPackage.items;
 
   return (
-    <div className="container mx-auto py-6 px-4 max-w-6xl">
+    <div className="container mx-auto  px-4 max-w-6xl">
       <PackageHeader packageData={mockPackage} />
 
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        {" "}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="flex items-center gap-2"
         >
-          <h2 className="text-xl font-semibold">Package Content Items</h2>
+          <h2 className="text-xl font-semibold">
+            {t("details.packageContent")}
+          </h2>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
-                <p className="text-xs">
-                  Click on any item to view submissions and manage content
-                </p>
+                <p className="text-xs">{t("details.clickTooltip")}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </motion.div>
-
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -81,7 +83,7 @@ export function PackagePageWrapper({ packageId }: { packageId: string }) {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search items..."
+            placeholder={t("details.searchItems")}
             className="pl-9 pr-4 py-2 text-sm rounded-md bg-muted border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-full max-w-[220px]"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -117,8 +119,8 @@ export function PackagePageWrapper({ packageId }: { packageId: string }) {
               className="opacity-50"
             />
           </div>
-          <p className="text-lg font-medium">No matching items found</p>
-          <p className="text-sm mt-1">Try a different search term</p>
+          <p className="text-lg font-medium">{t("details.noMatchingItems")}</p>
+          <p className="text-sm mt-1">{t("details.tryDifferent")}</p>
         </motion.div>
       )}
 

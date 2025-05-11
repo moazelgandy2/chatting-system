@@ -1,0 +1,42 @@
+{
+  "package": {
+    "details": {
+      "packageContent": "عناصر محتوى الباقة",
+      "clickTooltip": "انقر على أي عنصر لعرض الطلبات وإدارة المحتوى",
+      "searchItems": "بحث في العناصر...",
+      "noMatchingItems": "لا توجد عناصر مطابقة",
+      "tryDifferent": "جرب مصطلح بحث مختلف",
+      "active": "نشط",
+      "expired": "منتهي",
+      "client": "العميل",
+      "start": "البداية",
+      "end": "النهاية",
+      "daysRemaining": "{count} يوم متبقي",
+      "used": "مستخدم",
+      "remaining": "متبقي",
+      "total": "الإجمالي",
+      "usage": "الاستخدام",
+      "viewDetails": "عرض التفاصيل",
+      "submissions": "طلب | طلبات"
+    },
+    "quota": {
+      "accepted": "مقبولة",
+      "rejected": "مرفوضة",
+      "edited": "تم تعديلها"
+    },
+    "itemDetails": {
+      "all": "جميع الطلبات لهذا النوع من المحتوى",
+      "accepted": "الطلبات التي تمت الموافقة عليها",
+      "rejected": "الطلبات التي تم رفضها",
+      "edited": "الطلبات مع طلبات تغييرات",
+      "items": "عناصر",
+      "newestFirst": "الأحدث أولاً",
+      "close": "إغلاق الدرج",
+      "view": "عرض",
+      "download": "تنزيل",
+      "resubmit": "إعادة تقديم",
+      "noSubmissions": "لا توجد طلبات {status}",
+      "tryChangingFilter": "حاول تغيير الفلتر"
+    }
+  }
+}
