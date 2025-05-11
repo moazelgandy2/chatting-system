@@ -3,6 +3,7 @@
 import Notification from "@/components/kokonutui/notification";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { SignatureForm } from "./sign-component";
 
 export const HomePageWrapper = () => {
   return (
@@ -65,6 +66,7 @@ export const HomePageWrapper = () => {
             Show Warning
           </Button>
         </div>
+        <SignatureForm />
       </div>
     </div>
   );

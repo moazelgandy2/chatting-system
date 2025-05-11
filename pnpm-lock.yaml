@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@docuseal/react':
+        specifier: ^1.0.66
+        version: 1.0.66
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.0.1(react-hook-form@7.56.1(react@19.1.0))
@@ -160,6 +163,9 @@ packages:
   '@babel/runtime@7.27.1':
     resolution: {integrity: sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==}
     engines: {node: '>=6.9.0'}
+
+  '@docuseal/react@1.0.66':
+    resolution: {integrity: sha512-rYG58gv8Uw1cTtjbHdgWgWBWpLMbIwDVsS3kN27w4sz/eDJilZieePUDS4eLKJ8keBN05BSjxD/iWQpaTBKZLg==}
 
   '@emnapi/core@1.4.3':
     resolution: {integrity: sha512-4m62DuCE07lw01soJwPiBGC0nAww0Q+RY70VZ+n49yDIO13yyinhbWCeNnaob0lakDtWQzSdtNWzJeOJt2ma+g==}
@@ -2747,6 +2753,8 @@ snapshots:
   '@alloc/quick-lru@5.2.0': {}
 
   '@babel/runtime@7.27.1': {}
+
+  '@docuseal/react@1.0.66': {}
 
   '@emnapi/core@1.4.3':
     dependencies:
