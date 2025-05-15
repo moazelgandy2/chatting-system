@@ -35,19 +35,6 @@ export const createData = (
           },
         ],
       },
-      {
-        title: t("dashboard.navigation.media"),
-        url: "#",
-        icon: ImageIcon,
-        isActive: true,
-        items: [
-          {
-            icon: GalleryHorizontalEnd,
-            title: "Package 1",
-            url: "/packages/1",
-          },
-        ],
-      },
     ],
     navSecondary: [
       {

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, Loader2, UserIcon, type LucideIcon } from "lucide-react";
+import { ChevronRight, UserIcon, type LucideIcon } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useState } from "react";
 
@@ -21,8 +21,9 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import Link, { useLinkStatus } from "next/link";
+import { PackagesNavItem } from "./packages/packages-nav-item";
 
-function LinkStatus() {
+export function LinkStatus() {
   const { pending } = useLinkStatus();
   const [progress, setProgress] = useState(0);
 
@@ -116,6 +117,9 @@ export function NavMain({
             </SidebarMenuItem>
           </Collapsible>
         ))}
+
+        {/* Packages Section */}
+        <PackagesNavItem />
       </SidebarMenu>
     </SidebarGroup>
   );

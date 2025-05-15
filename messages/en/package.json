@@ -38,5 +38,8 @@
       "noSubmissions": "No {status} submissions found",
       "tryChangingFilter": "Try changing the filter"
     }
+  },
+  "packages": {
+    "available": "Available Packages"
   }
 }

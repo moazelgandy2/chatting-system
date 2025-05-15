@@ -62,3 +62,6 @@ export interface Submission {
   description: string;
   featured?: boolean;
 }
+
+// Re-export API response types
+export * from "./packages";

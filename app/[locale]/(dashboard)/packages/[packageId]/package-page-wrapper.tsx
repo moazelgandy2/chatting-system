@@ -1,12 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { mockPackage } from "@/data";
-import PackageHeader from "./_components/package-header";
-import ItemCard from "./_components/item-card";
-import ItemDetailDrawer from "./_components/item-details";
 import { ContentItem } from "@/types";
-import { Info, Search } from "lucide-react";
+import { Info, Loader2, Package as PackageIcon, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   Tooltip,
@@ -14,6 +10,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { usePackage } from "@/hooks/use-package";
+import PackageHeader from "./_components/package-header";
+import ItemCard from "./_components/item-card";
+import ItemDetailDrawer from "./_components/item-details";
+import { PackageSkeleton } from "./_components/package-skeleton";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -31,6 +32,14 @@ export function PackagePageWrapper({ packageId }: { packageId: string }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const {
+    data: packageResponse,
+    isLoading,
+    isError,
+    error,
+  } = usePackage(packageId);
+  const packageData = packageResponse?.data;
+
   const handleItemClick = (item: ContentItem) => {
     setSelectedItem(item);
     setDrawerOpen(true);
@@ -40,20 +49,78 @@ export function PackagePageWrapper({ packageId }: { packageId: string }) {
     setDrawerOpen(false);
   };
 
+  // Mock items for now - in a real app, these would come from the API
+  const mockItems = packageData
+    ? [
+        {
+          id: "1",
+          type: "Image",
+          icon: "image",
+          totalAllowed: 10,
+          used: 3,
+          description: "High-quality images for your marketing",
+          submissions: [],
+        },
+        {
+          id: "2",
+          type: "Video",
+          icon: "video",
+          totalAllowed: 5,
+          used: 1,
+          description: "Promotional videos for social media",
+          submissions: [],
+        },
+      ]
+    : [];
+
   const filteredItems = searchQuery.trim()
-    ? mockPackage.items.filter(
+    ? mockItems.filter(
         (item) =>
           item.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.description.toLowerCase().includes(searchQuery.toLowerCase())
       )
-    : mockPackage.items;
+    : mockItems;
+
+  if (isLoading) {
+    return <PackageSkeleton />;
+  }
+
+  if (isError || !packageData) {
+    return (
+      <div className="container mx-auto px-4 max-w-6xl flex items-center justify-center h-64">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <div className="rounded-full bg-red-500/20 p-3">
+            <PackageIcon className="h-8 w-8 text-red-500" />
+          </div>
+          <h3 className="text-xl font-semibold">Failed to load package</h3>
+          <p className="text-muted-foreground">
+            {error?.message ||
+              "This package could not be found or you don't have permission to view it."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Convert API package data to the format expected by PackageHeader
+  const packageForHeader = {
+    id: packageData.id.toString(),
+    name: packageData.name,
+    description: packageData.description,
+    status: "active" as const, // Mock status for now
+    startDate: packageData.created_at || new Date().toISOString(),
+    endDate: new Date(
+      new Date().setMonth(new Date().getMonth() + 3)
+    ).toISOString(), // Mock end date 3 months from now
+    clientName: "Sample Client", // Mock client name
+    items: mockItems,
+  };
 
   return (
-    <div className="container mx-auto  px-4 max-w-6xl">
-      <PackageHeader packageData={mockPackage} />
+    <div className="container mx-auto px-4 max-w-6xl">
+      <PackageHeader packageData={packageForHeader} />
 
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        {" "}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

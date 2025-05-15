@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import "../globals.css";
 import { Metadata } from "next";
 import { Toaster } from "sonner";
+import { QueryProvider } from "@/lib/providers/query-provider";
 
 export const metadata: Metadata = {
   title: "Marktopia",
@@ -34,12 +35,14 @@ export default async function LocaleLayout({
     >
       <body className="w-full">
         <NextIntlClientProvider messages={messages}>
-          <Toaster
-            position={locale === "ar" ? "top-left" : "top-right"}
-            expand
-            visibleToasts={5}
-          />
-          {children}
+          <QueryProvider>
+            <Toaster
+              position={locale === "ar" ? "top-left" : "top-right"}
+              expand
+              visibleToasts={5}
+            />
+            {children}
+          </QueryProvider>
         </NextIntlClientProvider>
       </body>
     </html>

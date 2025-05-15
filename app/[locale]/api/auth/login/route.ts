@@ -15,6 +15,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       locale: localeParam,
       namespace: "auth",
     });
+
     const ApiBaseUrl = process.env.API_APP_URL;
 
     if (!ApiBaseUrl) {
@@ -50,26 +51,27 @@ export async function POST(request: Request, { params }: RouteParams) {
         "Content-Type": "application/json",
         "Accept-Language": localeParam,
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email: email, password: password }),
     });
+
     const data = await res.json();
     if (!res.ok) {
+      console.error("data=>", data);
+
       console.error(
         "[AUTH_LOGIN_API_ERROR_RES_NOT_OK]",
         "Login failed",
         res.statusText
       );
       console.log("data=>", data);
-      return NextResponse.json(
-        { error: t(`login.${data.error.key}`) },
-        { status: 401 }
-      );
+      ``;
+      return NextResponse.json({ error: data.message }, { status: 401 });
     }
     console.log("[AUTH_LOGIN_API_SUCCESS]", data);
 
     const session: SessionType = {
-      user: data.user,
-      token: data.token,
+      user: data.data.user,
+      token: data.data.token,
     };
 
     await createSession(session);
@@ -84,10 +86,7 @@ export async function POST(request: Request, { params }: RouteParams) {
         locale: localeParam,
         namespace: "auth",
       });
-      return NextResponse.json(
-        { error: t(`login.${error.error.key}`) },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 500 });
     } catch (translationError) {
       console.error("[TRANSLATION_ERROR]", translationError);
       return NextResponse.json(

@@ -1,42 +1,45 @@
 {
   "package": {
     "details": {
-      "packageContent": "عناصر محتوى الباقة",
-      "clickTooltip": "انقر على أي عنصر لعرض الطلبات وإدارة المحتوى",
-      "searchItems": "بحث في العناصر...",
-      "noMatchingItems": "لا توجد عناصر مطابقة",
+      "packageContent": "عناصر محتوى الحزمة",
+      "clickTooltip": "انقر على أي عنصر لعرض المشاركات وإدارة المحتوى",
+      "searchItems": "البحث عن العناصر...",
+      "noMatchingItems": "لم يتم العثور على عناصر مطابقة",
       "tryDifferent": "جرب مصطلح بحث مختلف",
       "active": "نشط",
-      "expired": "منتهي",
+      "expired": "منتهي الصلاحية",
       "client": "العميل",
       "start": "البداية",
       "end": "النهاية",
-      "daysRemaining": "{count} يوم متبقي",
+      "daysRemaining": "متبقي {count} يوم | متبقي {count} أيام | متبقي {count} أيام | متبقي {count} يوم | متبقي {count} أيام | متبقي {count} أيام",
       "used": "مستخدم",
       "remaining": "متبقي",
-      "total": "الإجمالي",
+      "total": "المجموع",
       "usage": "الاستخدام",
       "viewDetails": "عرض التفاصيل",
-      "submissions": "طلب | طلبات"
+      "submissions": "مشاركة | مشاركات"
     },
     "quota": {
-      "accepted": "مقبولة",
-      "rejected": "مرفوضة",
-      "edited": "تم تعديلها"
+      "accepted": "مقبول",
+      "rejected": "مرفوض",
+      "edited": "تم تعديله"
     },
     "itemDetails": {
-      "all": "جميع الطلبات لهذا النوع من المحتوى",
-      "accepted": "الطلبات التي تمت الموافقة عليها",
-      "rejected": "الطلبات التي تم رفضها",
-      "edited": "الطلبات مع طلبات تغييرات",
+      "all": "جميع المشاركات لهذا النوع من المحتوى",
+      "accepted": "المشاركات التي تمت الموافقة عليها",
+      "rejected": "المشاركات التي تم رفضها",
+      "edited": "المشاركات مع طلبات التغيير",
       "items": "عناصر",
       "newestFirst": "الأحدث أولاً",
       "close": "إغلاق الدرج",
       "view": "عرض",
       "download": "تنزيل",
       "resubmit": "إعادة تقديم",
-      "noSubmissions": "لا توجد طلبات {status}",
+      "noSubmissions": "لم يتم العثور على مشاركات {status}",
       "tryChangingFilter": "حاول تغيير الفلتر"
     }
+  },
+  "packages": {
+    "available": "الحزم المتاحة"
   }
 }
