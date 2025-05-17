@@ -1,9 +1,9 @@
 "use client";
 
-import { ChevronRight, Loader2, Package } from "lucide-react";
+import { ChevronRight, Loader2, MessageSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { usePackages } from "@/hooks/use-packages";
-import { PackageData } from "@/types/packages";
+import { useChats } from "@/hooks/use-chats";
+import { ChatData } from "@/types/chats";
 import {
   Collapsible,
   CollapsibleContent,
@@ -18,17 +18,17 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { LinkStatus } from "@/components/nav-main";
+import { LinkStatus } from "@/components/nav/nav-main";
 
-export function PackagesNavItemSkeleton() {
+export function ChatsNavItemSkeleton() {
   const t = useTranslations();
 
   return (
     <SidebarMenuItem className="relative">
-      <SidebarMenuButton tooltip={t("packages.available")}>
+      <SidebarMenuButton tooltip={t("chat.chats.available")}>
         <div className="flex items-center gap-2 cursor-default">
-          <Package />
-          <span>{t("packages.available")}</span>
+          <MessageSquare />
+          <span>{t("chat.chats.available")}</span>
         </div>
       </SidebarMenuButton>
       <div className="py-2 pl-8">
@@ -48,38 +48,37 @@ export function PackagesNavItemSkeleton() {
   );
 }
 
-export function PackagesNavItem() {
+export function ChatsNavItem() {
   const t = useTranslations();
   const {
-    data: packageResponse,
-    isLoading: packagesLoading,
-    isError: packagesError,
-  } = usePackages();
-  const packages = packageResponse?.data || [];
+    data: chatsResponse,
+    isLoading: chatsLoading,
+    isError: chatsError,
+  } = useChats();
+  const chats = chatsResponse?.data || [];
+  const hasChats = !chatsError && chats && chats.length > 0;
 
-  const hasPackages = !packagesError && packages && packages.length > 0;
-
-  if (packagesLoading) {
-    return <PackagesNavItemSkeleton />;
+  if (chatsLoading) {
+    return <ChatsNavItemSkeleton />;
   }
 
-  if (packagesError && !hasPackages) {
+  if (chatsError && !hasChats) {
     return null;
   }
 
   return (
     <Collapsible
       asChild
-      defaultOpen={false}
+      defaultOpen
     >
       <SidebarMenuItem className="relative">
         <SidebarMenuButton
           asChild
-          tooltip={t("packages.available")}
+          tooltip={t("chat.chats.available")}
         >
           <CollapsibleTrigger className="flex items-center gap-2 cursor-pointer">
-            <Package />
-            <span>{t("packages.available")}</span>
+            <MessageSquare />
+            <span>{t("chat.chats.available")}</span>
           </CollapsibleTrigger>
         </SidebarMenuButton>
         <CollapsibleTrigger asChild>
@@ -90,13 +89,16 @@ export function PackagesNavItem() {
         </CollapsibleTrigger>
         <CollapsibleContent>
           <SidebarMenuSub>
-            {hasPackages ? (
-              packages.map((pkg: PackageData) => (
-                <SidebarMenuSubItem key={pkg.id}>
+            {hasChats ? (
+              chats.map((chat: ChatData) => (
+                <SidebarMenuSubItem key={chat.id}>
                   <SidebarMenuSubButton asChild>
-                    <Link href={`/packages/${pkg.id}`}>
-                      <Package className="w-3 h-3" />
-                      <span>{pkg.name}</span>
+                    <Link
+                      href={`/chats/${chat.id}`}
+                      prefetch={false}
+                    >
+                      <MessageSquare className="w-3 h-3" />
+                      <span>Chat #{chat.id}</span>
                       <LinkStatus />
                     </Link>
                   </SidebarMenuSubButton>
@@ -104,7 +106,7 @@ export function PackagesNavItem() {
               ))
             ) : (
               <div className="py-2 text-center text-xs text-muted-foreground">
-                No packages available
+                No chats available
               </div>
             )}
           </SidebarMenuSub>

@@ -4,7 +4,12 @@
       "placeholder": "Type your message here...",
       "send": "Send",
       "typing": "is typing...",
+      "loadingMore": "Loading more messages...",
+      "beginningOfConversation": "Beginning of conversation",
       "emptyState": "No messages yet. Start a conversation!",
+      "errorLoadingMessages": "Error loading messages",
+      "errorLoadingMore": "Error loading more messages",
+      "retry": "Retry",
       "you": "You",
       "agent": "Agent",
       "newChat": "New Chat",
@@ -28,7 +33,8 @@
       "filter": "Filter chats",
       "search": "Search chats",
       "noResults": "No chats found",
-      "loadMore": "Load more"
+      "loadMore": "Load more",
+      "available": "Available Chats"
     },
     "quota": {
       "title": "Package",

@@ -2,25 +2,40 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import UserAvatar from "./user-avatar";
+import { forwardRef, memo } from "react";
 
 export type MessageType = {
   id: string;
   content: string;
   sender: "user" | "agent";
+  senderName?: string;
   timestamp: Date;
 };
 
-export const MessagesArea = ({
-  message,
-}: {
-  message: MessageType | string;
-}) => {
+export const MessagesArea = forwardRef<
+  HTMLDivElement,
+  {
+    message: MessageType | string;
+    name: string;
+    role: "admin" | "team" | "client";
+    isLoading?: boolean;
+    appearAnimation?: boolean;
+  }
+>(({ message, name, role, isLoading, appearAnimation = true }, ref) => {
   const t = useTranslations("chat.messageArea");
 
   if (typeof message === "string") {
     return (
-      <div className="flex items-start gap-3 mb-4 animate-in fade-in-50">
-        <UserAvatar />
+      <div
+        className={cn(
+          "flex items-start gap-3 mb-4",
+          appearAnimation && "animate-in fade-in-50"
+        )}
+      >
+        <UserAvatar
+          role={role}
+          userName={name}
+        />
         <div className="flex flex-col gap-1 max-w-[80%]">
           <div className="text-xs font-medium text-muted-foreground">
             {t("agent")}
@@ -35,12 +50,17 @@ export const MessagesArea = ({
 
   return (
     <div
+      ref={ref}
       className={cn(
-        "flex items-start gap-3 mb-4 animate-in fade-in-50 p-1",
+        "flex items-start gap-3 mb-4 p-1",
+        appearAnimation ? "animate-in fade-in-50" : "",
         isUser ? "flex-row-reverse" : ""
       )}
     >
-      <UserAvatar />
+      <UserAvatar
+        role={role}
+        userName={name}
+      />
       <div
         className={cn(
           "flex flex-col gap-1 max-w-[80%]",
@@ -48,7 +68,7 @@ export const MessagesArea = ({
         )}
       >
         <div className="text-xs font-medium text-muted-foreground">
-          {isUser ? t("you") : t("agent")}
+          {isUser ? t("you") : message.senderName || t("agent")}
         </div>
         <div
           className={cn(
@@ -69,4 +89,9 @@ export const MessagesArea = ({
       </div>
     </div>
   );
-};
+});
+
+MessagesArea.displayName = "MessagesArea";
+
+// Wrap in memo to prevent unnecessary re-renders
+export const MemoizedMessagesArea = memo(MessagesArea);

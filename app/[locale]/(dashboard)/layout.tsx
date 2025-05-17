@@ -1,7 +1,7 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar } from "@/components/nav/app-sidebar";
 
-import { NavHeader } from "@/components/nav-header";
+import { NavHeader } from "@/components/nav/nav-header";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

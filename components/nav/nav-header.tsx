@@ -7,9 +7,9 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "./ui/breadcrumb";
-import { Separator } from "./ui/separator";
-import { SidebarTrigger } from "./ui/sidebar";
+} from "../ui/breadcrumb";
+import { Separator } from "../ui/separator";
+import { SidebarTrigger } from "../ui/sidebar";
 import { useBreadcrumb } from "@/hooks/use-breadcrumb";
 import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";

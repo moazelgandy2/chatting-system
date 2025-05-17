@@ -8,7 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { LocaleSwitcherDropdown } from "./locale-switcher";
+import { LocaleSwitcherDropdown } from "../locale-switcher";
 
 export function NavSecondary({
   items,

@@ -6,22 +6,11 @@ export type SessionType = {
 export type RoleType = "admin" | "client" | "team";
 
 export type UserType = {
+  id: number;
   name: string;
   email: string;
   role: RoleType;
 };
-
-/*
-{
-      "errors": {
-            "key": "email.0",
-        "message": {
-            "key": "email.unique",
-            "message": "Email already exists"
-        }
-    }
-}
-*/
 
 export type ApiErrorType = {
   errors: {
@@ -63,5 +52,4 @@ export interface Submission {
   featured?: boolean;
 }
 
-// Re-export API response types
 export * from "./packages";

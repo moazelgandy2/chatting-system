@@ -27,9 +27,9 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { logout } from "@/actions/auth";
-import { Badge } from "./ui/badge";
+import { Badge } from "../ui/badge";
 import { useRouter } from "next/navigation";
-import { NavUserSkeleton } from "./skeletons/nav-user";
+import { NavUserSkeleton } from "../skeletons/nav-user";
 
 export function NavUser({
   user,
