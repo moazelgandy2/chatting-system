@@ -27,7 +27,7 @@ export const fetchPackages = async () => {
     throw new Error("Failed to fetch packages", { cause: data });
   }
 
-  console.log("Fetched packages:", data);
+  // console.log("Fetched packages:", data);
 
   return data;
 };
@@ -56,7 +56,7 @@ export const fetchPackage = async (packageId: string) => {
     throw new Error("Failed to fetch packages", { cause: data });
   }
 
-  console.log("Fetched package:", data);
+  // console.log("Fetched package:", data);
 
   return data;
 };

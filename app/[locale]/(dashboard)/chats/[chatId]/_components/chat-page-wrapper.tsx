@@ -3,18 +3,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  SendIcon,
-  Loader2,
-  CheckIcon,
-  WifiOffIcon,
-  MessageSquare,
-} from "lucide-react";
+import { SendIcon, Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import Card05 from "./quota-details-card";
 import { MemoizedMessagesArea, MessageType } from "./messages-area";
-import { useChat } from "@/hooks/use-chat";
+import { useChat, useSendMessage } from "@/hooks/use-chat";
 import { ChatMessage } from "@/types/chats";
 import Link from "next/link";
 import ChatEmptyState from "./chat-empty-state";
@@ -28,7 +22,6 @@ import { useVirtualizedMessages } from "./use-virtualized-messages";
 import { useDebugInfiniteScroll } from "./use-debug-infinite-scroll";
 import { LoadError } from "./load-error";
 
-// Simple function to generate IDs
 const generateId = () =>
   `id-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -67,7 +60,12 @@ export default function ChatPageWrapper({
   const { session } = useAuth();
   const currentUserId = session?.user?.id;
 
-  // Helper function to retry loading data
+  const sendMessageMutation = useSendMessage(
+    chatId,
+    page,
+    session?.user.id || 0
+  );
+
   const retryLoading = useCallback(
     (specificPage?: number) => {
       if (specificPage) {
@@ -75,7 +73,6 @@ export default function ChatPageWrapper({
       }
 
       setTimeout(() => {
-        // Force refresh data for the current page
         mutate();
       }, 100);
     },
@@ -84,15 +81,11 @@ export default function ChatPageWrapper({
 
   console.log("[CURRENT_USER]=>", session);
 
-  // Separating initial loading state from fetching more messages
   const isInitialLoading = isLoading && page === 1 && messages.length === 0;
 
-  // Update messages when data is loaded
   useEffect(() => {
     if (!data || !data.data) {
-      // Handle error case - API didn't return expected data format
       if (isError && page > 1) {
-        // If this is a pagination request that failed, revert the page
         setPage((prev) => Math.max(prev - 1, 1));
         setIsFetchingMore(false);
         console.error("Failed to load more messages");
@@ -101,7 +94,6 @@ export default function ChatPageWrapper({
     }
 
     if (Array.isArray(data.data.data)) {
-      // Map API response to our message format
       const mapped = data.data.data.map((msg: ChatMessage) => ({
         id: String(msg.id),
         content: msg.message,
@@ -112,19 +104,15 @@ export default function ChatPageWrapper({
         timestamp: new Date(msg.created_at),
       }));
 
-      // Update messages state, handling page changes appropriately
       setMessages((prev) => {
         // Avoid duplicates
         const ids = new Set(prev.map((m) => m.id));
 
-        // For initial load (page 1), replace messages
-        // For additional pages (page > 1), add new messages at the beginning
         return page === 1
           ? mapped
           : [...mapped.filter((m) => !ids.has(m.id)), ...prev];
       });
 
-      // Calculate if there are more messages to load
       const currentPage = data.data.current_page;
       const lastPage = Math.ceil(data.data.total / data.data.per_page);
       const moreAvailable = currentPage < lastPage;
@@ -145,13 +133,10 @@ export default function ChatPageWrapper({
 
       setHasMore(moreAvailable);
 
-      // If no more messages were loaded on the new page, update hasMore
       if (mapped.length === 0 && page > 1) {
         setHasMore(false);
       }
 
-      // Reset consecutive loads counter after successful data loading
-      // This allows loading more pages after a short pause
       setTimeout(() => {
         setConsecutiveLoads(0);
       }, 1000);
@@ -159,7 +144,6 @@ export default function ChatPageWrapper({
       console.error("Unexpected data format:", data);
     }
 
-    // Always reset isFetchingMore when data loads
     if (isFetchingMore) {
       setTimeout(() => setIsFetchingMore(false), 300);
     }
@@ -173,11 +157,8 @@ export default function ChatPageWrapper({
     consecutiveLoads,
   ]);
 
-  // Get viewport element helper
   const { getViewportElement, viewportElement } =
     useScrollAreaViewport<HTMLDivElement>(scrollAreaRef);
-
-  // Use virtualization for better performance with large message lists
   const {
     virtualizedMessages,
     startOffset,
@@ -190,7 +171,6 @@ export default function ChatPageWrapper({
     overscan: 5,
   });
 
-  // Debug information for development
   useDebugInfiniteScroll({
     messages,
     page,
@@ -207,43 +187,7 @@ export default function ChatPageWrapper({
       : undefined,
   });
 
-  // Define handleScroll after getViewportElement is initialized
-  const handleScroll = useCallback(() => {
-    if (!viewportElement || isLoading || isFetchingMore || !hasMore) return;
-
-    // Load more when scrolling to the top (since messages are in reverse chronological order)
-    // Lower threshold value to make it more sensitive to scrolling up
-    if (viewportElement.scrollTop < 100) {
-      console.log("Loading more messages...", {
-        scrollTop: viewportElement.scrollTop,
-        hasMore,
-        isLoading,
-        isFetchingMore,
-        page,
-      });
-      setIsFetchingMore(true);
-
-      // Save the current scroll position before loading more content
-      const scrollPosition =
-        viewportElement.scrollHeight - viewportElement.scrollTop;
-
-      // Fetch the next page of messages
-      setPage((prev) => prev + 1);
-
-      // After data is loaded and DOM is updated, restore scroll position
-      setTimeout(() => {
-        if (viewportElement) {
-          const newScrollTop = viewportElement.scrollHeight - scrollPosition;
-          viewportElement.scrollTop = newScrollTop > 0 ? newScrollTop : 0;
-        }
-        setIsFetchingMore(false);
-      }, 300);
-    }
-  }, [viewportElement, isLoading, isFetchingMore, hasMore, page]);
-
-  // We're putting this in a separate effect to ensure it runs after the viewport element is found
   useEffect(() => {
-    // For Radix UI ScrollArea, we need to find the viewport element which is the actual scrollable area
     if (!viewportElement) {
       console.log("Waiting for viewport element to be available");
       return;
@@ -251,7 +195,6 @@ export default function ChatPageWrapper({
 
     console.log("Got viewport element:", viewportElement);
 
-    // Variables for scroll handling
     let isScrolling = false;
     let scrollTimeout: NodeJS.Timeout | null = null;
     let debounceTimeout: NodeJS.Timeout | null = null;
@@ -261,23 +204,17 @@ export default function ChatPageWrapper({
       if (isScrolling) return;
       isScrolling = true;
 
-      // Store current scroll position
       const currentScrollTop = viewportElement.scrollTop;
 
-      // Clear existing debounce
       if (debounceTimeout) {
         clearTimeout(debounceTimeout);
       }
 
-      // Use debouncing to wait for scrolling to stop before loading more
       debounceTimeout = setTimeout(() => {
-        // Only trigger loading more if we're scrolling up (not down) and near the top
         const isScrollingUp = currentScrollTop < lastScrollTop;
         const now = Date.now();
         const timeSinceLastLoad = now - lastLoadTimestamp;
 
-        // Rate limiting - don't allow loading more than 3 pages in quick succession
-        // or more than 1 page if less than 500ms has passed since the last load
         const isTooManyConsecutiveLoads = consecutiveLoads >= 3;
         const isLoadingTooQuickly =
           timeSinceLastLoad < 500 && consecutiveLoads > 0;
@@ -300,29 +237,22 @@ export default function ChatPageWrapper({
           setLastLoadTimestamp(now);
           setConsecutiveLoads((prev) => prev + 1);
 
-          // Save scroll position before loading more messages
           const oldScrollHeight = viewportElement.scrollHeight;
           const oldScrollTop = viewportElement.scrollTop;
 
-          // Load more messages
           setPage((prev) => prev + 1);
 
-          // Clear any existing timeout
           if (scrollTimeout) {
             clearTimeout(scrollTimeout);
           }
 
-          // Restore scroll position after loading
           scrollTimeout = setTimeout(() => {
             if (viewportElement) {
               try {
-                // After loading more messages, the content height increases
-                // We need to set scrollTop to maintain the user's relative position
                 const newScrollHeight = viewportElement.scrollHeight;
                 const heightDifference = newScrollHeight - oldScrollHeight;
                 const newScrollTop = oldScrollTop + heightDifference;
 
-                // Apply the new scroll position to maintain user's view
                 viewportElement.scrollTop = newScrollTop;
 
                 console.log("Scroll position adjusted after loading", {
@@ -338,21 +268,17 @@ export default function ChatPageWrapper({
             }
           }, 300);
         } else if (currentScrollTop > 300) {
-          // Reset consecutive loads counter when user scrolls down
           setConsecutiveLoads(0);
         }
 
-        // Update last scroll position
         lastScrollTop = currentScrollTop;
-      }, 200); // Wait 200ms after scrolling stops
+      }, 200);
 
-      // Reset throttle
       setTimeout(() => {
         isScrolling = false;
       }, 100);
     };
 
-    // Add passive: true for better performance on mobile
     viewportElement.addEventListener("scroll", handleScrollEvent, {
       passive: true,
     });
@@ -389,7 +315,7 @@ export default function ChatPageWrapper({
 
     scrollTimeoutRef.current = setTimeout(() => {
       if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: "auto" });
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
       } else if (viewportElement) {
         console.log(
           "Scrolling to bottom using viewport element",
@@ -399,26 +325,20 @@ export default function ChatPageWrapper({
       } else {
         console.error("Could not find viewport for scrolling to bottom");
       }
-    }, 50);
+    }, 10);
   };
 
-  // Detect new messages
   useEffect(() => {
     if (messages.length > prevMessagesLengthRef.current && page === 1) {
-      // Only set new messages when it's a new message (page 1), not loading older messages
       setHasNewMessages(true);
 
-      // Store the new length for next comparison
       prevMessagesLengthRef.current = messages.length;
     }
   }, [messages.length, page]);
 
-  // Scroll to bottom when new messages are added (only for new messages, not for loading older ones)
   useEffect(() => {
-    // Only scroll to bottom if this is the initial load or we're adding new messages
     if ((page === 1 && !isFetchingMore) || hasNewMessages) {
       scrollToBottom();
-      // Reset new messages flag after scrolling
       setHasNewMessages(false);
     }
 
@@ -431,28 +351,11 @@ export default function ChatPageWrapper({
 
   const handleSendMessage = () => {
     if (!message.trim()) return;
-    const userMessage: MessageType = {
-      id: generateId(),
-      content: message,
-      sender: "user",
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setMessage("");
-    setIsTyping(true);
-
-    setTimeout(() => {
-      const agentMessage: MessageType = {
-        id: generateId(),
-        content: `Response to: ${message}`,
-        sender: "agent",
-        timestamp: new Date(),
-      };
-
-      setIsTyping(false);
-      setMessages((prev) => [...prev, agentMessage]);
-    }, 1500);
+    sendMessageMutation.mutate(message, {
+      onSuccess: () => {
+        setMessage("");
+      },
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -550,12 +453,7 @@ export default function ChatPageWrapper({
                       name={session?.user.name || ""}
                       key={msg.id}
                       message={msg}
-                      ref={
-                        index === 0 && startOffset === 0
-                          ? messagesEndRef
-                          : undefined
-                      }
-                      appearAnimation={false} // Disable animations for virtualized list for performance
+                      appearAnimation={false}
                     />
                   ))}
 
@@ -568,14 +466,12 @@ export default function ChatPageWrapper({
                   )}
                 </>
               ) : (
-                // Standard rendering for smaller message lists
                 messages.map((msg, index) => (
                   <MemoizedMessagesArea
                     role={session?.user.role || "client"}
                     name={session?.user.name || ""}
                     key={msg.id}
                     message={msg}
-                    ref={index === 0 ? messagesEndRef : undefined}
                     appearAnimation={page === 1 || index < messages.length - 5}
                   />
                 ))
@@ -590,7 +486,7 @@ export default function ChatPageWrapper({
               )}
 
               {/* Invisible element to scroll to */}
-              {!messagesEndRef.current && <div ref={messagesEndRef} />}
+              <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
 
@@ -608,7 +504,10 @@ export default function ChatPageWrapper({
                   onKeyDown={handleKeyDown}
                   placeholder={t("messageArea.placeholder")}
                   className="w-full"
-                  disabled={connectionStatus === "offline"}
+                  disabled={
+                    connectionStatus === "offline" ||
+                    sendMessageMutation.isPending
+                  }
                 />
                 <Button
                   onClick={handleSendMessage}
@@ -616,7 +515,7 @@ export default function ChatPageWrapper({
                   size="icon"
                   disabled={
                     !message.trim() ||
-                    isTyping ||
+                    sendMessageMutation.isPending ||
                     connectionStatus === "offline"
                   }
                 >

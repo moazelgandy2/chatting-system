@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { fetchChat } from "@/actions/chats";
-import { ChatMessagesApiResponse } from "@/types/chats";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchChat, sendMessage } from "@/actions/chats";
+import { ChatMessagesApiResponse, ChatMessage } from "@/types/chats";
 import { CHATS_QUERY_KEY } from "@/hooks/use-chats";
 
 export function useChat(chatId: string | number, page: number = 1) {
@@ -16,4 +16,56 @@ export function useChat(chatId: string | number, page: number = 1) {
     ...query,
     mutate: query.refetch,
   };
+}
+
+export function useSendMessage(
+  chatId: string | number,
+  page: number = 1,
+  senderId: number
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (message: string) => sendMessage(chatId.toString(), message),
+    onMutate: async (message: string) => {
+      await queryClient.cancelQueries({
+        queryKey: [CHATS_QUERY_KEY, chatId, page],
+      });
+      const previousMessages = queryClient.getQueryData<any>([
+        CHATS_QUERY_KEY,
+        chatId,
+        page,
+      ]);
+      queryClient.setQueryData([CHATS_QUERY_KEY, chatId, page], (old: any) => {
+        if (!old || !old.data || !Array.isArray(old.data.data)) return old;
+        const optimisticMsg = {
+          id: `optimistic-${Date.now()}`,
+          message,
+          sender_id: senderId,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          sender: { name: "You" },
+        };
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            data: [...old.data.data, optimisticMsg],
+          },
+        };
+      });
+      return { previousMessages };
+    },
+    onError: (err, message, context: any) => {
+      queryClient.setQueryData(
+        [CHATS_QUERY_KEY, chatId, page],
+        context?.previousMessages
+      );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [CHATS_QUERY_KEY, chatId, page],
+      });
+    },
+  });
 }

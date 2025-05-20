@@ -33,7 +33,7 @@ export async function GET(request: Request) {
     );
   }
 
-  console.log("Fetched packages:", data);
+  // console.log("Fetched packages:", data);
 
   return NextResponse.json(data, { status: 200 });
 }

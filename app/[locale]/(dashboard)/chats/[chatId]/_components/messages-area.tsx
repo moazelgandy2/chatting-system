@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import UserAvatar from "./user-avatar";
@@ -93,5 +92,4 @@ export const MessagesArea = forwardRef<
 
 MessagesArea.displayName = "MessagesArea";
 
-// Wrap in memo to prevent unnecessary re-renders
 export const MemoizedMessagesArea = memo(MessagesArea);
