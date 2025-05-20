@@ -97,7 +97,7 @@ export function ChatsNavItem() {
                       prefetch={false}
                     >
                       <MessageSquare className="w-3 h-3" />
-                      <span>Chat #{chat.id}</span>
+                      <span>Chat #{chat.name}</span>
                       <LinkStatus />
                     </Link>
                   </SidebarMenuSubButton>

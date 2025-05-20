@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createUser } from "@/actions/users";
-import { UserFormType } from "@/forms/creat-user.schema";
+import { UserFormType } from "@/forms/create-user.schema";
 import { useTranslations } from "next-intl";
 import { showNotification } from "@/lib/show-notification";
 

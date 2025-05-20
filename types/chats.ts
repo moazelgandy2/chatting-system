@@ -1,5 +1,6 @@
 export type ChatData = {
   id: number;
+  name: string;
   client_id: number;
   created_at: string | null;
   updated_at: string | null;

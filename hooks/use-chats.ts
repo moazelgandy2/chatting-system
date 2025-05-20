@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchChats } from "@/actions/chats";
 import { ChatResponse } from "@/types/chats";
 
@@ -11,4 +11,15 @@ export function useChats() {
     queryKey: [CHATS_QUERY_KEY],
     queryFn: fetchChats,
   });
+}
+
+export function useChatsRevalidate() {
+  const queryClient = useQueryClient();
+  const revalidate = () => {
+    queryClient.invalidateQueries({
+      queryKey: [CHATS_QUERY_KEY],
+    });
+  };
+
+  return revalidate;
 }

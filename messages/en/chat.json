@@ -52,6 +52,7 @@
       "rejected": "Rejected",
       "usage": "Usage Information",
       "close": "Close"
-    }
+    },
+    "created": "Chat created successfully"
   }
 }

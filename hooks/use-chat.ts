@@ -1,9 +1,15 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchChat, sendMessage } from "@/actions/chats";
+import {
+  fetchChat,
+  sendMessage,
+  createChat,
+  assignTeamToChat,
+} from "@/actions/chats";
 import { ChatMessagesApiResponse, ChatMessage } from "@/types/chats";
 import { CHATS_QUERY_KEY } from "@/hooks/use-chats";
+import { USERS_QUERY_KEY } from "./use-create-user";
 
 export function useChat(chatId: string | number, page: number = 1) {
   const query = useQuery<ChatMessagesApiResponse>({
@@ -79,4 +85,24 @@ export function useChatRevalidate(chatId: string) {
   };
 
   return revalidate;
+}
+
+export function useCreateChat() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createChat,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [USERS_QUERY_KEY] });
+    },
+  });
+}
+
+export function useAssignTeamToChat() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: assignTeamToChat,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+    },
+  });
 }

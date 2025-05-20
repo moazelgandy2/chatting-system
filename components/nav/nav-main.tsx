@@ -12,6 +12,9 @@ import { useLinkStatus } from "next/link";
 import { PackagesNavItem } from "./packages-nav-item";
 import { ChatsNavItem } from "./chats-nav-item";
 import { UserFormDialog } from "./create-user";
+import { ChatFormDialog } from "./create-chat";
+import { AdminNav } from "./admin-nav";
+import { AssignTeamDialog } from "./assign-team";
 
 export function LinkStatus() {
   const { pending } = useLinkStatus();
@@ -44,11 +47,12 @@ export function LinkStatus() {
 }
 
 export function NavMain() {
+  const [selectedChatId, setSelectedChatId] = useState(1);
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Admin</SidebarGroupLabel>
       <SidebarMenu>
-        <UserFormDialog />
+        <AdminNav />
       </SidebarMenu>
       <SidebarMenu>
         <SidebarGroupLabel>Main</SidebarGroupLabel>

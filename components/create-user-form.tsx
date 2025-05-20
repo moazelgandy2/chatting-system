@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { createUserFormSchema, UserFormType } from "@/forms/creat-user.schema";
+import { createUserFormSchema, UserFormType } from "@/forms/create-user.schema";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
 import AvatarPicker from "./role-picker";

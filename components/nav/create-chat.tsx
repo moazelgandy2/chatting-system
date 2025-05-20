@@ -11,27 +11,30 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { MessageSquare, UserPlus } from "lucide-react";
+import { MessageCirclePlus, UserPlus } from "lucide-react";
 import { UserForm } from "../create-user-form";
 import { UserFormType } from "@/forms/create-user.schema";
 import { useCreateUser } from "@/hooks/use-create-user";
 import {
-  SidebarMenu,
   SidebarMenuButton,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "../ui/sidebar";
-import Link from "next/link";
+import { ChatForm } from "../create-chat-form";
+import { useCreateChat } from "@/hooks/use-chat";
 
-export function UserFormDialog() {
+export function ChatFormDialog() {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { mutateAsync, isPending } = useCreateUser();
+  const { mutateAsync, isPending } = useCreateChat();
 
-  const handleSubmit = async (data: UserFormType) => {
+  const handleSubmit = async (data: { client_id: number; name: string }) => {
     setError(null);
     try {
-      await mutateAsync(data);
+      await mutateAsync({
+        client_id: data.client_id,
+        name: data.name,
+      });
       setOpen(false);
     } catch (e: any) {
       setError(e?.message || "Something went wrong!");
@@ -46,21 +49,21 @@ export function UserFormDialog() {
       <DialogTrigger asChild>
         <SidebarMenuSubItem>
           <SidebarMenuSubButton className="cursor-pointer">
-            <UserPlus className="w-3 h-3" />
-            <span>Add User</span>
+            <MessageCirclePlus className="w-3 h-3" />
+            <span>Add Chat</span>
           </SidebarMenuSubButton>
         </SidebarMenuSubItem>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold bg-gradient-to-r from-violet-500 to-indigo-500 bg-clip-text text-transparent">
-            Create User
+            Create Chat
           </DialogTitle>
           <DialogDescription>
-            Fill in the details to create a new user account.
+            Select a user to start a new chat.
           </DialogDescription>
         </DialogHeader>
-        <UserForm
+        <ChatForm
           onSubmit={handleSubmit}
           isSubmitting={isPending}
           error={error}
