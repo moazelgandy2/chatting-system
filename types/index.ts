@@ -12,6 +12,14 @@ export type UserType = {
   role: RoleType;
 };
 
+export type CreateUserType = {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+  role: RoleType;
+};
+
 export type ApiErrorType = {
   errors: {
     key: string;

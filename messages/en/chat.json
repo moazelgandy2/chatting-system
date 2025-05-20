@@ -27,14 +27,18 @@
       "messageRead": "Message read",
       "connectionLost": "Connection lost, reconnecting..."
     },
+    "available": {
+      "title": "Available Chats",
+      "description": "Chats available to you",
+      "noResults": "No available chats"
+    },
     "chats": {
       "title": "Chats",
       "createNew": "Create new chat",
       "filter": "Filter chats",
       "search": "Search chats",
       "noResults": "No chats found",
-      "loadMore": "Load more",
-      "available": "Available Chats"
+      "loadMore": "Load more"
     },
     "quota": {
       "title": "Package",

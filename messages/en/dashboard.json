@@ -13,6 +13,10 @@
       "profile": "Profile",
       "users": "Users",
       "notifications": "Notifications",
+      "addUser": {
+        "title": "Add User",
+        "description": "Add a new user to the system"
+      },
       "dashboard": "Dashboard",
       "packages": "Packages"
     }

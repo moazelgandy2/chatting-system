@@ -11,6 +11,7 @@ import {
 import { useLinkStatus } from "next/link";
 import { PackagesNavItem } from "./packages-nav-item";
 import { ChatsNavItem } from "./chats-nav-item";
+import { UserFormDialog } from "./create-user";
 
 export function LinkStatus() {
   const { pending } = useLinkStatus();
@@ -45,8 +46,12 @@ export function LinkStatus() {
 export function NavMain() {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Main</SidebarGroupLabel>
+      <SidebarGroupLabel>Admin</SidebarGroupLabel>
       <SidebarMenu>
+        <UserFormDialog />
+      </SidebarMenu>
+      <SidebarMenu>
+        <SidebarGroupLabel>Main</SidebarGroupLabel>
         <ChatsNavItem />
         <PackagesNavItem />
       </SidebarMenu>

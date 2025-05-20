@@ -19,7 +19,6 @@ import { EndOfHistoryIndicator } from "./end-of-history-indicator";
 import { MessageSkeletonGroup } from "./message-skeleton";
 import { useScrollAreaViewport } from "./use-scroll-area-viewport";
 import { useVirtualizedMessages } from "./use-virtualized-messages";
-import { useDebugInfiniteScroll } from "./use-debug-infinite-scroll";
 import { LoadError } from "./load-error";
 import { useRouter } from "next/navigation";
 
@@ -225,22 +224,6 @@ export default function ChatPageWrapper({
     messages,
     viewportElement,
     overscan: 5,
-  });
-
-  useDebugInfiniteScroll({
-    messages,
-    page,
-    hasMore,
-    isLoading,
-    isFetchingMore,
-    viewportElement,
-    isVirtualized,
-    virtualizedInfo: isVirtualized
-      ? {
-          visibleRange,
-          totalCount: messages.length,
-        }
-      : undefined,
   });
 
   useEffect(() => {

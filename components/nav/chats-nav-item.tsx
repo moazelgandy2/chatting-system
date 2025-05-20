@@ -21,14 +21,14 @@ import Link from "next/link";
 import { LinkStatus } from "@/components/nav/nav-main";
 
 export function ChatsNavItemSkeleton() {
-  const t = useTranslations();
+  const t = useTranslations("chat");
 
   return (
     <SidebarMenuItem className="relative">
-      <SidebarMenuButton tooltip={t("chat.chats.available")}>
+      <SidebarMenuButton tooltip={t("available.title")}>
         <div className="flex items-center gap-2 cursor-default">
           <MessageSquare />
-          <span>{t("chat.chats.available")}</span>
+          <span>{t("available.title")}</span>
         </div>
       </SidebarMenuButton>
       <div className="py-2 pl-8">
@@ -49,7 +49,6 @@ export function ChatsNavItemSkeleton() {
 }
 
 export function ChatsNavItem() {
-  const t = useTranslations();
   const {
     data: chatsResponse,
     isLoading: chatsLoading,
@@ -57,7 +56,7 @@ export function ChatsNavItem() {
   } = useChats();
   const chats = chatsResponse?.data || [];
   const hasChats = !chatsError && chats && chats.length > 0;
-
+  const t = useTranslations("chat");
   if (chatsLoading) {
     return <ChatsNavItemSkeleton />;
   }
@@ -74,11 +73,11 @@ export function ChatsNavItem() {
       <SidebarMenuItem className="relative">
         <SidebarMenuButton
           asChild
-          tooltip={t("chat.chats.available")}
+          tooltip={t("available.title")}
         >
           <CollapsibleTrigger className="flex items-center gap-2 cursor-pointer">
             <MessageSquare />
-            <span>{t("chat.chats.available")}</span>
+            <span>{t("available.title")}</span>
           </CollapsibleTrigger>
         </SidebarMenuButton>
         <CollapsibleTrigger asChild>
@@ -106,7 +105,8 @@ export function ChatsNavItem() {
               ))
             ) : (
               <div className="py-2 text-center text-xs text-muted-foreground">
-                No chats available
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>{t("available.noResults")}</span>
               </div>
             )}
           </SidebarMenuSub>

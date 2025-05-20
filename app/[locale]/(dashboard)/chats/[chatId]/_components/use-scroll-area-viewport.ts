@@ -31,10 +31,7 @@ export function useScrollAreaViewport<T extends HTMLElement>(
           '[data-radix-scroll-area="viewport"]'
         )) as HTMLElement) || null;
 
-    if (viewport) {
-      console.log("Found viewport:", viewport);
-    } else {
-      // Debug what elements we do have
+    if (!viewport) {
       console.error(
         "Could not find viewport element. Available children:",
         [...scrollAreaRef.current.querySelectorAll("*")].map((el) => ({

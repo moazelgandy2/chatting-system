@@ -14,7 +14,10 @@
       "users": "المستخدمين",
       "notifications": "الإشعارات",
       "dashboard": "لوحة التحكم",
-
+      "addUser": {
+        "title": "إضافة مستخدم",
+        "description": "إضافة مستخدم جديد إلى النظام"
+      },
       "packages": "الباقات",
       "notFound": "غير موجود"
     }
