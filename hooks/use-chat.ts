@@ -69,3 +69,14 @@ export function useSendMessage(
     },
   });
 }
+
+export function useChatRevalidate(chatId: string) {
+  const queryClient = useQueryClient();
+  const revalidate = () => {
+    queryClient.invalidateQueries({
+      queryKey: [CHATS_QUERY_KEY, chatId],
+    });
+  };
+
+  return revalidate;
+}

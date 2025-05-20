@@ -8,7 +8,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import Card05 from "./quota-details-card";
 import { MemoizedMessagesArea, MessageType } from "./messages-area";
-import { useChat, useSendMessage } from "@/hooks/use-chat";
+import { useChat, useChatRevalidate, useSendMessage } from "@/hooks/use-chat";
 import { ChatMessage } from "@/types/chats";
 import Link from "next/link";
 import ChatEmptyState from "./chat-empty-state";
@@ -21,6 +21,7 @@ import { useScrollAreaViewport } from "./use-scroll-area-viewport";
 import { useVirtualizedMessages } from "./use-virtualized-messages";
 import { useDebugInfiniteScroll } from "./use-debug-infinite-scroll";
 import { LoadError } from "./load-error";
+import { useRouter } from "next/navigation";
 
 const generateId = () =>
   `id-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -40,9 +41,7 @@ export default function ChatPageWrapper({
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [message, setMessage] = useState<string>("");
   const [isTyping, setIsTyping] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<
-    "online" | "offline"
-  >("online");
+
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
@@ -56,9 +55,68 @@ export default function ChatPageWrapper({
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const prevMessagesLengthRef = useRef<number>(0);
 
+  const [wsConnectionStatus, setWsConnectionStatus] = useState<
+    "connected" | "disconnected" | "connecting"
+  >("connecting");
+  const wsRef = useRef<WebSocket | null>(null);
+
   const { data, isLoading, isError, mutate } = useChat(chatId, page);
   const { session } = useAuth();
   const currentUserId = session?.user?.id;
+  const router = useRouter();
+  const revalidate = useChatRevalidate(chatId);
+  useEffect(() => {
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const ws = new WebSocket(`ws://192.168.1.30:8080/app/980e9rlf318lalrzdks4`);
+    wsRef.current = ws;
+
+    console.log("WebSocket connection established");
+
+    ws.onopen = () => {
+      console.log("WebSocket connection opened");
+      setWsConnectionStatus("connected");
+      // Subscribe to the chat channel
+      ws.send(
+        JSON.stringify({
+          event: "pusher:subscribe",
+          data: {
+            channel: `chat.${chatId}`,
+          },
+        })
+      );
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket connection closed");
+      setWsConnectionStatus("disconnected");
+    };
+
+    ws.onmessage = (event) => {
+      console.log("WebSocket message received:", JSON.parse(event.data));
+      // if (event.data === `App\\Events\\NewMessageEvent`) {
+      console.log("Here");
+      router.refresh();
+      revalidate();
+      // }
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    const pingInterval = setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(`{"event":"ping"}`);
+      }
+    }, 29000);
+
+    return () => {
+      clearInterval(pingInterval);
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, []);
 
   const sendMessageMutation = useSendMessage(
     chatId,
@@ -78,8 +136,6 @@ export default function ChatPageWrapper({
     },
     [mutate]
   );
-
-  console.log("[CURRENT_USER]=>", session);
 
   const isInitialLoading = isLoading && page === 1 && messages.length === 0;
 
@@ -365,20 +421,6 @@ export default function ChatPageWrapper({
     }
   };
 
-  useEffect(() => {
-    const toggleConnection = () => {
-      if (Math.random() > 0.8) {
-        setConnectionStatus((prev) => {
-          const newStatus = prev === "online" ? "offline" : "online";
-          return newStatus;
-        });
-      }
-    };
-
-    const interval = setInterval(toggleConnection, 20000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <div
       dir={isAr ? "rtl" : "ltr"}
@@ -505,10 +547,11 @@ export default function ChatPageWrapper({
                   placeholder={t("messageArea.placeholder")}
                   className="w-full"
                   disabled={
-                    connectionStatus === "offline" ||
+                    wsConnectionStatus === "disconnected" ||
                     sendMessageMutation.isPending
                   }
                 />
+
                 <Button
                   onClick={handleSendMessage}
                   variant="default"
@@ -516,7 +559,7 @@ export default function ChatPageWrapper({
                   disabled={
                     !message.trim() ||
                     sendMessageMutation.isPending ||
-                    connectionStatus === "offline"
+                    wsConnectionStatus === "disconnected"
                   }
                 >
                   <SendIcon className="h-4 w-4" />

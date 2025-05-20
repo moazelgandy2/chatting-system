@@ -17,8 +17,6 @@ export function useScrollAreaViewport<T extends HTMLElement>(
   const findViewport = useCallback((): HTMLElement | null => {
     if (!scrollAreaRef.current) return null;
 
-    console.log("Finding viewport from element:", scrollAreaRef.current);
-
     // Try different possible selectors for the viewport element
     const viewport =
       ((scrollAreaRef.current.querySelector(
