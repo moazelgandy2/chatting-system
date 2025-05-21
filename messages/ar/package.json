@@ -74,7 +74,16 @@
     "itemNotesPlaceholder": "أدخل ملاحظات العنصر",
     "createPackageItemButton": "إنشاء عنصر حزمة"
   },
+  "create": {
+    "packageItemDialogTitle": "إنشاء عنصر حزمة",
+    "packageItemDialogDescription": "املأ النموذج أدناه لإنشاء عنصر حزمة جديد."
+  },
   "form": {
+    "notes": {
+      "title": "ملاحظات العنصر"
+    },
+    "submitting": "جاري الإرسال...",
+    "submit": "إرسال",
     "success": "تم حفظ  بنجاح",
     "error": "حدث خطأ أثناء حفظ ",
     "name": {

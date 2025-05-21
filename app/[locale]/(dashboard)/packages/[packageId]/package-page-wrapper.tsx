@@ -11,8 +11,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Info, Search } from "lucide-react";
+import { Info } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { CreatePackageItemDialog } from "./_components/create-package-item";
+import { PackageSkeleton } from "./_components/package-skeleton";
+import { PackageError } from "./_components/package-error";
 
 export const PackagePageWrapper = ({ packageId }: { packageId: number }) => {
   const { data, isLoading, isError } = usePackage(packageId);
@@ -20,12 +24,13 @@ export const PackagePageWrapper = ({ packageId }: { packageId: number }) => {
   const currentUserId = session?.user?.id;
   const router = useRouter();
   const t = useTranslations();
-  if (isError) {
-    return <div>Error loading package</div>;
-  }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <PackageSkeleton />;
+  }
+
+  if (isError) {
+    return <PackageError />;
   }
 
   if (!data) {
@@ -33,7 +38,7 @@ export const PackagePageWrapper = ({ packageId }: { packageId: number }) => {
   }
 
   return (
-    <div className="container mx-auto px-4 max-w-6xl">
+    <div className="container mx-auto px-4 max-w-6xl relative">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -62,22 +67,30 @@ export const PackagePageWrapper = ({ packageId }: { packageId: number }) => {
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
         {t("package.details.packageContent")}
       </h2>
-      {data.data.package_items.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {data.data.package_items.map((item, index) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              // onClick={() => handleItemClick(item)}
-              index={index}
-            />
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-700 dark:text-gray-300">
-          No items in this package.
-        </p>
-      )}
+      <ScrollArea
+        className="h-[64dvh]"
+        dir="rtl"
+      >
+        {data.data.package_items.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {data.data.package_items.map((item, index) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                // onClick={() => handleItemClick(item)}
+                index={index}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-700 dark:text-gray-300">
+            No items in this package.
+          </p>
+        )}
+      </ScrollArea>
+      <div className="absolute bottom-8 cursor-pointer left-8 w-12 h-12 bg-muted rounded-full flex justify-center items-center">
+        <CreatePackageItemDialog />
+      </div>
     </div>
   );
 };

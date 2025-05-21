@@ -71,6 +71,11 @@
     "createPackageItemButton": "Create Package Item"
   },
   "form": {
+    "notes": {
+      "title": "Item Notes"
+    },
+    "submitting": "Submitting...",
+    "submit": "Submit",
     "success": "Created successfully",
     "error": "An error occurred while creating",
     "name": {

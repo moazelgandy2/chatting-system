@@ -41,7 +41,7 @@ const ItemCard = ({ item, index }: ItemCardProps) => {
 
   const progress = 0;
   const percentage = Math.round(progress * 100);
-  const remaining = item.allowed_item.allowed_count;
+  const remaining = item?.allowed_item?.allowed_count || 0;
   const isLow = remaining <= 2;
 
   return (
@@ -89,7 +89,8 @@ const ItemCard = ({ item, index }: ItemCardProps) => {
               {t("details.used")}
             </div>
             <div className="font-medium text-base">
-              {item.allowed_item.allowed_count}
+              {item?.allowed_item?.allowed_count &&
+                item.allowed_item.allowed_count}
             </div>
           </div>
           <div className="p-2 rounded-md bg-muted/50 relative z-10">

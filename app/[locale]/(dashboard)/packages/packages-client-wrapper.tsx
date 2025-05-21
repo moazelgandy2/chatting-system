@@ -6,16 +6,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslations } from "next-intl";
 import PackagesSkeleton from "./_components/packages-skeleton";
 import PackagesError from "./_components/packages-error";
-import { Package, PlusCircleIcon } from "lucide-react";
+import { Package } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import { CreatePackageDialog } from "../_components/create-package";
+
+import { CreatePackageDialog } from "./_components/create-package";
 
 export default function PackagesClientWrapper() {
   const { data: packagesResponse, isLoading, isError } = usePackages();
