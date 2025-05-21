@@ -47,7 +47,6 @@ export function LinkStatus() {
 }
 
 export function NavMain() {
-  const [selectedChatId, setSelectedChatId] = useState(1);
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Admin</SidebarGroupLabel>

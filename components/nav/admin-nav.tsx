@@ -15,7 +15,6 @@ import {
 import { UserFormDialog } from "./create-user";
 import { ChatFormDialog } from "./create-chat";
 import { AssignTeamDialog } from "./assign-team";
-import { PackageFormDialog } from "./create-package";
 
 export const AdminNav = () => {
   return (
@@ -37,9 +36,6 @@ export const AdminNav = () => {
           <SidebarMenuSub>
             <SidebarMenuItem>
               <ChatFormDialog />
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <PackageFormDialog />
             </SidebarMenuItem>
             <SidebarMenuItem>
               <UserFormDialog />
