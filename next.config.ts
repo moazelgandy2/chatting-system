@@ -10,6 +10,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "www.cult-ui.com",
       },
+      {
+        protocol: "https",
+        hostname: "pbs.twimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
+      },
     ],
   },
 };

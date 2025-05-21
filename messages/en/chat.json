@@ -56,5 +56,24 @@
       "close": "Close"
     },
     "created": "Chat created successfully"
+  },
+  "form": {
+    "client_id": {
+      "errors": {
+        "required": "Client ID is required"
+      }
+    },
+    "name": {
+      "errors": {
+        "min": "Name is too short (minimum {min} characters)",
+        "max": "Name is too long (maximum {max} characters)"
+      }
+    },
+    "description": {
+      "errors": {
+        "min": "Description is too short (minimum {min} characters)",
+        "max": "Description is too long (maximum {max} characters)"
+      }
+    }
   }
 }

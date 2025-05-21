@@ -45,7 +45,8 @@
     "created": "Package created successfully"
   },
   "packages": {
-    "available": "Available Packages"
+    "available": "Available Packages",
+    "add": "Add package"
   },
   "create": {
     "trigger": "Create New Package",
@@ -68,5 +69,23 @@
     "itemNotes": "Item Notes",
     "itemNotesPlaceholder": "Enter item notes",
     "createPackageItemButton": "Create Package Item"
+  },
+  "form": {
+    "success": "Created successfully",
+    "error": "An error occurred while creating",
+    "name": {
+      "title": "Package name",
+      "errors": {
+        "min": "Name is too short (minimum {min} characters)",
+        "max": "Name is too long (maximum {max} characters)"
+      }
+    },
+    "description": {
+      "title": "Package description",
+      "errors": {
+        "min": "Description is too short (minimum {min} characters)",
+        "max": "Description is too long (maximum {max} characters)"
+      }
+    }
   }
 }

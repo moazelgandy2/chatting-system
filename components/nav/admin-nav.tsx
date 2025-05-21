@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, MessageSquare } from "lucide-react";
+import { ChevronRight, MessageSquare, Package2Icon } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -11,10 +11,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
+  SidebarMenuSubButton,
 } from "../ui/sidebar";
 import { UserFormDialog } from "./create-user";
 import { ChatFormDialog } from "./create-chat";
 import { AssignTeamDialog } from "./assign-team";
+import Link from "next/link";
 
 export const AdminNav = () => {
   return (
@@ -42,6 +44,17 @@ export const AdminNav = () => {
             </SidebarMenuItem>
             <SidebarMenuItem>
               <AssignTeamDialog />
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuSubButton className="cursor-pointer">
+                <Link
+                  className="w-full flex items-center gap-2"
+                  href={"/packages"}
+                >
+                  <Package2Icon className="w-3 h-3" />
+                  <span>Packages</span>
+                </Link>
+              </SidebarMenuSubButton>
             </SidebarMenuItem>
           </SidebarMenuSub>
         </CollapsibleContent>

@@ -1,6 +1,8 @@
 "use server";
 
+import { PackageFormType } from "@/forms/create-package.schema";
 import { Auth } from "@/hooks/auth";
+import { PackageData } from "@/types";
 
 export const fetchPackages = async () => {
   const session = await Auth();
@@ -28,6 +30,46 @@ export const fetchPackages = async () => {
   }
 
   return data;
+};
+
+export const createPackage = async (packageData: PackageFormType) => {
+  try {
+    const session = await Auth();
+    if (!session) {
+      throw new Error("Unauthorized");
+    }
+
+    const apiBaseUrl = process.env.API_APP_URL;
+
+    if (!apiBaseUrl) {
+      throw new Error("API base URL not set");
+    }
+
+    const res = await fetch(`${apiBaseUrl}/api/packages`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(packageData),
+    });
+    const data = await res.json();
+
+    console.log("[CREATE_PACKAGE]", data, res);
+
+    if (!res.ok) {
+      throw new Error("Failed to create package", { cause: data });
+    }
+
+    if (!res.ok) {
+      throw new Error("Failed to create package");
+    }
+
+    return data;
+  } catch (e) {
+    console.error(e);
+    throw new Error("Failed to create package");
+  }
 };
 
 export const fetchPackage = async (packageId: string) => {
