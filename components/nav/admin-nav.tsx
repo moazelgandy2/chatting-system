@@ -15,6 +15,7 @@ import {
 import { UserFormDialog } from "./create-user";
 import { ChatFormDialog } from "./create-chat";
 import { AssignTeamDialog } from "./assign-team";
+import { PackageFormDialog } from "./create-package";
 
 export const AdminNav = () => {
   return (
@@ -35,10 +36,13 @@ export const AdminNav = () => {
         <CollapsibleContent>
           <SidebarMenuSub>
             <SidebarMenuItem>
-              <UserFormDialog />
+              <ChatFormDialog />
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <ChatFormDialog />
+              <PackageFormDialog />
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <UserFormDialog />
             </SidebarMenuItem>
             <SidebarMenuItem>
               <AssignTeamDialog />

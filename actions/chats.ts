@@ -91,9 +91,11 @@ export const sendMessage = async (chatId: string, message: string) => {
 export const createChat = async ({
   client_id,
   name,
+  description,
 }: {
   client_id: number;
   name: string;
+  description: string;
 }) => {
   const session = await Auth();
   if (!session) {
@@ -109,7 +111,7 @@ export const createChat = async ({
       Authorization: `Bearer ${session.token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ client_id, name }),
+    body: JSON.stringify({ client_id, name, description }),
   });
   const data = await response.json();
   console.log("CHAT CREATE", data);
@@ -155,4 +157,31 @@ export const assignTeamToChat = async ({
     throw error;
   }
   return data;
+};
+
+export const deleteChat = async (chatId: string) => {
+  const session = await Auth();
+  if (!session) {
+    throw new Error("User not authenticated");
+  }
+  const apiBaseUrl = process.env.API_APP_URL;
+  if (!apiBaseUrl) {
+    throw new Error("API base URL not configured");
+  }
+  const res = await fetch(`${apiBaseUrl}/api/chats/${chatId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "Failed to delete chat");
+  }
+  // Assuming the API returns a success message or no content on successful deletion
+  if (res.status === 204) {
+    return { message: "Chat deleted successfully" };
+  }
+  return await res.json();
 };

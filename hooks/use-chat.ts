@@ -6,6 +6,7 @@ import {
   sendMessage,
   createChat,
   assignTeamToChat,
+  deleteChat,
 } from "@/actions/chats";
 import { ChatMessagesApiResponse, ChatMessage } from "@/types/chats";
 import { CHATS_QUERY_KEY } from "@/hooks/use-chats";
@@ -105,4 +106,34 @@ export function useAssignTeamToChat() {
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
     },
   });
+}
+
+import { useTranslations } from "next-intl";
+import { showNotification } from "@/lib/show-notification";
+
+export function useDeleteChat() {
+  const t = useTranslations("chat");
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: deleteChat,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+      // Assuming showNotification is available globally or imported
+      if (typeof showNotification !== "undefined") {
+        showNotification(t("notifications.deletedSuccess"), "success");
+      }
+    },
+    onError: (error: Error) => {
+      // Assuming showNotification is available globally or imported
+      if (typeof showNotification !== "undefined") {
+        showNotification(
+          error.message || t("notifications.deletedError"),
+          "error"
+        );
+      }
+      console.error("Error deleting chat:", error);
+    },
+  });
+
+  return mutation;
 }

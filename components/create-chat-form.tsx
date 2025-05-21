@@ -94,7 +94,7 @@ export function ChatForm({
         className="space-y-6"
       >
         <div className="space-y-4">
-          <div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             <FormField
               control={form.control}
               name="name"
@@ -107,6 +107,25 @@ export function ChatForm({
                     <Input
                       {...field}
                       placeholder="Enter chat name"
+                      className="w-full bg-[#18181b] border border-gray-700 rounded text-xs text-gray-100"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs text-gray-300">
+                    Chat Description
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Enter chat description"
                       className="w-full bg-[#18181b] border border-gray-700 rounded text-xs text-gray-100"
                     />
                   </FormControl>

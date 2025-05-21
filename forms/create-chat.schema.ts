@@ -5,6 +5,7 @@ export const createChatFormSchema = z.object({
     message: "User is required",
   }),
   name: z.string().min(3).max(50),
+  description: z.string().min(3).max(500),
 });
 
 export const chatFormSchema = z.object({

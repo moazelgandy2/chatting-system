@@ -19,10 +19,13 @@
       "viewDetails": "عرض التفاصيل",
       "submissions": "مشاركة | مشاركات"
     },
-    "quota": {
-      "accepted": "مقبول",
-      "rejected": "مرفوض",
-      "edited": "تم تعديله"
+    "available": {
+      "noPackages": "لا توجد حزم متاحة",
+      "delete": "حذف الحزمة",
+      "confirmDelete": "تأكيد الحذف",
+      "deleteWarning": "هل أنت متأكد أنك تريد حذف هذه الحزمة؟ لا يمكن التراجع عن هذا الإجراء.",
+      "cancel": "إلغاء",
+      "confirm": "تأكيد"
     },
     "itemDetails": {
       "all": "جميع المشاركات لهذا النوع من المحتوى",
@@ -37,9 +40,37 @@
       "resubmit": "إعادة تقديم",
       "noSubmissions": "لم يتم العثور على مشاركات {status}",
       "tryChangingFilter": "حاول تغيير الفلتر"
-    }
+    },
+    "quota": {
+      "accepted": "مقبول",
+      "rejected": "مرفوض",
+      "edited": "تم تعديله"
+    },
+    "created": "تم إنشاء الحزمة بنجاح"
   },
   "packages": {
     "available": "الحزم المتاحة"
+  },
+  "create": {
+    "trigger": "إنشاء حزمة جديدة",
+    "packageTitle": "إنشاء حزمة",
+    "packageDescription": "املأ النموذج أدناه لإنشاء حزمة جديدة.",
+    "name": "الاسم",
+    "description": "الوصف",
+    "createPackageButton": "إنشاء حزمة",
+    "itemTypeTitle": "عنوان نوع العنصر",
+    "itemTypeDescription": "وصف نوع العنصر",
+    "itemType": "نوع العنصر",
+    "selectItemTypePlaceholder": "اختر نوع العنصر",
+    "newItemType": "نوع عنصر جديد",
+    "newItemTypePlaceholder": "أدخل اسم نوع العنصر الجديد",
+    "back": "رجوع",
+    "createItemTypeButton": "إنشاء نوع عنصر",
+    "next": "التالي",
+    "packageItemTitle": "عنوان عنصر الحزمة",
+    "packageItemDescription": "وصف عنصر الحزمة",
+    "itemNotes": "ملاحظات العنصر",
+    "itemNotesPlaceholder": "أدخل ملاحظات العنصر",
+    "createPackageItemButton": "إنشاء عنصر حزمة"
   }
 }

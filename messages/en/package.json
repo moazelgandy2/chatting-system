@@ -19,10 +19,9 @@
       "viewDetails": "View Details",
       "submissions": "submission | submissions"
     },
-    "quota": {
-      "accepted": "Accepted",
-      "rejected": "Rejected",
-      "edited": "Edited"
+    "available": {
+      "noPackages": "No packages available",
+      "delete": "Delete package"
     },
     "itemDetails": {
       "all": "All submissions for this content type",
@@ -37,9 +36,37 @@
       "resubmit": "Resubmit",
       "noSubmissions": "No {status} submissions found",
       "tryChangingFilter": "Try changing the filter"
-    }
+    },
+    "quota": {
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "edited": "Edited"
+    },
+    "created": "Package created successfully"
   },
   "packages": {
     "available": "Available Packages"
+  },
+  "create": {
+    "trigger": "Create New Package",
+    "packageTitle": "Create Package",
+    "packageDescription": "Fill out the form below to create a new package.",
+    "name": "Name",
+    "description": "Description",
+    "createPackageButton": "Create Package",
+    "itemTypeTitle": "Create Item Type",
+    "itemTypeDescription": "Fill out the form below to create a new item type.",
+    "itemType": "Item Type",
+    "selectItemTypePlaceholder": "Select item type",
+    "newItemType": "New Item Type",
+    "newItemTypePlaceholder": "Enter new item type name",
+    "back": "Back",
+    "createItemTypeButton": "Create Item Type",
+    "next": "Next",
+    "packageItemTitle": "Package Item Title",
+    "packageItemDescription": "Description of the package item.",
+    "itemNotes": "Item Notes",
+    "itemNotesPlaceholder": "Enter item notes",
+    "createPackageItemButton": "Create Package Item"
   }
 }

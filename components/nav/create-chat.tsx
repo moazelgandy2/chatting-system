@@ -11,29 +11,29 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { MessageCirclePlus, UserPlus } from "lucide-react";
-import { UserForm } from "../create-user-form";
-import { UserFormType } from "@/forms/create-user.schema";
-import { useCreateUser } from "@/hooks/use-create-user";
-import {
-  SidebarMenuButton,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-} from "../ui/sidebar";
+import { MessageCirclePlus } from "lucide-react";
+
 import { ChatForm } from "../create-chat-form";
 import { useCreateChat } from "@/hooks/use-chat";
+import { useTranslations } from "next-intl";
 
 export function ChatFormDialog() {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { mutateAsync, isPending } = useCreateChat();
+  const t = useTranslations("chat");
 
-  const handleSubmit = async (data: { client_id: number; name: string }) => {
+  const handleSubmit = async (data: {
+    client_id: number;
+    name: string;
+    description: string;
+  }) => {
     setError(null);
     try {
       await mutateAsync({
         client_id: data.client_id,
         name: data.name,
+        description: data.description,
       });
       setOpen(false);
     } catch (e: any) {
@@ -47,12 +47,14 @@ export function ChatFormDialog() {
       onOpenChange={setOpen}
     >
       <DialogTrigger asChild>
-        <SidebarMenuSubItem>
-          <SidebarMenuSubButton className="cursor-pointer">
-            <MessageCirclePlus className="w-3 h-3" />
-            <span>Add Chat</span>
-          </SidebarMenuSubButton>
-        </SidebarMenuSubItem>
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-1"
+        >
+          <MessageCirclePlus className="w-3 h-3" />
+          <span>{t("chats.createNew")}</span>
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
