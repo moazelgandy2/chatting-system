@@ -66,7 +66,7 @@ export default function ChatPageWrapper({
   const revalidate = useChatRevalidate(chatId);
   useEffect(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const ws = new WebSocket(`ws://192.168.1.30:8080/app/980e9rlf318lalrzdks4`);
+    const ws = new WebSocket(`ws://192.168.1.55:8080/app/980e9rlf318lalrzdks4`);
     wsRef.current = ws;
 
     console.log("WebSocket connection established");

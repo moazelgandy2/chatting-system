@@ -7,5 +7,5 @@ export default async function PackageDetailsPage({
 }) {
   const { packageId } = await params;
 
-  return <PackagePageWrapper packageId={packageId} />;
+  return <PackagePageWrapper packageId={+packageId} />;
 }

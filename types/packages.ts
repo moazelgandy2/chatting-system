@@ -1,22 +1,40 @@
+export type ItemType = {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AllowedItem = {
+  id: number;
+  package_item_id: number;
+  allowed_count: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type PackageItemData = {
   id: number;
   package_id: number;
   type_id: number;
   status: string;
   notes: string | null;
+  delivered_at: string | null;
   created_by: number;
-  created_at: string | null;
-  updated_at: string | null;
+  created_at: string;
+  updated_at: string;
+  item_type: ItemType;
+  allowed_item: AllowedItem;
+  type_name: string | null; // Based on the API response, this is null but included
 };
 
 export type PackageData = {
   id: number;
   name: string;
-  src: string;
   description: string;
-  created_at: string | null;
-  updated_at: string | null;
-  items?: PackageItemData[]; // Optional array of items
+  created_at: string;
+  updated_at: string;
+  package_items: PackageItemData[]; // Updated to match API response
 };
 
 export type PackageResponse = {

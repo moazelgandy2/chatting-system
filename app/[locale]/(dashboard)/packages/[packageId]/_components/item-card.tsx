@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { ContentItem } from "@/types";
+import { ContentItem, PackageItemData } from "@/types";
 import ProgressCircle from "./progress-cricle";
 import {
   File,
@@ -17,15 +17,15 @@ import { Badge } from "@/components/ui/badge";
 import { useTranslations } from "next-intl";
 
 interface ItemCardProps {
-  item: ContentItem;
-  onClick: () => void;
+  item: PackageItemData;
+  // onClick: () => void;
   index: number;
 }
 
-const ItemCard = ({ item, onClick, index }: ItemCardProps) => {
+const ItemCard = ({ item, index }: ItemCardProps) => {
   const t = useTranslations("package");
   const getIcon = () => {
-    switch (item.icon) {
+    switch (item.type_name) {
       case "image":
         return <Image className="w-5 h-5" />;
       case "book-open":
@@ -39,15 +39,15 @@ const ItemCard = ({ item, onClick, index }: ItemCardProps) => {
     }
   };
 
-  const progress = item.totalAllowed > 0 ? item.used / item.totalAllowed : 0;
+  const progress = 0;
   const percentage = Math.round(progress * 100);
-  const remaining = item.totalAllowed - item.used;
+  const remaining = item.allowed_item.allowed_count;
   const isLow = remaining <= 2;
 
   return (
     <motion.div
       className="glass-card rounded-lg border border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all cursor-pointer group"
-      onClick={onClick}
+      // onClick={onClick}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -66,9 +66,9 @@ const ItemCard = ({ item, onClick, index }: ItemCardProps) => {
               {getIcon()}
             </div>
             <div>
-              <h3 className="font-semibold">{item.type}</h3>
+              <h3 className="font-semibold">{item.item_type.name}</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {item.description}
+                {item.notes}
               </p>
             </div>
           </div>
@@ -88,7 +88,9 @@ const ItemCard = ({ item, onClick, index }: ItemCardProps) => {
             <div className="text-xs text-muted-foreground">
               {t("details.used")}
             </div>
-            <div className="font-medium text-base">{item.used}</div>
+            <div className="font-medium text-base">
+              {item.allowed_item.allowed_count}
+            </div>
           </div>
           <div className="p-2 rounded-md bg-muted/50 relative z-10">
             <div className="text-xs text-muted-foreground">
@@ -107,11 +109,10 @@ const ItemCard = ({ item, onClick, index }: ItemCardProps) => {
         <div className="mt-5 flex justify-between items-center">
           {" "}
           <Badge
-            variant={item.submissions.length > 0 ? "outline" : "secondary"}
+            variant={1 > 0 ? "outline" : "secondary"}
             className="text-xs"
           >
-            {item.submissions.length}{" "}
-            {t.rich("details.submissions", { count: item.submissions.length })}
+            {2} {t.rich("details.submissions", { count: 5 })}
           </Badge>
           <motion.div
             className="flex items-center text-primary text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity"
