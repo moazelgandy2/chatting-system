@@ -3,6 +3,7 @@
 import {
   ChevronRight,
   Loader2,
+  MessageSquare,
   MoreHorizontal,
   Package,
   PackageX,
@@ -35,14 +36,9 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { LinkStatus } from "@/components/nav/nav-main";
+import { useAuth } from "@/hooks/useAuth";
 
 export function PackagesNavItemSkeleton() {
   const t = useTranslations();
@@ -75,6 +71,8 @@ export function PackagesNavItemSkeleton() {
 export function PackagesNavItem() {
   const t = useTranslations();
   const { mutate } = useDeletePackage();
+  const { session } = useAuth();
+
   const {
     data: packageResponse,
     isLoading: packagesLoading,
@@ -104,21 +102,16 @@ export function PackagesNavItem() {
   }
 
   return (
-    <Collapsible defaultOpen={false}>
+    <Collapsible
+      className="group/collapsible"
+      defaultOpen={false}
+    >
       <SidebarMenuItem className="relative">
         <CollapsibleTrigger asChild>
-          <SidebarMenuButton
-            tooltip={t("packages.available")}
-            className="flex items-center w-full gap-2 text-left cursor-pointer"
-          >
-            <div className="flex items-center gap-2">
-              <Package className="w-4 h-4" />
-              <span>{t("packages.available")}</span>
-            </div>
-            <SidebarMenuAction className="ml-auto transition-transform duration-200 data-[state=open]:rotate-90">
-              <ChevronRight className="w-4 h-4" />
-              <span className="sr-only">Toggle</span>
-            </SidebarMenuAction>
+          <SidebarMenuButton tooltip="test">
+            <Package />
+            <span>{t("packages.available")}</span>
+            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>
@@ -137,48 +130,6 @@ export function PackagesNavItem() {
                         <LinkStatus />
                       </Link>
                     </SidebarMenuSubButton>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <SidebarMenuAction className="opacity-0 group-hover:opacity-100">
-                          <MoreHorizontal className="w-4 h-4" />
-                          <span className="sr-only">More</span>
-                        </SidebarMenuAction>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-48">
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <DropdownMenuItem
-                              onSelect={(e) => e.preventDefault()}
-                              className="text-red-600 hover:!text-red-600 hover:!bg-red-100 dark:hover:!bg-red-700/50"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              <span>{t("package.available.delete")}</span>
-                            </DropdownMenuItem>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                {t("package.available.confirmDelete")}
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                {t("package.available.deleteWarning")}
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>
-                                {t("package.available.cancel")}
-                              </AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => mutate(pkg.id.toString())}
-                                className="bg-red-600 hover:bg-red-700"
-                              >
-                                {t("package.available.confirm")}
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
                   </SidebarMenuSubItem>
                 </SidebarMenuItem>
               ))

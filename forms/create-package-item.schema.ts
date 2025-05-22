@@ -4,16 +4,25 @@ export const createPackageItemFormSchema = (
   t: (key: string, params?: Record<string, any>) => string
 ) => {
   return z.object({
-    name: z
+    package_id: z.number().min(1, {
+      message: t("package.form.validation.package_id"),
+    }),
+    type_id: z.number().min(1, {
+      message: t("package.form.validation.type_id"),
+    }),
+    status: z.enum(["accepted", "pending"], {
+      errorMap: () => ({ message: t("package.form.validation.status") }),
+    }),
+    notes: z.string().optional(),
+    allowed_count: z
       .string()
-      .min(3, { message: t("form.name.errors.min", { min: 3 }) })
-      .max(50, { message: t("form.name.errors.max", { max: 50 }) }),
-    description: z
-      .string()
-      .min(3, { message: t("form.description.errors.min", { min: 3 }) })
-      .max(500, {
-        message: t("form.description.errors.max", { max: 500 }),
+      .min(1, { message: t("package.form.validation.allowed_count") })
+      .regex(/^\d+$/, {
+        message: t("package.form.validation.allowed_count_invalid"),
       }),
+    created_by: z.number().min(1, {
+      message: t("package.form.validation.created_by"),
+    }),
   });
 };
 

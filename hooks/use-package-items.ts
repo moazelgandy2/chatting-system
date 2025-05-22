@@ -7,6 +7,7 @@ import {
 import { PackageItemFormType } from "@/forms/create-package-item.schema";
 import { showNotification } from "@/lib/show-notification";
 import { useTranslations } from "next-intl";
+import { createPackageItemType } from "@/actions/package-items-types";
 
 const PACKAGE_ITEMS_QUERY_KEY = "itemTypes";
 export function useItemTypes() {
@@ -16,6 +17,23 @@ export function useItemTypes() {
   });
 }
 
+export const useCreatePackageItemType = () => {
+  const queryClient = useQueryClient();
+  const t = useTranslations();
+
+  return useMutation({
+    mutationFn: (data: { name: string }) => createPackageItemType(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [PACKAGE_ITEMS_QUERY_KEY],
+      });
+      showNotification(
+        t("package.form.success.create_package_type"),
+        "success"
+      );
+    },
+  });
+};
 export function useCreatePackageItem() {
   const queryClient = useQueryClient();
   const t = useTranslations();

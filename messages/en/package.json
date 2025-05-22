@@ -93,7 +93,10 @@
     },
     "submitting": "Submitting...",
     "submit": "Submit",
-    "success": "Created successfully",
+    "success": {
+      "default": "Created successfully",
+      "create_package_type": "Package Type created successfully!"
+    },
     "error": "An error occurred while creating",
     "name": {
       "title": "Package name",

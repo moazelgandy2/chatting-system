@@ -16,26 +16,29 @@ import { MessageCirclePlus } from "lucide-react";
 import { ChatForm } from "../create-chat-form";
 import { useCreateChat } from "@/hooks/use-chat";
 import { useTranslations } from "next-intl";
+import { ChatFormType } from "@/forms/create-chat.schema";
 
 export function ChatFormDialog() {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { mutateAsync, isPending } = useCreateChat();
+  const { mutate, isPending } = useCreateChat();
   const t = useTranslations("chat");
 
-  const handleSubmit = async (data: {
-    client_id: number;
-    name: string;
-    description: string;
-  }) => {
+  const handleSubmit = async (data: ChatFormType) => {
     setError(null);
     try {
-      await mutateAsync({
-        client_id: data.client_id,
-        name: data.name,
-        description: data.description,
-      });
-      setOpen(false);
+      mutate(
+        {
+          client_id: data.client_id,
+          name: data.name,
+          description: data.description,
+        },
+        {
+          onSuccess: () => {
+            setOpen(false);
+          },
+        }
+      );
     } catch (e: any) {
       setError(e?.message || "Something went wrong!");
     }

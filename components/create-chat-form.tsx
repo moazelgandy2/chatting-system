@@ -14,7 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { createChatFormSchema, ChatFormType } from "@/forms/create-chat.schema";
+import { ChatFormType, createChatFormSchema } from "@/forms/create-chat.schema";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -35,7 +35,7 @@ export function ChatForm({
   error,
 }: ChatFormProps) {
   const t = useTranslations();
-  const formSchema = createChatFormSchema;
+  const formSchema = createChatFormSchema(t);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
@@ -53,13 +53,8 @@ export function ChatForm({
 
   const handleFormSubmit = async (data: ChatFormType) => {
     try {
-      await onSubmit(data);
-      toast.custom(() => (
-        <Notification
-          message={t("chat.created")}
-          type="success"
-        />
-      ));
+      onSubmit(data);
+
       revalidateChats();
       router.refresh();
     } catch (e) {

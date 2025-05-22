@@ -6,28 +6,29 @@ export const createUserFormSchema = (
   return z.object({
     name: z
       .string()
-      .min(2, { message: t("auth.form.name.errors.min", { min: 2 }) })
-      .max(50, { message: t("auth.form.name.errors.max", { max: 50 }) }),
+      .min(2, { message: t("form.name.errors.min", { min: 2 }) })
+      .max(50, { message: t("form.name.errors.max", { max: 50 }) }),
     email: z
       .string()
-      .email({ message: t("auth.form.email.errors.invalid") })
-      .min(1, { message: t("auth.form.email.errors.required") }),
+      .email({ message: t("form.email.errors.invalid") })
+      .min(1, { message: t("form.email.errors.required") }),
     password: z
       .string()
-      .min(8, { message: t("auth.form.password.errors.min", { min: 8 }) })
+      .min(8, { message: t("form.password.errors.min", { min: 8 }) })
       .regex(/[A-Z]/, {
-        message: t("auth.form.password.errors.uppercase"),
+        message: t("form.password.errors.uppercase"),
       })
       .regex(/[a-z]/, {
-        message: t("auth.form.password.errors.lowercase"),
+        message: t("form.password.errors.lowercase"),
       })
       .regex(/[0-9]/, {
-        message: t("auth.form.password.errors.number"),
+        message: t("form.password.errors.number"),
       }),
-    role: z.string().min(1, { message: t("auth.form.role.errors.required") }),
+    role: z.string().min(1, { message: t("form.role.errors.required") }),
   });
 };
 
+// For backward compatibility
 export const userFormSchema = z.object({
   name: z.string().min(2).max(50),
   email: z.string().email(),

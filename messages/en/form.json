@@ -1,0 +1,79 @@
+{
+  "form": {
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "name": {
+      "title": "Name",
+      "errors": {
+        "required": "Name is required",
+        "min": "Name must be at least {min} characters",
+        "max": "Name must be at most {max} characters"
+      }
+    },
+    "description": {
+      "title": "Description",
+      "errors": {
+        "required": "Description is required",
+        "min": "Description must be at least {min} characters",
+        "max": "Description must be at most {max} characters"
+      }
+    },
+    "notes": {
+      "title": "Notes",
+      "errors": {
+        "min": "Notes must be at least {min} characters",
+        "max": "Notes must be at most {max} characters"
+      }
+    },
+    "allowedCount": {
+      "title": "Allowed Count",
+      "errors": {
+        "min": "Allowed count must be at least {min}"
+      }
+    },
+    "itemType": {
+      "title": "Item Type",
+      "errors": {
+        "required": "Item type is required",
+        "invalid": "Invalid item type"
+      }
+    },
+    "email": {
+      "title": "Email",
+      "errors": {
+        "required": "Email is required",
+        "invalid": "Invalid email format"
+      }
+    },
+    "password": {
+      "title": "Password",
+      "errors": {
+        "required": "Password is required",
+        "min": "Password must be at least {min} characters",
+        "max": "Password must be at most {max} characters",
+        "uppercase": "Password must contain at least one uppercase letter",
+        "lowercase": "Password must contain at least one lowercase letter",
+        "number": "Password must contain at least one number"
+      }
+    },
+    "status": {
+      "title": "Status",
+      "errors": {
+        "required": "Status is required",
+        "invalid": "Invalid status"
+      }
+    },
+    "role": {
+      "title": "Role",
+      "errors": {
+        "required": "Role is required"
+      }
+    },
+    "client_id": {
+      "title": "Client",
+      "errors": {
+        "required": "Client selection is required"
+      }
+    }
+  }
+}

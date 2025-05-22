@@ -2,6 +2,39 @@
 
 import { Auth } from "@/hooks/auth";
 
+export const fetchAdminChats = async () => {
+  const session = await Auth();
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  if (session.user.role != "admin") {
+    return [];
+  }
+
+  const apiBaseUrl = process.env.API_APP_URL;
+  if (!apiBaseUrl) {
+    throw new Error("API base URL not set");
+  }
+
+  const res = await fetch(`${apiBaseUrl}/api/chats`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${session.token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch chats", { cause: data });
+  }
+
+  console.log("Fetched chats:", data);
+
+  return data;
+};
 export const fetchChats = async () => {
   const session = await Auth();
 
@@ -101,6 +134,9 @@ export const createChat = async ({
   if (!session) {
     throw new Error("Unauthorized");
   }
+  if (session.user.role != "admin") {
+    throw new Error("Unauthorized");
+  }
   const apiBaseUrl = process.env.API_APP_URL;
   if (!apiBaseUrl) {
     throw new Error("API base URL not set");
@@ -134,6 +170,9 @@ export const assignTeamToChat = async ({
   if (!session) {
     throw new Error("Unauthorized");
   }
+  if (session.user.role != "admin") {
+    throw new Error("Unauthorized");
+  }
   const apiBaseUrl = process.env.API_APP_URL;
   if (!apiBaseUrl) {
     throw new Error("API base URL not set");
@@ -163,6 +202,9 @@ export const deleteChat = async (chatId: string) => {
   const session = await Auth();
   if (!session) {
     throw new Error("User not authenticated");
+  }
+  if (session.user.role != "admin") {
+    throw new Error("Unauthorized");
   }
   const apiBaseUrl = process.env.API_APP_URL;
   if (!apiBaseUrl) {

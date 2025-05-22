@@ -10,6 +10,9 @@ export const fetchPackages = async () => {
   if (!session) {
     throw new Error("Unauthorized");
   }
+  if (session.user.role != "admin") {
+    throw new Error("Unauthorized");
+  }
 
   const apiBaseUrl = process.env.API_APP_URL;
   if (!apiBaseUrl) {
@@ -32,10 +35,41 @@ export const fetchPackages = async () => {
   return data;
 };
 
+export const fetchAdminPackages = async () => {
+  const session = await Auth();
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  const apiBaseUrl = process.env.API_APP_URL;
+  if (!apiBaseUrl) {
+    throw new Error("API base URL not set");
+  }
+
+  const res = await fetch(`${apiBaseUrl}/api/client-package`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${session.token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error("Failed to delete package", { cause: data });
+  }
+
+  return data;
+};
+
 export const createPackage = async (packageData: PackageFormType) => {
   try {
     const session = await Auth();
     if (!session) {
+      throw new Error("Unauthorized");
+    }
+    if (session.user.role != "admin") {
       throw new Error("Unauthorized");
     }
 
@@ -107,7 +141,9 @@ export const deletePackage = async (packageId: string) => {
   if (!session) {
     throw new Error("Unauthorized");
   }
-
+  if (session.user.role != "admin") {
+    throw new Error("Unauthorized");
+  }
   const apiBaseUrl = process.env.API_APP_URL;
   if (!apiBaseUrl) {
     throw new Error("API base URL not set");

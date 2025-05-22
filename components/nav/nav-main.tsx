@@ -7,14 +7,23 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { useLinkStatus } from "next/link";
 import { PackagesNavItem } from "./packages-nav-item";
 import { ChatsNavItem } from "./chats-nav-item";
-import { UserFormDialog } from "./create-user";
-import { ChatFormDialog } from "./create-chat";
 import { AdminNav } from "./admin-nav";
-import { AssignTeamDialog } from "./assign-team";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
+import { ChevronRight, UserIcon } from "lucide-react";
 
 export function LinkStatus() {
   const { pending } = useLinkStatus();
@@ -47,12 +56,17 @@ export function LinkStatus() {
 }
 
 export function NavMain() {
+  const { session } = useAuth();
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Admin</SidebarGroupLabel>
-      <SidebarMenu>
-        <AdminNav />
-      </SidebarMenu>
+      {session?.user.role === "admin" && (
+        <>
+          <SidebarGroupLabel>Admin</SidebarGroupLabel>
+          <SidebarMenu>
+            <AdminNav />
+          </SidebarMenu>
+        </>
+      )}
       <SidebarMenu>
         <SidebarGroupLabel>Main</SidebarGroupLabel>
         <ChatsNavItem />

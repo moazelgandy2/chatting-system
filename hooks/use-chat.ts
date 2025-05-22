@@ -94,6 +94,7 @@ export function useCreateChat() {
     mutationFn: createChat,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [USERS_QUERY_KEY] });
+      showNotification("Chat created successfully!", "success");
     },
   });
 }
@@ -118,13 +119,11 @@ export function useDeleteChat() {
     mutationFn: deleteChat,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
-      // Assuming showNotification is available globally or imported
       if (typeof showNotification !== "undefined") {
         showNotification(t("notifications.deletedSuccess"), "success");
       }
     },
     onError: (error: Error) => {
-      // Assuming showNotification is available globally or imported
       if (typeof showNotification !== "undefined") {
         showNotification(
           error.message || t("notifications.deletedError"),

@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { PlusCircle, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";

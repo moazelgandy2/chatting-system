@@ -51,6 +51,7 @@ export async function createPackageItem(data: PackageItemFormType) {
     });
   } catch (e) {
     console.log("Error storing package allowed items", e);
+    deletePackageItem(resData.data.id);
     throw new Error("Failed to store package allowed items");
   }
 
@@ -82,6 +83,30 @@ export async function storePackageAllowedItems(data: {
   if (!res.ok) {
     throw new Error(resData.message || "Failed to store package allowed items");
   }
+
+  return resData;
+}
+
+export async function deletePackageItem(id: number) {
+  const baseUrl = process.env.API_APP_URL;
+  const session = await Auth();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+  const res = await fetch(`${baseUrl}/api/package-items/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.token}`,
+    },
+  });
+
+  const resData = await res.json();
+
+  if (!res.ok) {
+    throw new Error(resData.message || "Failed to delete package item");
+  }
+
+  console.log("resData from deletePackageItem=>", resData);
 
   return resData;
 }

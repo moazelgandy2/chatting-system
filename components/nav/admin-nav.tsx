@@ -1,6 +1,11 @@
 "use client";
 
-import { ChevronRight, MessageSquare, Package2Icon } from "lucide-react";
+import {
+  ChevronRight,
+  MessageSquare,
+  Package2Icon,
+  Wrench,
+} from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,23 +22,25 @@ import { UserFormDialog } from "./create-user";
 import { ChatFormDialog } from "./create-chat";
 import { AssignTeamDialog } from "./assign-team";
 import Link from "next/link";
+import { ItemTypesNav } from "./item-types-nav";
+import { useTranslations } from "next-intl";
 
 export const AdminNav = () => {
+  const t = useTranslations();
   return (
-    <Collapsible defaultOpen>
-      <SidebarMenuItem>
-        <SidebarMenuButton asChild>
-          <CollapsibleTrigger className="flex items-center w-full gap-2 text-left cursor-pointer">
-            <MessageSquare className="h-4 w-4" />
-            <span>Settings</span>
-          </CollapsibleTrigger>
-        </SidebarMenuButton>
+    <Collapsible
+      className="group/collapsible"
+      defaultOpen={true}
+    >
+      <SidebarMenuItem className="relative">
         <CollapsibleTrigger asChild>
-          <SidebarMenuAction className="data-[state=open]:rotate-90">
-            <ChevronRight className="h-4 w-4" />
-            <span className="sr-only">Toggle Admin Section</span>
-          </SidebarMenuAction>
+          <SidebarMenuButton tooltip="test">
+            <Wrench />
+            <span>{t("dashboard.navigation.admin.title")}</span>
+            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+          </SidebarMenuButton>
         </CollapsibleTrigger>
+
         <CollapsibleContent>
           <SidebarMenuSub>
             <SidebarMenuItem>
@@ -44,6 +51,9 @@ export const AdminNav = () => {
             </SidebarMenuItem>
             <SidebarMenuItem>
               <AssignTeamDialog />
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <ItemTypesNav />
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuSubButton className="cursor-pointer">

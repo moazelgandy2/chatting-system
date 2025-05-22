@@ -25,6 +25,7 @@ export const createChatFormSchema = (
 export const chatFormSchema = z.object({
   client_id: z.number(),
   name: z.string().min(3).max(50),
+  description: z.string().min(3).max(500),
 });
 
-export type UserFormType = z.infer<typeof chatFormSchema>;
+export type ChatFormType = z.infer<typeof chatFormSchema>;

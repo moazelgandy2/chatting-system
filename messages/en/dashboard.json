@@ -17,6 +17,10 @@
         "title": "Add User",
         "description": "Add a new user to the system"
       },
+      "admin": {
+        "title": "Management",
+        "description": "System management"
+      },
       "dashboard": "Dashboard",
       "packages": "Packages"
     }

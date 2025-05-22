@@ -3,24 +3,41 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { SendIcon, Loader2 } from "lucide-react";
+import { SendIcon, Loader2, Trash2Icon, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useRef, useEffect, useCallback } from "react";
-import Card05 from "./quota-details-card";
-import { MemoizedMessagesArea, MessageType } from "./messages-area";
-import { useChat, useChatRevalidate, useSendMessage } from "@/hooks/use-chat";
+import Card05 from "./_components/quota-details-card";
+import { MemoizedMessagesArea, MessageType } from "./_components/messages-area";
+import {
+  useChat,
+  useChatRevalidate,
+  useDeleteChat,
+  useSendMessage,
+} from "@/hooks/use-chat";
 import { ChatMessage } from "@/types/chats";
 import Link from "next/link";
-import ChatEmptyState from "./chat-empty-state";
+import ChatEmptyState from "./_components/chat-empty-state";
 import { useAuth } from "@/hooks/useAuth";
-import { LoadingIndicator } from "./loading-indicator";
-import { ScrollToBottomButton } from "./scroll-to-bottom-button-fixed";
-import { EndOfHistoryIndicator } from "./end-of-history-indicator";
-import { MessageSkeletonGroup } from "./message-skeleton";
-import { useScrollAreaViewport } from "./use-scroll-area-viewport";
-import { useVirtualizedMessages } from "./use-virtualized-messages";
-import { LoadError } from "./load-error";
+import { LoadingIndicator } from "./_components/loading-indicator";
+import { ScrollToBottomButton } from "./_components/scroll-to-bottom-button-fixed";
+import { EndOfHistoryIndicator } from "./_components/end-of-history-indicator";
+import { MessageSkeletonGroup } from "./_components/message-skeleton";
+import { useScrollAreaViewport } from "./_components/use-scroll-area-viewport";
+import { useVirtualizedMessages } from "./_components/use-virtualized-messages";
+import { LoadError } from "./_components/load-error";
 import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useChatsRevalidate } from "@/hooks/use-chats";
 
 const generateId = () =>
   `id-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -60,13 +77,16 @@ export default function ChatPageWrapper({
   const wsRef = useRef<WebSocket | null>(null);
 
   const { data, isLoading, isError, mutate } = useChat(chatId, page);
+  const { mutate: mutateDeleteChat } = useDeleteChat();
+
   const { session } = useAuth();
   const currentUserId = session?.user?.id;
   const router = useRouter();
   const revalidate = useChatRevalidate(chatId);
+  const chatsRevalidate = useChatsRevalidate();
+
   useEffect(() => {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const ws = new WebSocket(`ws://192.168.1.55:8080/app/980e9rlf318lalrzdks4`);
+    const ws = new WebSocket(`ws://ws.droplo.cloud/app/980e9rlf318lalrzdks4`);
     wsRef.current = ws;
 
     console.log("WebSocket connection established");
@@ -74,7 +94,6 @@ export default function ChatPageWrapper({
     ws.onopen = () => {
       console.log("WebSocket connection opened");
       setWsConnectionStatus("connected");
-      // Subscribe to the chat channel
       ws.send(
         JSON.stringify({
           event: "pusher:subscribe",
@@ -92,11 +111,9 @@ export default function ChatPageWrapper({
 
     ws.onmessage = (event) => {
       console.log("WebSocket message received:", JSON.parse(event.data));
-      // if (event.data === `App\\Events\\NewMessageEvent`) {
       console.log("Here");
       router.refresh();
       revalidate();
-      // }
     };
 
     ws.onerror = (error) => {
@@ -160,7 +177,6 @@ export default function ChatPageWrapper({
       }));
 
       setMessages((prev) => {
-        // Avoid duplicates
         const ids = new Set(prev.map((m) => m.id));
 
         return page === 1
@@ -404,11 +420,57 @@ export default function ChatPageWrapper({
     }
   };
 
+  const onDeleteChat = async (id: string) => {
+    try {
+      mutateDeleteChat(id, {
+        onSuccess: () => {
+          chatsRevalidate();
+          revalidate();
+          setTimeout(() => {
+            router.push("/chats");
+          }, 500);
+        },
+      });
+    } catch (error) {
+      console.error("Error deleting chat:", error);
+    }
+  };
+
   return (
     <div
       dir={isAr ? "rtl" : "ltr"}
       className="w-full h-full rounded-b-xl overflow-hidden relative"
     >
+      <div className="absolute z-30  end-2 flex items-center p-4">
+        <AlertDialog>
+          <AlertDialogTrigger>
+            <Button className="bg-red-600 rounded-3xl hover:bg-red-700 cursor-pointer">
+              <Trash2 className=" h-4 w-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {t("package.available.confirmDelete")}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("package.available.deleteWarning")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>
+                {t("package.available.cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => onDeleteChat(chatId.toString())}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {t("package.available.confirm")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-6 w-full h-full justify-between">
         <div className="w-full h-full col-span-1 md:col-span-4 flex flex-col justify-between items-center">
           <ScrollArea
@@ -417,7 +479,6 @@ export default function ChatPageWrapper({
             data-test-id="chat-scroll-area"
           >
             <div className="w-full pt-4">
-              {/* Show loading indicator at the top for infinite scroll */}
               {hasMore && (
                 <div className="mb-2">
                   <LoadingIndicator
@@ -431,11 +492,9 @@ export default function ChatPageWrapper({
                 </div>
               )}
 
-              {/* Show error for infinite scroll if loading more failed */}
               {isError && page > 1 && (
                 <LoadError
                   onRetry={() => {
-                    // Retry loading this page
                     setIsFetchingMore(true);
                     retryLoading(page);
                   }}
@@ -443,27 +502,22 @@ export default function ChatPageWrapper({
                 />
               )}
 
-              {/* Show end of history indicator when there are no more messages */}
               {!hasMore && messages.length > 0 && !isInitialLoading && (
                 <EndOfHistoryIndicator />
               )}
 
-              {/* Initial loading skeleton - only show when no messages are loaded yet */}
               {isInitialLoading ? (
                 <MessageSkeletonGroup count={6} />
               ) : isError && messages.length === 0 ? (
                 <LoadError
                   onRetry={() => {
-                    // Reset to page 1 and try again
                     retryLoading(1);
                   }}
                 />
               ) : messages.length === 0 ? (
                 <ChatEmptyState />
               ) : isVirtualized ? (
-                // Virtualized rendering for large message lists
                 <>
-                  {/* Top spacer to maintain scroll position */}
                   {startOffset > 0 && (
                     <div
                       style={{ height: startOffset + "px" }}
@@ -471,7 +525,6 @@ export default function ChatPageWrapper({
                     />
                   )}
 
-                  {/* Only render messages in the visible range */}
                   {virtualizedMessages.map((msg, index) => (
                     <MemoizedMessagesArea
                       role={session?.user.role || "client"}
@@ -482,7 +535,6 @@ export default function ChatPageWrapper({
                     />
                   ))}
 
-                  {/* Bottom spacer to maintain scroll dimensions */}
                   {endPadding > 0 && (
                     <div
                       style={{ height: endPadding + "px" }}
@@ -502,7 +554,6 @@ export default function ChatPageWrapper({
                 ))
               )}
 
-              {/* Typing indicator */}
               {isTyping && !isLoading && (
                 <div className="flex items-center gap-2 text-muted-foreground text-sm pl-12 animate-in fade-in-50">
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -510,7 +561,6 @@ export default function ChatPageWrapper({
                 </div>
               )}
 
-              {/* Invisible element to scroll to */}
               <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
@@ -558,7 +608,6 @@ export default function ChatPageWrapper({
         </div>
       </div>
 
-      {/* Scroll to bottom button */}
       <ScrollToBottomButton
         scrollAreaRef={scrollAreaRef}
         onClick={scrollToBottom}

@@ -1,0 +1,15 @@
+{
+  "package_types": {
+    "create": {
+      "title": "Create Package Type",
+      "description": "Fill out the form below to create a new package type.",
+      "form": {
+        "name": {
+          "label": "Name",
+          "description": "Enter the name of the package type"
+        },
+        "submit": "Create Package Type"
+      }
+    }
+  }
+}

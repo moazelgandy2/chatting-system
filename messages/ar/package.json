@@ -93,7 +93,10 @@
     },
     "submitting": "جاري الإرسال...",
     "submit": "إرسال",
-    "success": "تم حفظ بنجاح",
+    "success": {
+      "default": "تم حفظ بنجاح",
+      "create_package_type": "تم إنشاء نوع الحزمة بنجاح!"
+    },
     "error": "حدث خطأ أثناء حفظ",
     "name": {
       "title": "الاسم",
