@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export const CreatePackageItemForm = ({
   handleSubmit,
@@ -101,7 +102,12 @@ export const CreatePackageItemForm = ({
                 defaultValue={field.value?.toString()}
                 disabled={isLoadingItemTypes}
               >
-                <FormControl>
+                <FormControl
+                  className={cn(
+                    `w-full`,
+                    isLoadingItemTypes && " cursor-progress"
+                  )}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

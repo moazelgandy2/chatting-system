@@ -28,6 +28,10 @@
       "cancel": "Cancel",
       "confirm": "Confirm"
     },
+    "empty": {
+      "title": "No Packages Found",
+      "description": "You don't have any packages yet. Create your first package to get started."
+    },
     "itemDetails": {
       "all": "All submissions for this content type",
       "accepted": "Submissions that have been approved",
