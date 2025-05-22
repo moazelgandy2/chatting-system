@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createPackageItem, getItemTypes } from "@/actions/package-items";
+import {
+  createPackageItem,
+  getItemTypes,
+  storePackageAllowedItems,
+} from "@/actions/package-items";
 import { PackageItemFormType } from "@/forms/create-package-item.schema";
 import { showNotification } from "@/lib/show-notification";
 import { useTranslations } from "next-intl";
@@ -20,8 +24,26 @@ export function useCreatePackageItem() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["PACKAGE_ITEMS_QUERY_KEY"] });
       showNotification(
-        t("auth.form.success.create_user", {
-          default: "User created successfully!",
+        t("package.form.success.create_package_item", {
+          default: "Package Item created successfully!",
+        }),
+        "success"
+      );
+    },
+  });
+}
+
+export function useStorePackageAllowedItems() {
+  const queryClient = useQueryClient();
+  const t = useTranslations();
+  return useMutation({
+    mutationFn: (data: { package_item_id: number; allowed_count: number }) =>
+      storePackageAllowedItems(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["PACKAGE_ITEMS_QUERY_KEY"] });
+      showNotification(
+        t("package.form.success.store_package_allowed_items", {
+          default: "Package allowed items stored successfully!",
         }),
         "success"
       );

@@ -42,10 +42,46 @@ export async function createPackageItem(data: PackageItemFormType) {
   const resData = await res.json();
 
   if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || "Failed to create package item");
+    throw new Error(resData.message || "Failed to create package item");
   }
+  try {
+    await storePackageAllowedItems({
+      package_item_id: resData.data.id,
+      allowed_count: +data.allowed_count,
+    });
+  } catch (e) {
+    console.log("Error storing package allowed items", e);
+    throw new Error("Failed to store package allowed items");
+  }
+
   console.log("resData from createPackage=>", resData);
+
+  return resData;
+}
+
+export async function storePackageAllowedItems(data: {
+  package_item_id: number;
+  allowed_count: number;
+}) {
+  const baseUrl = process.env.API_APP_URL;
+  const session = await Auth();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+  const res = await fetch(`${baseUrl}/api/package-allowed-items/store`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  const resData = await res.json();
+
+  if (!res.ok) {
+    throw new Error(resData.message || "Failed to store package allowed items");
+  }
 
   return resData;
 }

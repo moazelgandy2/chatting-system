@@ -1,4 +1,4 @@
-{
+﻿{
   "package": {
     "details": {
       "packageContent": "Package Content Items",
@@ -18,13 +18,26 @@
       "usage": "Usage",
       "viewDetails": "View Details",
       "submissions": "submission | submissions",
-      "allowedCount": "Allowed Count"
+      "allowedCount": "Allowed count"
+    },
+    "notFound": {
+      "title": "Package Not Found",
+      "description": "The package you're looking for doesn't exist or might have been deleted.",
+      "back": "Go Back",
+      "allPackages": "All Packages",
+      "refresh": "Try refreshing the page if you think this is an error"
+    },
+    "empty": {
+      "title": "No items in this package",
+      "description": "This package doesn't have any items yet. Add your first item to get started.",
+      "addItem": "Add First Item",
+      "viewAll": "View All Packages"
     },
     "available": {
       "noPackages": "No packages available",
       "delete": "Delete package",
       "confirmDelete": "Confirm Delete",
-      "deleteWarning": "Are you sure you want to delete this package? This action cannot be undone.",
+      "deleteWarning": "Are you sure you want to delete this package?",
       "cancel": "Cancel",
       "confirm": "Confirm"
     },
@@ -47,7 +60,12 @@
       "rejected": "Rejected",
       "edited": "Edited"
     },
-    "created": "Package created successfully"
+    "created": "Package created successfully",
+    "form": {
+      "success": {
+        "create_package_item": "Package item created successfully"
+      }
+    }
   },
   "packages": {
     "available": "Available Packages",
@@ -57,8 +75,10 @@
     "trigger": "Create New Package",
     "packageTitle": "Create Package",
     "packageDescription": "Fill out the form below to create a new package.",
-    "name": "Name",
-    "description": "Description",
+    "packageItemDialogTitle": "Create Package Item",
+    "packageItemDialogDescription": "Add a new item to this package with the form below.",
+    "name": "Package Name",
+    "description": "Package Description",
     "createPackageButton": "Create Package",
     "itemTypeTitle": "Create Item Type",
     "itemTypeDescription": "Fill out the form below to create a new item type.",
@@ -73,16 +93,11 @@
     "packageItemDescription": "Description of the package item.",
     "itemNotes": "Item Notes",
     "itemNotesPlaceholder": "Enter item notes",
-    "createPackageItemButton": "Create Package Item",
-    "packageItemDialogTitle": "Create Package Item",
-    "packageItemDialogDescription": "Fill out the form below to create a new package item."
+    "createPackageItemButton": "Create Package Item"
   },
   "form": {
     "notes": {
       "title": "Item Notes"
-    },
-    "itemType": {
-      "title": "Item Type"
     },
     "allowedCount": {
       "title": "Allowed Count"
@@ -103,6 +118,13 @@
       "errors": {
         "min": "Description is too short (minimum {min} characters)",
         "max": "Description is too long (maximum {max} characters)"
+      }
+    },
+    "itemType": {
+      "title": "Item type",
+      "errors": {
+        "min": "Item type is too short (minimum {min} characters)",
+        "max": "Item type is too long (maximum {max} characters)"
       }
     }
   }

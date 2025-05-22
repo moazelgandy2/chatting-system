@@ -24,8 +24,8 @@ export type PackageItemData = {
   created_at: string;
   updated_at: string;
   item_type: ItemType;
-  allowed_item: AllowedItem;
-  type_name: string | null; // Based on the API response, this is null but included
+  allowed_item: AllowedItem | null; // Updated based on the API response
+  type_name?: string; // Made optional as it's not present in the API response
 };
 
 export type PackageData = {

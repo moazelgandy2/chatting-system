@@ -66,9 +66,9 @@ export function CreatePackageDialog() {
       </TooltipProvider>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit profile</DialogTitle>
+          <DialogTitle>{t("create.packageTitle")}</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when you're done.
+            {t("create.packageDescription")}
           </DialogDescription>
         </DialogHeader>
         <CreatePackageForm

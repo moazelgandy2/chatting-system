@@ -22,6 +22,7 @@ import {
 } from "@/forms/create-package.schema";
 import { toast } from "sonner";
 import Notification from "@/components/kokonutui/notification";
+import { Loader2Icon } from "lucide-react";
 
 export const CreatePackageForm = ({
   handleSubmit,
@@ -103,7 +104,11 @@ export const CreatePackageForm = ({
           type="submit"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Submitting..." : "Submit"}
+          {isSubmitting ? (
+            <Loader2Icon className="w-4 h-4 animate-spin" />
+          ) : (
+            t("create.createPackageButton")
+          )}
         </Button>
       </form>
     </Form>

@@ -22,7 +22,19 @@ export const packageItemFormSchema = z.object({
   type_id: z.number(),
   status: z.string(),
   notes: z.string().optional(),
+  allowed_count: z
+    .string()
+    .min(1, { message: "Allowed count must be at least 1" }),
   created_by: z.number(),
 });
 
 export type PackageItemFormType = z.infer<typeof packageItemFormSchema>;
+
+export const packageAllowedItemsSchema = z.object({
+  package_item_id: z.number(),
+  allowed_count: z
+    .string()
+    .min(1, { message: "Allowed count must be at least 1" }),
+});
+
+export type PackageAllowedItemsType = z.infer<typeof packageAllowedItemsSchema>;

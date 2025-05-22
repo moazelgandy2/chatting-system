@@ -24,15 +24,13 @@ export function useDeletePackage() {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: deletePackage,
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
-      // Assuming showNotification is available globally or imported
       if (typeof showNotification !== "undefined") {
         showNotification("Package deleted successfully!", "success");
       }
     },
     onError: (error: Error) => {
-      // Assuming showNotification is available globally or imported
       if (typeof showNotification !== "undefined") {
         showNotification(error.message || "Failed to delete package", "error");
       }
@@ -40,7 +38,7 @@ export function useDeletePackage() {
     },
   });
 
-  return mutation;
+  return { mutation, mutate: mutation.mutateAsync };
 }
 
 export function useCreatePackage() {

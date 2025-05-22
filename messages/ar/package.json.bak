@@ -11,8 +11,7 @@
       "client": "العميل",
       "start": "البداية",
       "end": "النهاية",
-      "daysRemaining": "متبقي {count} يوم | متبقي {count} أيام | متبقي {count} أيام | متبقي {count} يوم | متبقي {count} أيام | متبقي {count} أيام",
-      "used": "مستخدم",
+      "daysRemaining": "متبقي {count} يوم | متبقي {count} أيام | متبقي {count} أيام | متبقي {count} يوم | متبقي {count} أيام | متبقي {count} أيام",      "used": "مستخدم",
       "remaining": "متبقي",
       "total": "المجموع",
       "usage": "الاستخدام",
@@ -41,8 +40,7 @@
       "resubmit": "إعادة تقديم",
       "noSubmissions": "لم يتم العثور على مشاركات {status}",
       "tryChangingFilter": "حاول تغيير الفلتر"
-    },
-    "quota": {
+    },    "quota": {
       "accepted": "مقبول",
       "rejected": "مرفوض",
       "edited": "تم تعديله"
@@ -52,8 +50,7 @@
   "packages": {
     "available": "الحزم المتاحة",
     "add": "اضافه حزمه جديده"
-  },
-  "create": {
+  },  "create": {
     "trigger": "إنشاء حزمة جديدة",
     "packageTitle": "إنشاء حزمة",
     "packageDescription": "املأ النموذج أدناه لإنشاء حزمة جديدة.",
@@ -75,22 +72,22 @@
     "itemNotesPlaceholder": "أدخل ملاحظات العنصر",
     "createPackageItemButton": "إنشاء عنصر حزمة",
     "packageItemDialogTitle": "إنشاء عنصر حزمة",
+    "packageItemDialogDescription": "املأ النموذج أدناه لإنشاء عنصر حزمة جديد.",
+    "packageItemDialogTitle": "إنشاء عنصر حزمة",
+    "packageItemDialogDescription": "املأ النموذج أدناه لإنشاء عنصر حزمة جديد."
+  },
+  "create": {
+    "packageItemDialogTitle": "إنشاء عنصر حزمة",
     "packageItemDialogDescription": "املأ النموذج أدناه لإنشاء عنصر حزمة جديد."
   },
   "form": {
     "notes": {
       "title": "ملاحظات العنصر"
     },
-    "itemType": {
-      "title": "نوع العنصر"
-    },
-    "allowedCount": {
-      "title": "العدد المسموح به"
-    },
     "submitting": "جاري الإرسال...",
     "submit": "إرسال",
-    "success": "تم حفظ بنجاح",
-    "error": "حدث خطأ أثناء حفظ",
+    "success": "تم حفظ  بنجاح",
+    "error": "حدث خطأ أثناء حفظ ",
     "name": {
       "title": "الاسم",
       "errors": {

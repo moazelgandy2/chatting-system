@@ -53,6 +53,9 @@ export const createPackage = async (packageData: PackageFormType) => {
       },
       body: JSON.stringify(packageData),
     });
+
+    console.log("[CREATE_PACKAGE]", res);
+
     const data = await res.json();
 
     console.log("[CREATE_PACKAGE]", data, res);

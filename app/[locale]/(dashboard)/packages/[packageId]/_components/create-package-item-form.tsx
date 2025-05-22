@@ -52,8 +52,9 @@ export const CreatePackageItemForm = ({
     defaultValues: {
       package_id: packageId,
       type_id: undefined,
-      status: "pending",
+      status: "accepted",
       notes: "",
+      allowed_count: "0",
       created_by: createdBy,
     },
   });
@@ -122,19 +123,34 @@ export const CreatePackageItemForm = ({
         />
         {/* status field (hidden or default) */}
         {/* notes field (input) */}
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("form.notes.title")}</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="notes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("form.notes.title")}</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="allowed_count"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("form.allowedCount.title")}</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         {/* created_by field (hidden or read-only) */}
         <Button
           type="submit"
