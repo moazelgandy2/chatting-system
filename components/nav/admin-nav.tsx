@@ -24,6 +24,7 @@ import { AssignTeamDialog } from "./assign-team";
 import Link from "next/link";
 import { ItemTypesNav } from "./item-types-nav";
 import { useTranslations } from "next-intl";
+import { LinkStatus } from "./nav-main";
 
 export const AdminNav = () => {
   const t = useTranslations();
@@ -63,6 +64,7 @@ export const AdminNav = () => {
                 >
                   <Package2Icon className="w-3 h-3" />
                   <span>Packages</span>
+                  <LinkStatus />
                 </Link>
               </SidebarMenuSubButton>
             </SidebarMenuItem>
