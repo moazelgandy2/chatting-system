@@ -16,6 +16,7 @@ import { useTeamMembers } from "@/hooks/use-users";
 import { useAssignTeamToChat } from "@/hooks/use-chat";
 import { Loader2, Search } from "lucide-react";
 import { useChats } from "@/hooks/use-chats";
+import { useRouter } from "next/navigation";
 
 export function AssignTeamDialog() {
   const [open, setOpen] = useState(false);
@@ -28,22 +29,19 @@ export function AssignTeamDialog() {
   const [chatId, setChatId] = useState<number | undefined>(chatOptions[0]?.id);
   const { data, isLoading } = useTeamMembers(page, search);
   const { mutateAsync, isPending } = useAssignTeamToChat();
+  const router = useRouter();
 
   useEffect(() => {
-    if (
-      chatOptions.length &&
-      (chatId === undefined || !chatOptions.some((c) => c.id === chatId))
-    ) {
+    if (chatOptions.length && chatId === undefined) {
       setChatId(chatOptions[0].id);
     }
-  }, [chatOptions]);
+  }, [chatOptions, chatId]);
 
   const handleToggle = (id: number) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((tid) => tid !== id) : [...prev, id]
     );
   };
-
   const handleSubmit = async () => {
     setError(null);
     if (!chatId) return;
@@ -51,6 +49,7 @@ export function AssignTeamDialog() {
       await mutateAsync({ chatId, team_ids: selected });
       setOpen(false);
       setSelected([]);
+      router.refresh();
     } catch (e: any) {
       setError(e?.message || "Something went wrong!");
     }

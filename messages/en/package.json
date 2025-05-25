@@ -112,5 +112,56 @@
         "max": "Description is too long (maximum {max} characters)"
       }
     }
+  },
+  "assignPackage": {
+    "title": "Assign Package",
+    "description": "Select a package to assign to this client for this chat.",
+    "package": "Package",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "selectPackage": "Select a package",
+    "selectStatus": "Select status",
+    "buttonText": "Assign Package",
+    "loading": "Assigning...",
+    "success": "Package assigned successfully!",
+    "error": "Failed to assign package",
+    "assign": "Assign",
+    "cancel": "Cancel",
+    "skipLimits": "Skip Limits",
+    "setLimitsNow": "Set Limits Now",
+    "packageAssigned": "Package Assigned Successfully",
+    "setLimitsPrompt": "Would you like to set client limits for this package now?"
+  },
+  "clientLimits": {
+    "title": "Set Client Limits",
+    "description": "Configure edit and decline limits for each item type in this package.",
+    "itemType": "Item Type",
+    "editLimit": "Edit Limit",
+    "declineLimit": "Decline Limit",
+    "selectItemType": "Select an item type",
+    "editLimitPlaceholder": "Enter edit limit",
+    "declineLimitPlaceholder": "Enter decline limit",
+    "setLimits": "Set Limits",
+    "cancel": "Cancel",
+    "loading": "Setting limits...",
+    "success": "Client limits set successfully!",
+    "error": "Failed to set client limits",
+    "manageTitle": "Manage Client Limits",
+    "noPackages": "No packages assigned to this chat",
+    "noPackagesTitle": "No Packages Assigned",
+    "noPackagesDescription": "Assign a package to this chat to manage client limits and settings.",
+    "assignHint": "Use the 'Assign Package' button in the admin panel above.",
+    "activePackage": "Active Package",
+    "packageId": "ID",
+    "manageHint": "Click the package button above to configure edit and decline limits for each item type.",
+    "itemsCount": "items"
+  },
+  "deleteChat": {
+    "buttonText": "Delete Chat",
+    "title": "Delete Chat",
+    "description": "This action cannot be undone. This will permanently delete the chat and all its messages.",
+    "cancel": "Cancel",
+    "delete": "Delete"
   }
 }

@@ -24,5 +24,39 @@
       "dashboard": "Dashboard",
       "packages": "Packages"
     }
+  },
+  "adminPanel": {
+    "title": "Admin Panel",
+    "description": "Manage packages, limits, and chat settings",
+    "clientInfo": "Client Information",
+    "packageManagement": "Package Management",
+    "chatInfo": "Chat Information",
+    "clientDetails": "Client Details",
+    "dangerZone": "Admin Actions",
+    "chatId": "Chat ID",
+    "openMobile": "Open admin panel"
+  },
+  "adminStatus": {
+    "loading": "Loading status...",
+    "noPackage": "No Package",
+    "activePackage": "Active Package",
+    "inactivePackage": "Inactive Package",
+    "active": "Active",
+    "inactive": "Inactive",
+    "chatId": "Chat",
+    "messages": "messages",
+    "packageId": "Package"
+  },
+  "quickActions": {
+    "title": "Quick Actions",
+    "refresh": "Refresh",
+    "refreshDesc": "Reload chat data",
+    "export": "Export",
+    "exportDesc": "Download chat data",
+    "analytics": "Analytics",
+    "analyticsDesc": "View chat metrics",
+    "exportSuccess": "Chat data exported successfully!",
+    "exportError": "Failed to export chat data.",
+    "reportGenerated": "Chat analytics report is being prepared."
   }
 }

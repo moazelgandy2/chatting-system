@@ -105,6 +105,7 @@ export function useAssignTeamToChat() {
     mutationFn: assignTeamToChat,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+      showNotification("Chat assigned successfully!", "success");
     },
   });
 }

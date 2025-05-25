@@ -5,6 +5,7 @@ import {
   fetchPackages,
   deletePackage,
   createPackage,
+  fetchAdminPackages,
 } from "@/actions/packages";
 import { PackageResponse } from "@/types/packages";
 import { showNotification } from "@/lib/show-notification";
@@ -12,11 +13,19 @@ import { useTranslations } from "next-intl";
 import { PackageFormType } from "@/forms/create-package.schema";
 
 export const PACKAGES_QUERY_KEY = "packages";
+export const ADMIN_PACKAGES_QUERY_KEY = "adminPackages";
 
 export function usePackages() {
   return useQuery<PackageResponse>({
     queryKey: [PACKAGES_QUERY_KEY],
     queryFn: fetchPackages,
+  });
+}
+
+export function useAdminPackages() {
+  return useQuery<PackageResponse>({
+    queryKey: [ADMIN_PACKAGES_QUERY_KEY],
+    queryFn: fetchAdminPackages,
   });
 }
 

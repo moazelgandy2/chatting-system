@@ -41,6 +41,8 @@ export async function createPackageItem(data: PackageItemFormType) {
   console.log("res from createPackage=>", res);
   const resData = await res.json();
 
+  console.log("resData from createPackage packageItem=>", resData);
+
   if (!res.ok) {
     throw new Error(resData.message || "Failed to create package item");
   }

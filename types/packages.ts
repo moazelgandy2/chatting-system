@@ -62,3 +62,30 @@ export type CreatePackageData = {
   description: string;
   items?: CreatePackageItemData[];
 };
+
+export type AssignedPackageData = {
+  id: number;
+  client_id: number;
+  package_id: number;
+  chat_id: number;
+  start_date: string | null;
+  end_date: string | null;
+  status: "active" | "inactive";
+  created_at: string;
+  updated_at: string;
+  package?: PackageData; // Optional - might be included in expanded responses
+};
+
+export type AssignedPackageResponse = {
+  status: boolean;
+  errorNum: number;
+  message: string;
+  data: AssignedPackageData;
+};
+
+export type AssignedPackagesListResponse = {
+  status: boolean;
+  errorNum: number;
+  message: string;
+  data: AssignedPackageData[];
+};

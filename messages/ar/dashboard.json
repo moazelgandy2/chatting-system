@@ -29,5 +29,39 @@
       "title": "خطأ",
       "description": "حدث خطأ أثناء تحميل البيانات."
     }
+  },
+  "adminPanel": {
+    "title": "لوحة الإدارة",
+    "description": "إدارة الباقات والحدود وإعدادات المحادثة",
+    "clientInfo": "معلومات العميل",
+    "packageManagement": "إدارة الباقات",
+    "chatInfo": "معلومات المحادثة",
+    "clientDetails": "تفاصيل العميل",
+    "dangerZone": "إجراءات الإدارة",
+    "chatId": "معرف المحادثة",
+    "openMobile": "فتح لوحة الإدارة"
+  },
+  "adminStatus": {
+    "loading": "جاري تحميل الحالة...",
+    "noPackage": "لا توجد باقة",
+    "activePackage": "باقة نشطة",
+    "inactivePackage": "باقة غير نشطة",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "chatId": "محادثة",
+    "messages": "رسائل",
+    "packageId": "باقة"
+  },
+  "quickActions": {
+    "title": "الإجراءات السريعة",
+    "refresh": "تحديث",
+    "refreshDesc": "إعادة تحميل بيانات المحادثة",
+    "export": "تصدير",
+    "exportDesc": "تنزيل بيانات المحادثة",
+    "analytics": "التحليلات",
+    "analyticsDesc": "عرض مقاييس المحادثة",
+    "exportSuccess": "تم تصدير بيانات المحادثة بنجاح!",
+    "exportError": "فشل في تصدير بيانات المحادثة.",
+    "reportGenerated": "يتم إعداد تقرير تحليلات المحادثة."
   }
 }
