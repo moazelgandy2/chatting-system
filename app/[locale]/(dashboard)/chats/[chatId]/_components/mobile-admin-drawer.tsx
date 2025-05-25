@@ -32,7 +32,9 @@ export function MobileAdminDrawer({
   const [open, setOpen] = useState(false);
   const t = useTranslations();
   const { data: assignedPackagesResponse } = useAssignedPackages(chatId);
-  const assignedPackage = assignedPackagesResponse?.data;
+  const assignedPackage = Array.isArray(assignedPackagesResponse?.data)
+    ? assignedPackagesResponse.data[0]
+    : assignedPackagesResponse?.data;
 
   return (
     <Drawer

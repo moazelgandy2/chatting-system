@@ -63,6 +63,31 @@ export type CreatePackageData = {
   items?: CreatePackageItemData[];
 };
 
+export type ClientPackageItem = {
+  id: number;
+  client_package_id: number;
+  package_item_id: number;
+  status: "pending" | "in_progress" | "completed" | "declined" | "delivered";
+  notes: string | null;
+  delivered_at: string | null;
+  created_at: string;
+  updated_at: string;
+  package_item: PackageItemData;
+};
+
+export type ClientLimit = {
+  id: number;
+  client_id: number;
+  client_package_id: number;
+  item_type: string;
+  edit_limit: number;
+  decline_limit: number;
+  edit_count: number;
+  decline_count: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type AssignedPackageData = {
   id: number;
   client_id: number;
@@ -76,11 +101,24 @@ export type AssignedPackageData = {
   package?: PackageData; // Optional - might be included in expanded responses
 };
 
+export type DetailedAssignedPackageData = AssignedPackageData & {
+  package: PackageData;
+  client_package_items: ClientPackageItem[];
+  client_limits: ClientLimit[];
+};
+
 export type AssignedPackageResponse = {
   status: boolean;
   errorNum: number;
   message: string;
   data: AssignedPackageData;
+};
+
+export type DetailedAssignedPackageResponse = {
+  status: boolean;
+  errorNum: number;
+  message: string;
+  data: DetailedAssignedPackageData;
 };
 
 export type AssignedPackagesListResponse = {

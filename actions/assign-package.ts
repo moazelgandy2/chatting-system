@@ -121,3 +121,89 @@ export const getAssignedPackages = async (chatId: string) => {
     throw new Error("Failed to get assigned packages");
   }
 };
+
+export const getDetailedClientPackage = async (clientPackageId: number) => {
+  try {
+    const session = await Auth();
+    if (!session) {
+      throw new Error("Unauthorized");
+    }
+
+    const apiBaseUrl = process.env.API_APP_URL;
+    if (!apiBaseUrl) {
+      throw new Error("API base URL not set");
+    }
+
+    const res = await fetch(
+      `${apiBaseUrl}/api/client-package/${clientPackageId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch detailed client package", {
+        cause: data,
+      });
+    }
+
+    return data;
+  } catch (e) {
+    console.error(e);
+    throw new Error("Failed to get detailed client package");
+  }
+};
+
+export const updateClientPackageItemStatus = async (
+  clientPackageItemId: number,
+  status: "pending" | "in_progress" | "completed" | "declined" | "delivered",
+  notes?: string
+) => {
+  try {
+    const session = await Auth();
+    if (!session) {
+      throw new Error("Unauthorized");
+    }
+
+    const apiBaseUrl = process.env.API_APP_URL;
+    if (!apiBaseUrl) {
+      throw new Error("API base URL not set");
+    }
+
+    const res = await fetch(
+      `${apiBaseUrl}/api/client-package-item/${clientPackageItemId}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${session.token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status,
+          notes,
+          delivered_at:
+            status === "delivered" ? new Date().toISOString() : null,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error("Failed to update client package item status", {
+        cause: data,
+      });
+    }
+
+    return data;
+  } catch (e) {
+    console.error(e);
+    throw new Error("Failed to update client package item status");
+  }
+};

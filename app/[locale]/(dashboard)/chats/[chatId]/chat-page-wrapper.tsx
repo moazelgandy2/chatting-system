@@ -3,10 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { SendIcon, Loader2, Trash2Icon, Trash2 } from "lucide-react";
+import { SendIcon, Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useRef, useEffect, useCallback } from "react";
-import Card05 from "./_components/quota-details-card";
 import { MemoizedMessagesArea, MessageType } from "./_components/messages-area";
 import {
   useChat,
@@ -15,7 +14,6 @@ import {
   useSendMessage,
 } from "@/hooks/use-chat";
 import { ChatMessage } from "@/types/chats";
-import Link from "next/link";
 import ChatEmptyState from "./_components/chat-empty-state";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingIndicator } from "./_components/loading-indicator";
@@ -26,27 +24,12 @@ import { useScrollAreaViewport } from "./_components/use-scroll-area-viewport";
 import { useVirtualizedMessages } from "./_components/use-virtualized-messages";
 import { LoadError } from "./_components/load-error";
 import { useRouter } from "next/navigation";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { useChatsRevalidate } from "@/hooks/use-chats";
 import { ChatDeleteDialog } from "./_components/chat-delete-dialog";
 import { AssignPackageDialog } from "./_components/assign-package-dialog";
 import { ManageClientLimits } from "./_components/manage-client-limits";
 import { AdminStatus } from "./_components/admin-status";
-import { QuickActions } from "./_components/quick-actions";
-import { MobileAdminDrawer } from "./_components/mobile-admin-drawer";
-
-const generateId = () =>
-  `id-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+import { cn } from "@/lib/utils";
 
 interface ChatPageWrapperProps {
   chatId: string;
@@ -449,8 +432,8 @@ export default function ChatPageWrapper({
     >
       {/* Admin Actions Header */}
       {session?.user.role === "admin" && (
-        <div className="absolute z-30 top-0 end-0 start-0 bg-gradient-to-b from-background/95 to-background/20 backdrop-blur-sm border-b">
-          <div className="flex items-center justify-between p-4">
+        <div className="absolute z-30 top-0 end-0 start-0 backdrop-blur-sm border-b">
+          <div className="flex items-center justify-between p-1">
             <AdminStatus chatId={chatId} />
             <div className="flex items-center gap-2">
               <AssignPackageDialog chatId={chatId} />
@@ -464,11 +447,21 @@ export default function ChatPageWrapper({
       )}
 
       <div
-        className={`grid grid-cols-1 md:grid-cols-6 w-full h-full justify-between ${
-          session?.user.role === "admin" ? "pt-16" : ""
-        }`}
+        className={cn(
+          `w-full h-full justify-between`,
+          session?.user.role == "admin"
+            ? "grid grid-cols-1 md:grid-cols-6 pt-8"
+            : "grid grid-cols-1"
+        )}
       >
-        <div className="w-full h-full col-span-1 md:col-span-4 flex flex-col justify-between items-center">
+        <div
+          className={cn(
+            `w-full h-full flex flex-col col-span-2 justify-between items-center`,
+            session?.user.role == "admin"
+              ? "col-span-1 md:col-span-4"
+              : "col-span-1"
+          )}
+        >
           <ScrollArea
             className="h-[75dvh] w-full pe-4 px-4 overflow-y-auto"
             ref={scrollAreaRef}
@@ -561,7 +554,7 @@ export default function ChatPageWrapper({
             </div>
           </ScrollArea>
 
-          <div className="flex w-full items-center gap-2 justify-between p-4 rounded-t-xl border-t">
+          <div className="flex w-full items-center gap-2 justify-between p-2 rounded-t-xl border-t">
             {isLoading ? (
               <div className="flex w-full gap-2 items-center">
                 <div className="h-10 flex-1 rounded bg-muted-foreground/20 shimmer animate-pulse" />
@@ -598,24 +591,26 @@ export default function ChatPageWrapper({
             )}
           </div>
         </div>
-
-        <div className="hidden md:flex flex-col gap-4 w-full col-span-2 items-start px-4 py-2 rounded-t-xl bg-muted/30 border-l">
-          {session?.user.role === "admin" && (
-            <>
-              <div className="w-full">
-                <div className="flex items-center gap-2 mb-4 pb-2 border-b">
-                  <div className="h-2 w-2 bg-orange-500 rounded-full" />
-                  <h3 className="text-sm font-semibold">
-                    {t("adminPanel.packageManagement", {
-                      default: "Package Management",
-                    })}
-                  </h3>
-                </div>
-                <ManageClientLimits chatId={chatId} />
-              </div>
-            </>
-          )}
-        </div>
+        {session?.user.role == "admin" && (
+          <div
+            className={cn(
+              `hidden md:flex flex-col gap-4 w-full items-start px-4 py-2 rounded-t-xl bg-muted/30 border-l`,
+              session?.user.role == "admin"
+                ? "col-span-1 md:col-span-2"
+                : "col-span-1"
+            )}
+          >
+            {session?.user.role === "admin" && (
+              <>
+                <ScrollArea className="h-[75dvh] w-full py-4">
+                  <div className="w-full">
+                    <ManageClientLimits chatId={chatId} />
+                  </div>
+                </ScrollArea>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       <ScrollToBottomButton
@@ -623,14 +618,6 @@ export default function ChatPageWrapper({
         onClick={scrollToBottom}
         hasNewMessages={hasNewMessages}
       />
-
-      {/* Mobile Admin Panel */}
-      {session?.user.role === "admin" && (
-        <MobileAdminDrawer
-          chatId={chatId}
-          onDeleteChat={onDeleteChat}
-        />
-      )}
     </div>
   );
 }
