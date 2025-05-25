@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ClientLimitsDialog } from "./client-limits-dialog";
-import { ClientPackageDetails } from "./client-package-details";
 import { useAssignedPackages } from "@/hooks/use-assign-package";
 import { usePackage } from "@/hooks/use-package";
 import { AssignedPackageData } from "@/types/packages";
