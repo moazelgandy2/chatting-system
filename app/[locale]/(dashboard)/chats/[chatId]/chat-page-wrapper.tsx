@@ -555,12 +555,12 @@ export default function ChatPageWrapper({
           className={cn(
             `w-full h-full flex flex-col col-span-2 justify-between items-center`,
             session?.user.role == "admin"
-              ? "col-span-1 md:col-span-4"
+              ? "col-span-1 md:col-span-4 pt-4"
               : "col-span-1"
           )}
         >
           <ScrollArea
-            className="h-[75dvh] w-full pe-4 px-4 overflow-y-auto"
+            className="h-[70dvh] w-full pe-4 px-4 overflow-y-auto"
             ref={scrollAreaRef}
             data-test-id="chat-scroll-area"
           >

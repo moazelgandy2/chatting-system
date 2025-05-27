@@ -1,30 +1,23 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   User,
   Package,
-  Clock,
   MessageCircle,
   Loader2,
   CheckCircle,
   AlertCircle,
-  Activity,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAssignedPackages } from "@/hooks/use-assign-package";
 import { useChat } from "@/hooks/use-chat";
-import { EnhancedAdminStatus } from "./enhanced-admin-status";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
 interface AdminStatusProps {
   chatId: string;
 }
 
 export function AdminStatus({ chatId }: AdminStatusProps) {
-  const [showEnhanced, setShowEnhanced] = useState(false);
   const t = useTranslations();
   const { data: assignedPackagesResponse, isLoading: isLoadingPackages } =
     useAssignedPackages(chatId);
@@ -41,32 +34,6 @@ export function AdminStatus({ chatId }: AdminStatusProps) {
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="h-4 w-4 animate-spin" />
         {t("adminStatus.loading", { default: "Loading status..." })}
-      </div>
-    );
-  }
-
-  // If enhanced view is enabled, show the enhanced component
-  if (showEnhanced) {
-    return (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium">
-            {t("adminStatus.title", { default: "Admin Panel" })}
-          </h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowEnhanced(false)}
-            className="text-xs"
-          >
-            {t("adminStatus.simpleView", { default: "Simple View" })}
-          </Button>
-        </div>{" "}
-        <EnhancedAdminStatus
-          chatId={chatId}
-          clientId={assignedPackages[0]?.client_id}
-          messageCount={chatData?.total || 0}
-        />
       </div>
     );
   }
@@ -154,16 +121,6 @@ export function AdminStatus({ chatId }: AdminStatusProps) {
             </>
           )}
         </div>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowEnhanced(true)}
-          className="text-xs gap-1"
-        >
-          <Activity className="h-3 w-3" />
-          {t("adminStatus.detailedView", { default: "Detailed View" })}{" "}
-        </Button>
       </div>
     </div>
   );
