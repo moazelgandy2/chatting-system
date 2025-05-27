@@ -11,14 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Loader2, Package, ShoppingCart, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAvailableItemTypes } from "@/hooks/use-available-item-types";
 import { useClientPackageItems } from "@/hooks/use-client-package-items";
 import { useAssignedPackages } from "@/hooks/use-assign-package";
 
-interface PackageItemSelectorProps {
-  clientId: string | number;
+interface PackageOnlySelectorProps {
+  chatId: string | number;
   onSelectionChange: (selection: {
     isItem: boolean;
     itemType?: string;
@@ -29,70 +29,60 @@ interface PackageItemSelectorProps {
   className?: string;
 }
 
-export function PackageItemSelector({
-  clientId,
+export function PackageOnlySelector({
+  chatId,
   onSelectionChange,
   disabled = false,
   className,
-}: PackageItemSelectorProps) {
-  const [isItem, setIsItem] = useState(false);
+}: PackageOnlySelectorProps) {
   const [selectedItemType, setSelectedItemType] = useState<string>("");
   const [selectedPackageItemId, setSelectedPackageItemId] =
     useState<string>("");
-  const [selectedClientPackageId, setSelectedClientPackageId] =
-    useState<string>("");
 
-  // Fetch assigned packages for the client
+  // Fetch assigned packages for the chat
   const { data: assignedPackages, isLoading: isLoadingPackages } =
-    useAssignedPackages(clientId.toString());
+    useAssignedPackages(chatId.toString());
 
-  // Fetch package items for the selected client package
+  // Get the client package ID from assigned packages
+  const clientPackageId = assignedPackages?.data?.id?.toString();
+
+  // Fetch available item types based on client limits
+  const { data: availableItemTypes, isLoading: isLoadingTypes } =
+    useAvailableItemTypes(clientPackageId || "");
+
+  // Fetch client package items for specific item selection
   const { data: packageItems, isLoading: isLoadingItems } =
-    useClientPackageItems(selectedClientPackageId);
-  // Get unique item types from package items
-  const itemTypes = useMemo(() => {
-    if (!packageItems?.data) return [];
-    const types = new Set(packageItems.data.map((item: any) => item.item_type));
-    return Array.from(types) as string[];
-  }, [packageItems]);
+    useClientPackageItems(clientPackageId || "");
+
   // Filter package items by selected type
   const filteredPackageItems = useMemo(() => {
-    if (!packageItems?.data || !selectedItemType) return [];
-    return packageItems.data.filter(
+    if (!packageItems || !Array.isArray(packageItems) || !selectedItemType)
+      return [];
+    return packageItems.filter(
       (item: any) => item.item_type === selectedItemType
     );
-  }, [packageItems, selectedItemType]);
-
-  const handleIsItemChange = (checked: boolean) => {
-    setIsItem(checked);
-    setSelectedItemType("");
-    setSelectedPackageItemId("");
-    setSelectedClientPackageId("");
-
-    onSelectionChange({
-      isItem: checked,
-    });
-  };
-
-  const handleClientPackageChange = (value: string) => {
-    setSelectedClientPackageId(value);
-    setSelectedItemType("");
-    setSelectedPackageItemId("");
-
-    onSelectionChange({
-      isItem,
-      clientPackageId: value,
-    });
-  };
+  }, [packageItems, selectedItemType]); // Debug logging
+  console.log("PackageOnlySelector Debug:", {
+    chatId,
+    clientPackageId,
+    assignedPackagesRaw: assignedPackages,
+    assignedPackagesData: assignedPackages?.data,
+    availableItemTypes,
+    packageItems,
+    filteredPackageItems,
+    selectedItemType,
+    isLoadingTypes,
+    isLoadingItems,
+  });
 
   const handleItemTypeChange = (value: string) => {
     setSelectedItemType(value);
-    setSelectedPackageItemId("");
+    setSelectedPackageItemId(""); // Reset package item selection
 
     onSelectionChange({
-      isItem,
-      itemType: value,
-      clientPackageId: selectedClientPackageId,
+      isItem: true,
+      itemType: value, // Send the type name directly
+      clientPackageId: clientPackageId,
     });
   };
 
@@ -100,10 +90,10 @@ export function PackageItemSelector({
     setSelectedPackageItemId(value);
 
     onSelectionChange({
-      isItem,
+      isItem: true,
       itemType: selectedItemType,
       packageItemId: value,
-      clientPackageId: selectedClientPackageId,
+      clientPackageId: clientPackageId,
     });
   };
 
@@ -125,7 +115,7 @@ export function PackageItemSelector({
         <CardContent className="flex items-center justify-center p-6">
           <AlertCircle className="w-6 h-6 text-muted-foreground" />
           <span className="ml-2 text-sm text-muted-foreground">
-            No packages assigned to this client
+            No packages assigned to this chat
           </span>
         </CardContent>
       </Card>
@@ -133,200 +123,101 @@ export function PackageItemSelector({
   }
 
   return (
-    <Card className={cn("w-full", className)}>
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Package className="w-5 h-5 text-primary" />
-          Package Item Selection
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Item Toggle - Made more prominent */}
-        <div className="p-4 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label
-                htmlFor="is-item"
-                className="text-base font-semibold flex items-center gap-2"
-              >
-                <Package className="w-4 h-4 text-primary" />
-                Send Package Item
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Toggle this to include a package item with your message
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span
-                className={cn(
-                  "text-sm font-medium transition-colors",
-                  isItem ? "text-primary" : "text-muted-foreground"
-                )}
-              >
-                {isItem ? "Enabled" : "Disabled"}
-              </span>
-              <Switch
-                id="is-item"
-                checked={isItem}
-                onCheckedChange={handleIsItemChange}
-                disabled={disabled}
-                className="data-[state=checked]:bg-primary"
-              />
-            </div>
-          </div>
+    <div className={cn("w-full space-y-4", className)}>
+      {/* Assigned Package Info */}
+      <div className="space-y-4 p-6 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+        <div className="flex items-center gap-2 mb-4">
+          <ShoppingCart className="w-5 h-5 text-primary" />
+          <h3 className="text-lg font-semibold text-primary">
+            Package Selection
+          </h3>
         </div>
-
-        {/* Package Selection */}
-        {isItem && (
-          <div className="space-y-4 p-6 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
-            <div className="flex items-center gap-2 mb-4">
-              <ShoppingCart className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-semibold text-primary">
-                Package Selection
-              </h3>
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Client Package</Label>
-                <Select
-                  value={selectedClientPackageId}
-                  onValueChange={handleClientPackageChange}
-                  disabled={disabled}
-                >
-                  <SelectTrigger className="w-full border-primary/30 focus:border-primary">
-                    <SelectValue placeholder="Select a package..." />
-                  </SelectTrigger>{" "}
-                  <SelectContent>
-                    <SelectItem
-                      key={assignedPackages.data.id}
-                      value={assignedPackages.data.id.toString()}
-                    >
-                      <div className="flex items-center gap-2">
-                        <ShoppingCart className="w-4 h-4" />
-                        <span>Package #{assignedPackages.data.package_id}</span>
-                        <Badge
-                          variant="secondary"
-                          className="text-xs"
-                        >
-                          {assignedPackages.data.status}
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Item Type Selection */}
-              {selectedClientPackageId && (
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Item Type</Label>
-                  {isLoadingItems ? (
-                    <div className="flex items-center gap-2 p-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span className="text-sm text-muted-foreground">
-                        Loading items...
-                      </span>
-                    </div>
-                  ) : itemTypes.length > 0 ? (
-                    <Select
-                      value={selectedItemType}
-                      onValueChange={handleItemTypeChange}
-                      disabled={disabled}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select item type..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {itemTypes.map((type) => (
-                          <SelectItem
-                            key={type}
-                            value={type}
-                          >
-                            <Badge
-                              variant="outline"
-                              className="capitalize"
-                            >
-                              {type}
-                            </Badge>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <div className="flex items-center gap-2 p-2 text-sm text-muted-foreground">
-                      <AlertCircle className="w-4 h-4" />
-                      No items found in this package
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Specific Item Selection */}
-              {selectedItemType && filteredPackageItems.length > 0 && (
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Package Item</Label>
-                  <Select
-                    value={selectedPackageItemId}
-                    onValueChange={handlePackageItemChange}
-                    disabled={disabled}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select specific item..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {filteredPackageItems.map((item: any) => (
-                        <SelectItem
-                          key={item.id}
-                          value={item.id.toString()}
-                        >
-                          <div className="flex flex-col items-start">
-                            <span className="font-medium">{item.content}</span>
-                            <span className="text-xs text-muted-foreground">
-                              Status: {item.status}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {/* Selection Summary */}
-              {isItem &&
-                (selectedClientPackageId ||
-                  selectedItemType ||
-                  selectedPackageItemId) && (
-                  <div className="p-3 rounded-md bg-primary/5 border border-primary/20">
-                    <h4 className="text-sm font-medium text-primary mb-2">
-                      Selection Summary
-                    </h4>
-                    <div className="space-y-1 text-xs text-muted-foreground">
-                      {selectedClientPackageId && (
-                        <div>Package ID: {selectedClientPackageId}</div>
-                      )}
-                      {selectedItemType && (
-                        <div>
-                          Item Type:{" "}
-                          <Badge
-                            variant="outline"
-                            className="text-xs"
-                          >
-                            {selectedItemType}
-                          </Badge>
-                        </div>
-                      )}
-                      {selectedPackageItemId && (
-                        <div>Item ID: {selectedPackageItemId}</div>
-                      )}
-                    </div>
-                  </div>
-                )}
-            </div>
+        {/* Assigned Package Display */}
+        <div className="p-3 rounded-md bg-primary/5 border border-primary/20">
+          <h4 className="text-sm font-medium text-primary mb-2 flex items-center gap-2">
+            <Package className="w-4 h-4" />
+            Assigned Package
+          </h4>
+          <div className="flex items-center gap-2">
+            <ShoppingCart className="w-4 h-4" />
+            <span>Package #{assignedPackages.data.package_id}</span>
+            <Badge
+              variant="secondary"
+              className="text-xs"
+            >
+              {assignedPackages.data.status}
+            </Badge>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </div>{" "}
+        <div className="space-y-4">
+          {/* Item Type Selection */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Item Type</Label>
+            {isLoadingTypes ? (
+              <div className="flex items-center gap-2 p-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm text-muted-foreground">
+                  Loading available item types...
+                </span>
+              </div>
+            ) : availableItemTypes && availableItemTypes.length > 0 ? (
+              <Select
+                value={selectedItemType}
+                onValueChange={handleItemTypeChange}
+                disabled={disabled}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select item type..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableItemTypes.map((type: any) => (
+                    <SelectItem
+                      key={type.id}
+                      value={type.name}
+                    >
+                      <Badge
+                        variant="outline"
+                        className="capitalize"
+                      >
+                        {type.name}
+                      </Badge>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="flex items-center gap-2 p-2 text-sm text-muted-foreground">
+                <AlertCircle className="w-4 h-4" />
+                No item types available for this package
+              </div>
+            )}{" "}
+          </div>
+
+          {/* Selection Summary */}
+          {selectedItemType && (
+            <div className="p-3 rounded-md bg-primary/5 border border-primary/20">
+              <h4 className="text-sm font-medium text-primary mb-2">
+                Selection Summary
+              </h4>
+              <div className="space-y-1 text-xs text-muted-foreground">
+                <div>Package ID: {assignedPackages.data.package_id}</div>
+                <div>
+                  Item Type:{" "}
+                  <Badge
+                    variant="outline"
+                    className="text-xs"
+                  >
+                    {selectedItemType}
+                  </Badge>
+                </div>
+                {selectedPackageItemId && (
+                  <div>Package Item ID: {selectedPackageItemId}</div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

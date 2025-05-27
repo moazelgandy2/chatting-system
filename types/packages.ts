@@ -66,13 +66,16 @@ export type CreatePackageData = {
 export type ClientPackageItem = {
   id: number;
   client_package_id: number;
+  item_type: string;
   package_item_id: number;
+  content: string | null;
+  media_url: string | null;
   status: "pending" | "in_progress" | "completed" | "declined" | "delivered";
-  notes: string | null;
-  delivered_at: string | null;
+  client_note: string | null;
+  handled_by: number | null;
   created_at: string;
   updated_at: string;
-  package_item: PackageItemData;
+  package_item?: PackageItemData;
 };
 
 export type ClientLimit = {

@@ -1,3 +1,5 @@
+import { ClientPackageItem } from "./packages";
+
 export type ChatData = {
   id: number;
   name: string;
@@ -45,6 +47,7 @@ export type ChatMessage = {
   created_at: string;
   updated_at: string;
   client_package_item_id: number | null;
+  client_package_item?: ClientPackageItem | null;
   sender: ChatMessageSender;
   media_files?: any[]; // Raw file data from API
   media?: MediaFile[]; // Processed URLs for display

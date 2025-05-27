@@ -8,6 +8,8 @@ import { MediaFile } from "@/types/chats";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import UserAvatar from "./user-avatar";
+import ClientPackageItemStatus from "./client-package-item-status";
+import { ClientPackageItem } from "@/types/packages";
 
 export type MessageType = {
   id: string;
@@ -16,6 +18,8 @@ export type MessageType = {
   senderName?: string;
   timestamp: Date;
   media?: MediaFile[];
+  client_package_item_id?: number | null;
+  client_package_item?: ClientPackageItem | null;
 };
 
 interface ExpandedImageState {
@@ -434,10 +438,10 @@ export const MessagesArea = forwardRef<
             delay: appearAnimation ? 0.1 : 0,
           }}
           className={cn(
-            "flex items-start gap-3 group",
-            finalIsGrouped ? "mb-1" : "mb-4",
+            "flex items-start gap-2 group",
+            finalIsGrouped ? "mb-0.5" : "mb-2.5",
             isUser ? "flex-row-reverse" : "",
-            "hover:bg-accent/20 rounded-lg p-2 transition-colors duration-200"
+            "hover:bg-accent/20 rounded-lg p-1.5 transition-colors duration-200"
           )}
         >
           {" "}
@@ -477,23 +481,23 @@ export const MessagesArea = forwardRef<
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4, duration: 0.3 }}
               className={cn(
-                "p-3 rounded-xl text-sm shadow-sm transition-all duration-200 hover:shadow-md",
+                "p-2.5 rounded-xl text-sm shadow-sm transition-all duration-200 hover:shadow-md",
                 isUser
                   ? "bg-primary text-primary-foreground border border-primary/20"
                   : "bg-card text-foreground border border-border/50"
               )}
             >
+              {" "}
               <div className="whitespace-pre-wrap break-words">
                 {message.content}
               </div>
-
               {/* Enhanced Media Files Display */}
               {message.media && message.media.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5, duration: 0.3 }}
-                  className="space-y-2 mt-3"
+                  className="space-y-1.5 mt-2"
                 >
                   {message.media.map((mediaFile, index) => (
                     <MediaFileComponent
@@ -502,6 +506,31 @@ export const MessagesArea = forwardRef<
                       onImageClick={handleImageClick}
                     />
                   ))}
+                </motion.div>
+              )}{" "}
+              {/* Client Package Item Status Display */}
+              {(message.client_package_item ||
+                message.client_package_item_id) && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.3 }}
+                  className="mt-2"
+                >
+                  <ClientPackageItemStatus
+                    clientPackageItem={message.client_package_item}
+                    packageId={
+                      message.client_package_item_id
+                        ? message.client_package_item_id
+                        : undefined
+                    }
+                    packageItemId={
+                      message.client_package_item_id !== null
+                        ? message.client_package_item_id
+                        : undefined
+                    }
+                    isCompact={true}
+                  />
                 </motion.div>
               )}
             </motion.div>

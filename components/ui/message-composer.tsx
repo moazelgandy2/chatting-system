@@ -26,10 +26,11 @@ import {
   Image as ImageIcon,
   Eye,
   Plus,
+  ImagePlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FileUpload, FileAttachButton } from "@/components/ui/file-upload";
-import { PackageOnlySelector } from "@/components/ui/package-only-selector";
+import { PackageOnlySelector } from "@/components/ui/package-item-selector";
 import { useSendMessageWithFiles } from "@/hooks/use-chat";
 
 interface MessageComposerProps {
@@ -223,14 +224,11 @@ export function MessageComposer({
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const openAdvancedOptions = () => {
-    setIsDialogOpen(true);
-  };
   return (
     <div className={cn("space-y-4", className)}>
       {/* Main Message Input */}
-      <div className="flex gap-2 items-end">
-        <div className="flex-1 space-y-2">
+      <div className="flex gap-2 justify-between  items-end w-full">
+        <div className="flex-1 space-y-2 w-full">
           {/* Quick File Preview */}
           {files.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -313,7 +311,7 @@ export function MessageComposer({
             </div>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full">
             <Input
               ref={inputRef}
               value={message}
@@ -326,71 +324,66 @@ export function MessageComposer({
 
             {/* Quick Actions */}
             <div className="flex gap-1">
-              <FileAttachButton
-                onFilesSelect={handleQuickFileAttach}
-                disabled={disabled || sendMessageMutation.isPending}
-              />
-
               {/* Advanced Options Dialog */}
               <Dialog
                 open={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
               >
+                {" "}
                 <DialogTrigger asChild>
                   <Button
                     variant="ghost"
                     size="sm"
                     disabled={disabled || sendMessageMutation.isPending}
                     className="h-8 w-8 p-0"
+                    title="Attach files"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Paperclip className="w-4 h-4" />
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                      <Settings className="w-5 h-5" />
-                      Message Options
+                <DialogContent className="max-w-xl max-h-[80vh] overflow-y-auto p-4 sm:p-5">
+                  {" "}
+                  <DialogHeader className="pb-2">
+                    <DialogTitle className="flex items-center gap-1.5 text-base">
+                      <Paperclip className="w-4 h-4" />
+                      Attach Files & Options
                     </DialogTitle>
-                  </DialogHeader>{" "}
-                  <div className="space-y-6">
-                    {/* IsItem Toggle - Always visible and prominent */}
-                    <div className="p-4 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                          <Label
-                            htmlFor="dialog-is-item"
-                            className="text-base font-semibold flex items-center gap-2 cursor-pointer"
-                          >
-                            <Package className="w-4 h-4 text-primary" />
-                            Include Package Item
-                          </Label>
-                          <p className="text-sm text-muted-foreground">
-                            Toggle this to include a package item with your
-                            message
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={cn(
-                              "text-sm font-medium transition-colors",
-                              packageSelection.isItem
-                                ? "text-primary"
-                                : "text-muted-foreground"
-                            )}
-                          >
-                            {packageSelection.isItem ? "Enabled" : "Disabled"}
-                          </span>
-                          <Switch
-                            id="dialog-is-item"
-                            checked={packageSelection.isItem}
-                            onCheckedChange={(checked) =>
-                              handlePackageSelectionChange({ isItem: checked })
-                            }
-                            disabled={disabled || sendMessageMutation.isPending}
-                            className="data-[state=checked]:bg-primary"
-                          />
-                        </div>
+                  </DialogHeader>
+                  <div className="space-y-3">
+                    {/* IsItem Toggle - Compact version */}
+                    <div className="p-2 rounded-lg border border-primary/20 bg-primary/5 flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label
+                          htmlFor="dialog-is-item"
+                          className="text-sm font-medium flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Package className="w-3.5 h-3.5 text-primary" />
+                          Include Package Item
+                        </Label>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Include a package item with this message
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={cn(
+                            "text-xs font-medium transition-colors",
+                            packageSelection.isItem
+                              ? "text-primary"
+                              : "text-muted-foreground"
+                          )}
+                        >
+                          {packageSelection.isItem ? "On" : "Off"}
+                        </span>
+                        <Switch
+                          id="dialog-is-item"
+                          checked={packageSelection.isItem}
+                          onCheckedChange={(checked) =>
+                            handlePackageSelectionChange({ isItem: checked })
+                          }
+                          disabled={disabled || sendMessageMutation.isPending}
+                          className="data-[state=checked]:bg-primary h-5"
+                        />
                       </div>
                     </div>
 
@@ -398,27 +391,27 @@ export function MessageComposer({
                       defaultValue="files"
                       className="w-full"
                     >
-                      <TabsList className="grid w-full grid-cols-2">
+                      <TabsList className="grid w-full grid-cols-2 h-8">
                         <TabsTrigger
                           value="files"
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-1 text-xs px-2"
                         >
-                          <Paperclip className="w-4 h-4" />
+                          <Paperclip className="w-3.5 h-3.5" />
                           Files ({files.length})
-                        </TabsTrigger>{" "}
+                        </TabsTrigger>
                         <TabsTrigger
                           value="package"
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-1 text-xs px-2"
                           disabled={!packageSelection.isItem}
                         >
-                          <Package className="w-4 h-4" />
-                          Package Selection
+                          <Package className="w-3.5 h-3.5" />
+                          Package
                           {!packageSelection.isItem && " (Disabled)"}
                         </TabsTrigger>
                       </TabsList>
                       <TabsContent
                         value="files"
-                        className="mt-4"
+                        className="mt-2"
                       >
                         <FileUpload
                           files={files}
@@ -430,9 +423,8 @@ export function MessageComposer({
                       </TabsContent>{" "}
                       <TabsContent
                         value="package"
-                        className="mt-4"
+                        className="mt-2"
                       >
-                        {" "}
                         {packageSelection.isItem ? (
                           <PackageOnlySelector
                             chatId={chatId}
@@ -440,23 +432,24 @@ export function MessageComposer({
                             disabled={disabled || sendMessageMutation.isPending}
                           />
                         ) : (
-                          <div className="text-center py-8 text-muted-foreground">
-                            <Package className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                            <p className="text-sm">
-                              Enable "Include Package Item" toggle above to
-                              select packages
+                          <div className="text-center py-4 text-muted-foreground">
+                            <Package className="w-6 h-6 mx-auto mb-1.5 opacity-50" />
+                            <p className="text-xs">
+                              Enable "Include Package Item" toggle above
                             </p>
                           </div>
                         )}
                       </TabsContent>
                     </Tabs>
                   </div>
-                  <DialogFooter>
+                  <DialogFooter className="mt-3 pt-2 border-t border-border/40">
                     <Button
                       variant="outline"
                       onClick={() => setIsDialogOpen(false)}
+                      size="sm"
+                      className="h-8 text-xs"
                     >
-                      Close
+                      Done
                     </Button>
                   </DialogFooter>
                 </DialogContent>

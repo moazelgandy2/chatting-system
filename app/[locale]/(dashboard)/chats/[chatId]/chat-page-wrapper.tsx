@@ -172,6 +172,8 @@ export default function ChatPageWrapper({
             senderName: msg.sender?.name || "Unknown",
             timestamp: new Date(msg.created_at),
             media: msg.media || [], // Include processed media URLs
+            client_package_item_id: msg.client_package_item_id,
+            client_package_item: msg.client_package_item,
           };
 
           console.log("Mapped message:", mappedMessage);
@@ -671,6 +673,7 @@ export default function ChatPageWrapper({
               </div>
             ) : (
               <MessageComposer
+                className="w-full"
                 chatId={chatId}
                 senderId={session?.user?.id || 0}
                 clientId={clientId || undefined}

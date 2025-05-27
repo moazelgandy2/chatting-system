@@ -1,13 +1,19 @@
 "use client";
 
-import { AlertCircleIcon, ImageIcon, UploadIcon, XIcon } from "lucide-react";
+import {
+  AlertCircleIcon,
+  FileIcon,
+  ImageIcon,
+  UploadIcon,
+  XIcon,
+} from "lucide-react";
 
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { Button } from "@/components/ui/button";
 
-export default function PackageImageUploader() {
-  const maxSizeMB = 2;
-  const maxSize = maxSizeMB * 1024 * 1024; // 2MB default
+export default function PackageFileUploader() {
+  const maxSizeMB = 10; // Increased size limit for general files
+  const maxSize = maxSizeMB * 1024 * 1024;
 
   const [
     { files, isDragging, errors },
@@ -21,7 +27,7 @@ export default function PackageImageUploader() {
       getInputProps,
     },
   ] = useFileUpload({
-    accept: "image/svg+xml,image/png,image/jpeg,image/jpg,image/gif",
+    accept: "*", // Accept all file types
     maxSize,
   });
   const previewUrl = files[0]?.preview || null;
