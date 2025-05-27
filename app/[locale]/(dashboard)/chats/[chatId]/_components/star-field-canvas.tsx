@@ -63,7 +63,7 @@ export default function StarFieldCanvas() {
     window.addEventListener("resize", createStars);
     let animationFrameId: number;
     let lastTime = 0;
-    const shootingStarTimers: number[] = [];
+    const shootingStarTimers: ReturnType<typeof setTimeout>[] = [];
     shootingStars.forEach((star, index) => {
       shootingStarTimers[index] = setTimeout(() => {
         star.active = true;

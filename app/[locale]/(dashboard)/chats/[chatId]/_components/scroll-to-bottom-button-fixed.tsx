@@ -10,7 +10,7 @@ interface ScrollToBottomButtonProps {
   scrollAreaRef:
     | React.MutableRefObject<HTMLDivElement | null>
     | React.RefObject<HTMLDivElement | null>;
-  onClick: () => void;
+  onClick: (force?: boolean) => void;
   hasNewMessages?: boolean;
 }
 
@@ -28,33 +28,30 @@ export const ScrollToBottomButton = ({
     if (!viewportElement) {
       return;
     }
-
     const checkScrollPosition = () => {
       if (!viewportElement) return;
 
-      // Show button when user has scrolled up more than 300px from bottom
+      // Show button when user has scrolled up more than 150px from bottom
       const distanceFromBottom =
         viewportElement.scrollHeight -
         viewportElement.scrollTop -
         viewportElement.clientHeight;
 
-      const isScrolledUp = distanceFromBottom > 300;
+      const isScrolledUp = distanceFromBottom > 150; // Reduced threshold for better UX
       setShowButton(isScrolledUp);
 
       // If user scrolls to bottom, mark messages as read
       if (!isScrolledUp) {
         setHasUnreadMessages(false);
       }
-    };
-
-    // Throttle function to avoid excessive calculations
+    }; // Throttle function to avoid excessive calculations
     const throttledCheckScroll = () => {
       if (throttleRef.current) return;
 
       throttleRef.current = setTimeout(() => {
         checkScrollPosition();
         throttleRef.current = null;
-      }, 100);
+      }, 50); // Reduced from 100ms for better responsiveness
     };
 
     // Initial check
@@ -87,7 +84,7 @@ export const ScrollToBottomButton = ({
       variant={hasUnreadMessages ? "destructive" : "default"}
       size="icon"
       onClick={() => {
-        onClick();
+        onClick(true); // Force immediate scroll
         setHasUnreadMessages(false);
       }}
     >

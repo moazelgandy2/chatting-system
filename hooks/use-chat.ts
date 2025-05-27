@@ -4,9 +4,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchChat,
   sendMessage,
+  sendMessageWithFiles,
   createChat,
   assignTeamToChat,
   deleteChat,
+  SendMessageWithFilesData,
 } from "@/actions/chats";
 import { ChatMessagesApiResponse, ChatMessage } from "@/types/chats";
 import { CHATS_QUERY_KEY } from "@/hooks/use-chats";
@@ -52,6 +54,7 @@ export function useSendMessage(
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           sender: { name: "You" },
+          media: [], // Empty media array for text-only messages
         };
         return {
           ...old,
@@ -70,6 +73,115 @@ export function useSendMessage(
       );
     },
     onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [CHATS_QUERY_KEY, chatId, page],
+      });
+    },
+  });
+}
+
+export function useSendMessageWithFiles(
+  chatId: string | number,
+  page: number = 1,
+  senderId: number
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Omit<SendMessageWithFilesData, "senderId">) =>
+      sendMessageWithFiles(chatId.toString(), {
+        ...data,
+        senderId: senderId.toString(),
+      }),
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({
+        queryKey: [CHATS_QUERY_KEY, chatId, page],
+      });
+      const previousMessages = queryClient.getQueryData<any>([
+        CHATS_QUERY_KEY,
+        chatId,
+        page,
+      ]);
+
+      // Create preview URLs for optimistic UI
+      const optimisticMedia: any[] = [];
+      const previewUrls: string[] = [];
+
+      if (data.media && data.media.length > 0) {
+        data.media.forEach((file, index) => {
+          if (file.type.startsWith("image/")) {
+            const previewUrl = URL.createObjectURL(file);
+            previewUrls.push(previewUrl);
+            optimisticMedia.push({
+              url: previewUrl,
+              type: file.type,
+              name: file.name,
+              isOptimistic: true, // Flag to identify preview URLs
+            });
+          } else {
+            // For non-image files, we can't create a preview but still show the file
+            optimisticMedia.push({
+              url: "", // No preview for non-images
+              type: file.type,
+              name: file.name,
+              isOptimistic: true,
+            });
+          }
+        });
+      }
+
+      queryClient.setQueryData([CHATS_QUERY_KEY, chatId, page], (old: any) => {
+        if (!old || !old.data || !Array.isArray(old.data.data)) return old;
+        const optimisticMsg = {
+          id: `optimistic-${Date.now()}`,
+          message: data.message,
+          sender_id: senderId,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          sender: { name: "You" },
+          media: optimisticMedia,
+          _previewUrls: previewUrls, // Store URLs for cleanup
+        };
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            data: [...old.data.data, optimisticMsg],
+          },
+        };
+      });
+      return { previousMessages, previewUrls };
+    },
+    onError: (err, data, context: any) => {
+      // Clean up preview URLs on error
+      if (context?.previewUrls) {
+        context.previewUrls.forEach((url: string) => {
+          URL.revokeObjectURL(url);
+        });
+      }
+
+      queryClient.setQueryData(
+        [CHATS_QUERY_KEY, chatId, page],
+        context?.previousMessages
+      );
+    },
+    onSettled: () => {
+      // Clean up any remaining preview URLs
+      const currentData = queryClient.getQueryData<any>([
+        CHATS_QUERY_KEY,
+        chatId,
+        page,
+      ]);
+      if (currentData?.data?.data) {
+        currentData.data.data.forEach((message: any) => {
+          if (message._previewUrls) {
+            message._previewUrls.forEach((url: string) => {
+              URL.revokeObjectURL(url);
+            });
+          }
+        });
+      }
+
       queryClient.invalidateQueries({
         queryKey: [CHATS_QUERY_KEY, chatId, page],
       });

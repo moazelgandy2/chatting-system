@@ -1,0 +1,492 @@
+import { useState, useRef, useCallback, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Send,
+  Loader2,
+  Paperclip,
+  Package,
+  X,
+  MessageSquare,
+  FileText,
+  Settings,
+  Image as ImageIcon,
+  Eye,
+  Plus,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { FileUpload, FileAttachButton } from "@/components/ui/file-upload";
+import { PackageOnlySelector } from "@/components/ui/package-only-selector";
+import { useSendMessageWithFiles } from "@/hooks/use-chat";
+
+interface MessageComposerProps {
+  chatId: string | number;
+  senderId: number;
+  clientId?: string | number;
+  page?: number;
+  disabled?: boolean;
+  placeholder?: string;
+  className?: string;
+  onMessageSent?: () => void;
+}
+
+export function MessageComposer({
+  chatId,
+  senderId,
+  clientId,
+  page = 1,
+  disabled = false,
+  placeholder = "Type your message...",
+  className,
+  onMessageSent,
+}: MessageComposerProps) {
+  const [message, setMessage] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [packageSelection, setPackageSelection] = useState({
+    isItem: false,
+    itemType: "",
+    packageItemId: "",
+    clientPackageId: "",
+  });
+  const [filePreviewUrls, setFilePreviewUrls] = useState<
+    Record<string, string>
+  >({});
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const sendMessageMutation = useSendMessageWithFiles(chatId, page, senderId);
+
+  // Create preview URLs for images
+  useEffect(() => {
+    const newPreviewUrls: Record<string, string> = {};
+
+    files.forEach((file, index) => {
+      if (file.type.startsWith("image/")) {
+        const key = `${file.name}-${index}`;
+        if (!filePreviewUrls[key]) {
+          newPreviewUrls[key] = URL.createObjectURL(file);
+        }
+      }
+    });
+
+    if (Object.keys(newPreviewUrls).length > 0) {
+      setFilePreviewUrls((prev) => ({ ...prev, ...newPreviewUrls }));
+    }
+
+    // Cleanup URLs when component unmounts or files change
+    return () => {
+      Object.values(newPreviewUrls).forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, [files]);
+
+  // Cleanup preview URLs when files are removed
+  useEffect(() => {
+    const currentFileKeys = files.map((file, index) => `${file.name}-${index}`);
+    const urlsToRevoke: string[] = [];
+
+    Object.keys(filePreviewUrls).forEach((key) => {
+      if (!currentFileKeys.includes(key)) {
+        urlsToRevoke.push(filePreviewUrls[key]);
+      }
+    });
+
+    if (urlsToRevoke.length > 0) {
+      urlsToRevoke.forEach((url) => URL.revokeObjectURL(url));
+      setFilePreviewUrls((prev) => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach((key) => {
+          if (!currentFileKeys.includes(key)) {
+            delete updated[key];
+          }
+        });
+        return updated;
+      });
+    }
+  }, [files, filePreviewUrls]);
+
+  const hasContent = message.trim() || files.length > 0;
+  const hasPackageSelection =
+    packageSelection.isItem &&
+    (packageSelection.itemType ||
+      packageSelection.packageItemId ||
+      packageSelection.clientPackageId);
+
+  const handleSendMessage = useCallback(async () => {
+    if (!hasContent || disabled) return;
+    const messageData = {
+      message: message.trim(),
+      media: files.length > 0 ? files : undefined,
+      item_type: packageSelection.isItem
+        ? packageSelection.itemType
+        : undefined,
+      package_item_id:
+        packageSelection.isItem && packageSelection.packageItemId
+          ? packageSelection.packageItemId
+          : undefined,
+      client_package_id: packageSelection.isItem
+        ? packageSelection.clientPackageId
+        : undefined,
+      IsItem: packageSelection.isItem ? "1" : "0",
+    };
+
+    console.log("MessageComposer - Sending message data:", messageData);
+
+    try {
+      await sendMessageMutation.mutateAsync(messageData); // Reset form
+      setMessage("");
+      setFiles([]);
+
+      // Cleanup preview URLs
+      Object.values(filePreviewUrls).forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+      setFilePreviewUrls({});
+      setPackageSelection({
+        isItem: false,
+        itemType: "",
+        packageItemId: "",
+        clientPackageId: "",
+      });
+      setIsDialogOpen(false);
+
+      onMessageSent?.();
+      inputRef.current?.focus();
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
+  }, [
+    hasContent,
+    disabled,
+    message,
+    files,
+    packageSelection,
+    sendMessageMutation,
+    onMessageSent,
+  ]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+  const handlePackageSelectionChange = useCallback(
+    (selection: {
+      isItem: boolean;
+      itemType?: string;
+      packageItemId?: string;
+      clientPackageId?: string;
+    }) => {
+      setPackageSelection({
+        isItem: selection.isItem,
+        itemType: selection.itemType || "",
+        packageItemId: selection.packageItemId || "",
+        clientPackageId: selection.clientPackageId || "",
+      });
+    },
+    []
+  );
+  const handleQuickFileAttach = (newFiles: File[]) => {
+    setFiles((prev) => [...prev, ...newFiles]);
+    if (newFiles.length > 0) {
+      setIsDialogOpen(true);
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    const fileKey = `${files[index].name}-${index}`;
+
+    // Cleanup preview URL if it exists
+    if (filePreviewUrls[fileKey]) {
+      URL.revokeObjectURL(filePreviewUrls[fileKey]);
+      setFilePreviewUrls((prev) => {
+        const updated = { ...prev };
+        delete updated[fileKey];
+        return updated;
+      });
+    }
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const openAdvancedOptions = () => {
+    setIsDialogOpen(true);
+  };
+  return (
+    <div className={cn("space-y-4", className)}>
+      {/* Main Message Input */}
+      <div className="flex gap-2 items-end">
+        <div className="flex-1 space-y-2">
+          {/* Quick File Preview */}
+          {files.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {files.slice(0, 3).map((file, index) => {
+                const fileKey = `${file.name}-${index}`;
+                const isImage = file.type.startsWith("image/");
+                const previewUrl = filePreviewUrls[fileKey];
+
+                return (
+                  <div
+                    key={fileKey}
+                    className="relative group"
+                  >
+                    {isImage && previewUrl ? (
+                      <div className="relative">
+                        <img
+                          src={previewUrl}
+                          alt={file.name}
+                          className="w-12 h-12 object-cover rounded-md border"
+                        />
+                        <div className="absolute inset-0 bg-black/50 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Eye className="w-3 h-3 text-white" />
+                        </div>
+                        <button
+                          onClick={() => handleRemoveFile(index)}
+                          className="absolute -top-1 -right-1 bg-destructive hover:bg-destructive/80 text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <Badge
+                        variant="secondary"
+                        className="text-xs flex items-center gap-1 pr-1"
+                      >
+                        <FileText className="w-3 h-3" />
+                        {file.name.length > 15
+                          ? `${file.name.slice(0, 15)}...`
+                          : file.name}
+                        <button
+                          onClick={() => handleRemoveFile(index)}
+                          className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </Badge>
+                    )}
+                  </div>
+                );
+              })}
+              {files.length > 3 && (
+                <Badge
+                  variant="outline"
+                  className="text-xs"
+                >
+                  +{files.length - 3} more
+                </Badge>
+              )}
+            </div>
+          )}
+
+          {/* Package Selection Preview */}
+          {hasPackageSelection && (
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="default"
+                className="text-xs flex items-center gap-1 w-fit"
+              >
+                <Package className="w-3 h-3" />
+                Package Item Selected
+              </Badge>
+              {packageSelection.itemType && (
+                <Badge
+                  variant="outline"
+                  className="text-xs"
+                >
+                  {packageSelection.itemType}
+                </Badge>
+              )}
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <Input
+              ref={inputRef}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={placeholder}
+              disabled={disabled || sendMessageMutation.isPending}
+              className="flex-1"
+            />
+
+            {/* Quick Actions */}
+            <div className="flex gap-1">
+              <FileAttachButton
+                onFilesSelect={handleQuickFileAttach}
+                disabled={disabled || sendMessageMutation.isPending}
+              />
+
+              {/* Advanced Options Dialog */}
+              <Dialog
+                open={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={disabled || sendMessageMutation.isPending}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <Settings className="w-5 h-5" />
+                      Message Options
+                    </DialogTitle>
+                  </DialogHeader>{" "}
+                  <div className="space-y-6">
+                    {/* IsItem Toggle - Always visible and prominent */}
+                    <div className="p-4 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <Label
+                            htmlFor="dialog-is-item"
+                            className="text-base font-semibold flex items-center gap-2 cursor-pointer"
+                          >
+                            <Package className="w-4 h-4 text-primary" />
+                            Include Package Item
+                          </Label>
+                          <p className="text-sm text-muted-foreground">
+                            Toggle this to include a package item with your
+                            message
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={cn(
+                              "text-sm font-medium transition-colors",
+                              packageSelection.isItem
+                                ? "text-primary"
+                                : "text-muted-foreground"
+                            )}
+                          >
+                            {packageSelection.isItem ? "Enabled" : "Disabled"}
+                          </span>
+                          <Switch
+                            id="dialog-is-item"
+                            checked={packageSelection.isItem}
+                            onCheckedChange={(checked) =>
+                              handlePackageSelectionChange({ isItem: checked })
+                            }
+                            disabled={disabled || sendMessageMutation.isPending}
+                            className="data-[state=checked]:bg-primary"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <Tabs
+                      defaultValue="files"
+                      className="w-full"
+                    >
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger
+                          value="files"
+                          className="flex items-center gap-2"
+                        >
+                          <Paperclip className="w-4 h-4" />
+                          Files ({files.length})
+                        </TabsTrigger>{" "}
+                        <TabsTrigger
+                          value="package"
+                          className="flex items-center gap-2"
+                          disabled={!packageSelection.isItem}
+                        >
+                          <Package className="w-4 h-4" />
+                          Package Selection
+                          {!packageSelection.isItem && " (Disabled)"}
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsContent
+                        value="files"
+                        className="mt-4"
+                      >
+                        <FileUpload
+                          files={files}
+                          onFilesChange={setFiles}
+                          disabled={disabled || sendMessageMutation.isPending}
+                          maxFiles={10}
+                          maxFileSize={50 * 1024 * 1024} // 50MB
+                        />
+                      </TabsContent>{" "}
+                      <TabsContent
+                        value="package"
+                        className="mt-4"
+                      >
+                        {" "}
+                        {packageSelection.isItem ? (
+                          <PackageOnlySelector
+                            chatId={chatId}
+                            onSelectionChange={handlePackageSelectionChange}
+                            disabled={disabled || sendMessageMutation.isPending}
+                          />
+                        ) : (
+                          <div className="text-center py-8 text-muted-foreground">
+                            <Package className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                            <p className="text-sm">
+                              Enable "Include Package Item" toggle above to
+                              select packages
+                            </p>
+                          </div>
+                        )}
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsDialogOpen(false)}
+                    >
+                      Close
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
+        </div>
+
+        {/* Send Button */}
+        <Button
+          onClick={handleSendMessage}
+          disabled={!hasContent || disabled || sendMessageMutation.isPending}
+          size="icon"
+          className="h-10 w-10"
+        >
+          {sendMessageMutation.isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Send className="w-4 h-4" />
+          )}
+        </Button>
+      </div>
+
+      {/* Status Indicators */}
+      {sendMessageMutation.isPending && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Sending message...
+        </div>
+      )}
+    </div>
+  );
+}

@@ -52,7 +52,6 @@ export function useVirtualizedMessages({
 
     setVisibleRange({ start: startIndex, end: endIndex });
   }, [messages.length, viewportElement, overscan]);
-
   // Set up scroll listener to recalculate visible range on scroll
   useEffect(() => {
     if (!viewportElement) return;
@@ -60,22 +59,36 @@ export function useVirtualizedMessages({
     // Initial calculation
     calculateVisibleRange();
 
-    // Throttled scroll handler
+    // Throttled scroll handler with reduced frequency
     let isScrolling = false;
+    let scrollTimeout: NodeJS.Timeout | null = null;
+
     const handleScroll = () => {
-      if (!isScrolling) {
-        isScrolling = true;
-        window.requestAnimationFrame(() => {
-          calculateVisibleRange();
-          isScrolling = false;
-        });
+      if (isScrolling) return;
+
+      isScrolling = true;
+
+      // Clear existing timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
       }
+
+      // Debounce scroll calculations
+      scrollTimeout = setTimeout(() => {
+        calculateVisibleRange();
+        isScrolling = false;
+      }, 16); // ~60fps
     };
 
-    viewportElement.addEventListener("scroll", handleScroll, { passive: true });
+    viewportElement.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
 
     return () => {
       viewportElement.removeEventListener("scroll", handleScroll);
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
     };
   }, [viewportElement, calculateVisibleRange]);
 

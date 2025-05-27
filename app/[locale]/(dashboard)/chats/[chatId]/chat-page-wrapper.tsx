@@ -1,18 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { SendIcon, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import { MemoizedMessagesArea, MessageType } from "./_components/messages-area";
-import {
-  useChat,
-  useChatRevalidate,
-  useDeleteChat,
-  useSendMessage,
-} from "@/hooks/use-chat";
+import { useChat, useChatRevalidate, useDeleteChat } from "@/hooks/use-chat";
 import { ChatMessage } from "@/types/chats";
 import ChatEmptyState from "./_components/chat-empty-state";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,6 +23,9 @@ import { AssignPackageDialog } from "./_components/assign-package-dialog";
 import { ManageClientLimits } from "./_components/manage-client-limits";
 import { AdminStatus } from "./_components/admin-status";
 import { cn } from "@/lib/utils";
+import { MessageComposer } from "@/components/ui/message-composer";
+import { useAssignedPackages } from "@/hooks/use-assign-package";
+import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
 
 interface ChatPageWrapperProps {
   chatId: string;
@@ -44,8 +40,8 @@ export default function ChatPageWrapper({
   const t = useTranslations("chat");
   const isAr = useMemo(() => locale === "ar", [locale]);
   const [messages, setMessages] = useState<MessageType[]>([]);
-  const [message, setMessage] = useState<string>("");
   const [isTyping, setIsTyping] = useState(false);
+  const [clientId, setClientId] = useState<string | null>(null);
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -53,6 +49,9 @@ export default function ChatPageWrapper({
   const [hasNewMessages, setHasNewMessages] = useState(false);
   const [consecutiveLoads, setConsecutiveLoads] = useState(0);
   const [lastLoadTimestamp, setLastLoadTimestamp] = useState(0);
+
+  // Get assigned packages for this chat to extract clientId
+  const { data: assignedPackages } = useAssignedPackages(chatId);
 
   // Define refs with proper TypeScript types
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -65,14 +64,14 @@ export default function ChatPageWrapper({
   >("connecting");
   const wsRef = useRef<WebSocket | null>(null);
 
-  const { data, isLoading, isError, mutate } = useChat(chatId, page);
-  const { mutate: mutateDeleteChat } = useDeleteChat();
-
   const { session } = useAuth();
   const currentUserId = session?.user?.id;
   const router = useRouter();
   const revalidate = useChatRevalidate(chatId);
   const chatsRevalidate = useChatsRevalidate();
+
+  const { data, isLoading, isError, mutate } = useChat(chatId, page);
+  const { mutate: mutateDeleteChat } = useDeleteChat();
 
   useEffect(() => {
     const ws = new WebSocket(`ws://ws.droplo.cloud/app/980e9rlf318lalrzdks4`);
@@ -123,11 +122,12 @@ export default function ChatPageWrapper({
     };
   }, []);
 
-  const sendMessageMutation = useSendMessage(
-    chatId,
-    page,
-    session?.user.id || 0
-  );
+  // Extract client ID from assigned packages
+  useEffect(() => {
+    if (assignedPackages?.data?.client_id) {
+      setClientId(assignedPackages.data.client_id.toString());
+    }
+  }, [assignedPackages]);
 
   const retryLoading = useCallback(
     (specificPage?: number) => {
@@ -155,15 +155,29 @@ export default function ChatPageWrapper({
     }
 
     if (Array.isArray(data.data.data)) {
-      const mapped = data.data.data.map((msg: ChatMessage) => ({
-        id: String(msg.id),
-        content: msg.message,
-        sender: (msg.sender_id === currentUserId ? "user" : "agent") as
-          | "agent"
-          | "user",
-        senderName: msg.sender?.name,
-        timestamp: new Date(msg.created_at),
-      }));
+      const mapped: MessageType[] = data.data.data
+        .map((msg: ChatMessage): MessageType | null => {
+          // Add safety check and logging
+          if (!msg || typeof msg !== "object") {
+            console.error("Invalid message object:", msg);
+            return null;
+          }
+
+          const mappedMessage: MessageType = {
+            id: String(msg.id),
+            content: msg.message || "",
+            sender: (msg.sender_id === currentUserId ? "user" : "agent") as
+              | "agent"
+              | "user",
+            senderName: msg.sender?.name || "Unknown",
+            timestamp: new Date(msg.created_at),
+            media: msg.media || [], // Include processed media URLs
+          };
+
+          console.log("Mapped message:", mappedMessage);
+          return mappedMessage;
+        })
+        .filter((msg): msg is MessageType => msg !== null); // Type-safe filter to remove null entries
 
       setMessages((prev) => {
         const ids = new Set(prev.map((m) => m.id));
@@ -352,37 +366,126 @@ export default function ChatPageWrapper({
     consecutiveLoads,
   ]);
 
-  const scrollToBottom = () => {
+  // Initialize smooth scroll hook
+  const { scrollToBottom: smoothScrollToBottom, scrollContainerToElement } =
+    useSmoothScroll();
+
+  // Enhanced scrollToBottom with smart animation based on message count and browser capability
+  const scrollToBottom = (force = false) => {
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
     }
 
-    scrollTimeoutRef.current = setTimeout(() => {
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-      } else if (viewportElement) {
-        console.log(
-          "Scrolling to bottom using viewport element",
-          viewportElement
+    // Define animation duration based on force parameter and message count
+    const messageCount = messages.length;
+    const isLargeMessageList = messageCount > 100;
+
+    // Adjust duration based on message count and force flag
+    const duration = force ? 400 : isLargeMessageList ? 600 : 800;
+
+    const easing = force ? "easeOutCubic" : "easeInOutCubic";
+
+    // Use multiple approaches to ensure scrolling works with smooth animations
+    const attemptScroll = () => {
+      // Method 1: Use our custom smooth scroll to messagesEndRef
+      if (messagesEndRef.current && viewportElement) {
+        // Use custom smooth scroll for better animation
+        scrollContainerToElement(
+          viewportElement,
+          messagesEndRef.current,
+          duration,
+          -20, // Small offset to ensure it's fully visible
+          easing as any
         );
-        viewportElement.scrollTop = viewportElement.scrollHeight;
-      } else {
-        console.error("Could not find viewport for scrolling to bottom");
+        return true;
       }
-    }, 10);
+
+      // Method 2: Scroll viewport directly with animation
+      if (viewportElement) {
+        smoothScrollToBottom(viewportElement, duration, easing as any);
+        return true;
+      }
+
+      // Method 3: Try scrollAreaRef as fallback
+      if (scrollAreaRef.current) {
+        const viewport = scrollAreaRef.current.querySelector(
+          "[data-radix-scroll-area-viewport]"
+        );
+        if (viewport instanceof HTMLElement) {
+          smoothScrollToBottom(viewport, duration, easing as any);
+          return true;
+        }
+      }
+
+      // Fallback to standard methods if custom animation fails
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({
+          behavior: force ? "auto" : "smooth",
+          block: "end",
+        });
+        return true;
+      }
+
+      return false;
+    };
+
+    // Immediate attempt with animation
+    if (attemptScroll()) {
+      return;
+    }
+
+    // If immediate attempt failed, retry with delays
+    scrollTimeoutRef.current = setTimeout(
+      () => {
+        if (attemptScroll()) {
+          return;
+        }
+
+        // Final attempt with longer delay for DOM updates
+        setTimeout(() => {
+          attemptScroll();
+        }, 100);
+      },
+      force ? 0 : 50
+    );
   };
 
   useEffect(() => {
     if (messages.length > prevMessagesLengthRef.current && page === 1) {
       setHasNewMessages(true);
-
       prevMessagesLengthRef.current = messages.length;
+
+      // Auto-scroll if user is near the bottom (within 200px)
+      if (viewportElement) {
+        const distanceFromBottom =
+          viewportElement.scrollHeight -
+          viewportElement.scrollTop -
+          viewportElement.clientHeight;
+
+        if (distanceFromBottom <= 200) {
+          // User is near bottom, auto-scroll
+          setTimeout(() => {
+            scrollToBottom(false);
+          }, 150);
+        }
+      }
     }
-  }, [messages.length, page]);
+  }, [messages.length, page, viewportElement]);
 
   useEffect(() => {
-    if ((page === 1 && !isFetchingMore) || hasNewMessages) {
-      scrollToBottom();
+    // Force scroll to bottom for new messages on page 1 or when new messages arrive
+    if (page === 1 && !isFetchingMore) {
+      // Use a longer delay for initial page load to ensure all animations complete
+      const delay = messages.length > 0 ? 200 : 50;
+      setTimeout(() => {
+        scrollToBottom(false);
+      }, delay);
+    }
+
+    // Handle new messages indicator
+    if (hasNewMessages) {
+      // Immediate scroll for new messages
+      scrollToBottom(false);
       setHasNewMessages(false);
     }
 
@@ -393,21 +496,15 @@ export default function ChatPageWrapper({
     };
   }, [messages, isTyping, page, isFetchingMore, hasNewMessages]);
 
-  const handleSendMessage = () => {
-    if (!message.trim()) return;
-    sendMessageMutation.mutate(message, {
-      onSuccess: () => {
-        setMessage("");
-      },
-    });
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+  // Additional effect to handle typing indicator scrolling
+  useEffect(() => {
+    if (isTyping && page === 1) {
+      // Small delay to let typing indicator render
+      setTimeout(() => {
+        scrollToBottom(false);
+      }, 100);
     }
-  };
+  }, [isTyping, page]);
 
   const onDeleteChat = async (id: string) => {
     try {
@@ -520,6 +617,9 @@ export default function ChatPageWrapper({
                       name={session?.user.name || ""}
                       key={msg.id}
                       message={msg}
+                      previousMessage={
+                        index > 0 ? virtualizedMessages[index - 1] : undefined
+                      }
                       appearAnimation={false}
                     />
                   ))}
@@ -538,7 +638,11 @@ export default function ChatPageWrapper({
                     name={session?.user.name || ""}
                     key={msg.id}
                     message={msg}
+                    previousMessage={
+                      index > 0 ? messages[index - 1] : undefined
+                    }
                     appearAnimation={page === 1 || index < messages.length - 5}
+                    // scrollIntoView prop is not supported, managed by useEffect instead
                   />
                 ))
               )}
@@ -550,7 +654,12 @@ export default function ChatPageWrapper({
                 </div>
               )}
 
-              <div ref={messagesEndRef} />
+              {/* Enhanced scroll target with padding for better scrolling */}
+              <div
+                ref={messagesEndRef}
+                className="h-4 w-full"
+                aria-hidden="true"
+              />
             </div>
           </ScrollArea>
 
@@ -561,33 +670,14 @@ export default function ChatPageWrapper({
                 <div className="h-10 w-10 rounded bg-muted-foreground/20 shimmer animate-pulse" />
               </div>
             ) : (
-              <>
-                <Input
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={t("messageArea.placeholder")}
-                  className="w-full"
-                  disabled={
-                    wsConnectionStatus === "disconnected" ||
-                    sendMessageMutation.isPending
-                  }
-                />
-
-                <Button
-                  onClick={handleSendMessage}
-                  variant="default"
-                  size="icon"
-                  disabled={
-                    !message.trim() ||
-                    sendMessageMutation.isPending ||
-                    wsConnectionStatus === "disconnected"
-                  }
-                >
-                  <SendIcon className="h-4 w-4" />
-                  <span className="sr-only">{t("messageArea.send")}</span>
-                </Button>
-              </>
+              <MessageComposer
+                chatId={chatId}
+                senderId={session?.user?.id || 0}
+                clientId={clientId || undefined}
+                page={page}
+                disabled={wsConnectionStatus === "disconnected"}
+                placeholder={t("messageArea.placeholder")}
+              />
             )}
           </div>
         </div>

@@ -30,6 +30,12 @@ export type ChatMessageSender = {
   updated_at: string;
 };
 
+export type MediaFile = {
+  url: string;
+  type: string;
+  name?: string;
+};
+
 export type ChatMessage = {
   id: number;
   chat_id: number;
@@ -40,6 +46,8 @@ export type ChatMessage = {
   updated_at: string;
   client_package_item_id: number | null;
   sender: ChatMessageSender;
+  media_files?: any[]; // Raw file data from API
+  media?: MediaFile[]; // Processed URLs for display
 };
 
 export type ChatMessagesApiResponse = {

@@ -54,6 +54,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       body: JSON.stringify({ email: email, password: password }),
     });
 
+    console.log("[AUTH_LOGIN_API_RESPONSE]", res);
     const data = await res.json();
     if (!res.ok) {
       console.error("data=>", data);

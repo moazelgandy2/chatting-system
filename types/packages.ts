@@ -125,5 +125,5 @@ export type AssignedPackagesListResponse = {
   status: boolean;
   errorNum: number;
   message: string;
-  data: AssignedPackageData[];
+  data: AssignedPackageData; // Changed from array to single object
 };

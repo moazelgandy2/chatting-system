@@ -121,6 +121,73 @@ export const sendMessage = async (chatId: string, message: string) => {
   return data;
 };
 
+export interface SendMessageWithFilesData {
+  senderId: string;
+  message: string;
+  media?: File[];
+  item_type?: string;
+  package_item_id?: string;
+  client_package_id?: string;
+  IsItem?: string;
+}
+
+export const sendMessageWithFiles = async (
+  chatId: string,
+  data: SendMessageWithFilesData
+) => {
+  const session = await Auth();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+  const apiBaseUrl = process.env.API_APP_URL;
+  if (!apiBaseUrl) {
+    throw new Error("API base URL not set");
+  }
+
+  const formData = new FormData();
+  formData.append("senderId", data.senderId);
+  formData.append("message", data.message);
+
+  // Add media files if provided
+  if (data.media && data.media.length > 0) {
+    data.media.forEach((file) => {
+      formData.append("media[]", file);
+    });
+  }
+
+  console.log("formData from sendMessageWithFiles=>", formData);
+  console.log("data from sendMessageWithFiles=>", data);
+
+  // Add package item data if provided
+  if (data.item_type) {
+    formData.append("item_type", data.item_type);
+  }
+  if (data.package_item_id) {
+    formData.append("package_item_id", data.package_item_id);
+  }
+  if (data.client_package_id) {
+    formData.append("client_package_id", data.client_package_id);
+  }
+  if (data.IsItem) {
+    formData.append("IsItem", data.IsItem);
+  }
+
+  const res = await fetch(`${apiBaseUrl}/api/chats/${chatId}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${session.token}`,
+    },
+    body: formData,
+  });
+
+  const responseData = await res.json();
+  console.log("responseData from sendMessageWithFiles=>", responseData);
+  if (!res.ok) {
+    throw new Error("Failed to send message", { cause: responseData });
+  }
+  return responseData;
+};
+
 export const createChat = async ({
   client_id,
   name,

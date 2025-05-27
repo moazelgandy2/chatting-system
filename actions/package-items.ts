@@ -24,6 +24,60 @@ export async function getItemTypes() {
   return data;
 }
 
+export const getClientPackageItems = async ({
+  clientPackageId,
+}: {
+  clientPackageId: string;
+}) => {
+  const baseUrl = process.env.API_APP_URL;
+  const session = await Auth();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+  const res = await fetch(
+    `${baseUrl}/api/client-package-items/${clientPackageId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${session.token}`,
+      },
+    }
+  );
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error("Failed to fetch package items");
+  }
+
+  return data;
+};
+
+export const getClientPackage = async ({
+  clientPackageId,
+}: {
+  clientPackageId: string;
+}) => {
+  const baseUrl = process.env.API_APP_URL;
+  const session = await Auth();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+  const res = await fetch(
+    `${baseUrl}/api/client-package/${clientPackageId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${session.token}`,
+      },
+    }
+  );
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error("Failed to fetch client package");
+  }
+
+  return data;
+};
+
 export async function createPackageItem(data: PackageItemFormType) {
   const baseUrl = process.env.API_APP_URL;
   const session = await Auth();

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Eraser } from "lucide-react";
 
 type SignatureInputProps = {
-  canvasRef: React.RefObject<HTMLCanvasElement>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
   onSignatureChange: (signature: string | null) => void;
 };
 

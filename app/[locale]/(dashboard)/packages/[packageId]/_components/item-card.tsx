@@ -85,8 +85,9 @@ const ItemCard = ({ item, index }: ItemCardProps) => {
           </div>
         </div>
         <div className="mt-5 flex justify-between items-center">
+          {" "}
           <Badge
-            variant={item.status === "accepted" ? "success" : "warning"}
+            variant={item.status === "accepted" ? "default" : "secondary"}
             className="text-xs"
           >
             {item.status.slice(0, 1).toUpperCase() +
