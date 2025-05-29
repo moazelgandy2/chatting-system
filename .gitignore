@@ -17,6 +17,8 @@ TODOS.ts
 /.next/
 /out/
 
+/.cursor
+
 # production
 /build
 

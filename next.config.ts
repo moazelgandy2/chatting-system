@@ -20,6 +20,11 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "20000000mb",
+    },
+  },
 };
 
 module.exports = withNextIntl(nextConfig);

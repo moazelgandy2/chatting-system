@@ -20,7 +20,7 @@ interface UseChatWebSocketReturn {
 export function useChatWebSocket({
   chatId,
   enabled = true,
-  showNotifications = false,
+  showNotifications = false, // Disabled by default to prevent UI spam
 }: UseChatWebSocketConfig): UseChatWebSocketReturn {
   const router = useRouter();
   const revalidate = useChatRevalidate(chatId);

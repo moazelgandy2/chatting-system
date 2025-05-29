@@ -70,7 +70,7 @@ export function NavMain() {
       <SidebarMenu>
         <SidebarGroupLabel>Main</SidebarGroupLabel>
         <ChatsNavItem />
-        <PackagesNavItem />
+        {session?.user.role === "admin" && <PackagesNavItem />}
       </SidebarMenu>
     </SidebarGroup>
   );

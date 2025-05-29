@@ -30,12 +30,19 @@ export function useWebSocketNotifications({
   const previousStatusRef = useRef<WebSocketStatus>("disconnected");
   const hasShownInitialConnection = useRef(false);
   const currentToastRef = useRef<string | number | null>(null);
-
+  const lastNotificationTimeRef = useRef<number>(0);
+  const NOTIFICATION_COOLDOWN = 5000; // 5 seconds cooldown between notifications
   useEffect(() => {
     if (!enabled) return;
 
     const previousStatus = previousStatusRef.current;
     const isInitialConnection = !hasShownInitialConnection.current;
+    const now = Date.now();
+
+    // Check cooldown period to prevent notification spam
+    const timeSinceLastNotification = now - lastNotificationTimeRef.current;
+    const shouldShowNotification =
+      timeSinceLastNotification > NOTIFICATION_COOLDOWN || isInitialConnection;
 
     // Dismiss previous toast if it exists
     if (currentToastRef.current) {
@@ -44,7 +51,9 @@ export function useWebSocketNotifications({
     }
 
     // Show appropriate notifications based on status changes
-    if (status !== previousStatus) {
+    if (status !== previousStatus && shouldShowNotification) {
+      lastNotificationTimeRef.current = now;
+
       switch (status) {
         case "connected":
           if (
