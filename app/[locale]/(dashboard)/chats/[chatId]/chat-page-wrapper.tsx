@@ -26,6 +26,8 @@ import { cn } from "@/lib/utils";
 import { MessageComposer } from "@/components/ui/message-composer";
 import { useAssignedPackages } from "@/hooks/use-assign-package";
 import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
+import { useChatWebSocket } from "@/hooks/use-chat-websocket";
+import { ChatWebSocketManager } from "@/components/ui/chat-websocket-manager";
 
 interface ChatPageWrapperProps {
   chatId: string;
@@ -59,68 +61,19 @@ export default function ChatPageWrapper({
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const prevMessagesLengthRef = useRef<number>(0);
 
-  const [wsConnectionStatus, setWsConnectionStatus] = useState<
-    "connected" | "disconnected" | "connecting"
-  >("connecting");
-  const wsRef = useRef<WebSocket | null>(null);
+  // Use the new WebSocket hook
+  const { status: wsConnectionStatus } = useChatWebSocket({
+    chatId,
+    enabled: true,
+  });
 
   const { session } = useAuth();
   const currentUserId = session?.user?.id;
   const router = useRouter();
   const revalidate = useChatRevalidate(chatId);
   const chatsRevalidate = useChatsRevalidate();
-
   const { data, isLoading, isError, mutate } = useChat(chatId, page);
   const { mutate: mutateDeleteChat } = useDeleteChat();
-
-  useEffect(() => {
-    const ws = new WebSocket(`ws://ws.droplo.cloud/app/980e9rlf318lalrzdks4`);
-    wsRef.current = ws;
-
-    console.log("WebSocket connection established");
-
-    ws.onopen = () => {
-      console.log("WebSocket connection opened");
-      setWsConnectionStatus("connected");
-      ws.send(
-        JSON.stringify({
-          event: "pusher:subscribe",
-          data: {
-            channel: `chat.${chatId}`,
-          },
-        })
-      );
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket connection closed");
-      setWsConnectionStatus("disconnected");
-    };
-
-    ws.onmessage = (event) => {
-      console.log("WebSocket message received:", JSON.parse(event.data));
-      console.log("Here");
-      router.refresh();
-      revalidate();
-    };
-
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-
-    const pingInterval = setInterval(() => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(`{"event":"ping"}`);
-      }
-    }, 29000);
-
-    return () => {
-      clearInterval(pingInterval);
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-    };
-  }, []);
 
   // Extract client ID from assigned packages
   useEffect(() => {
@@ -529,11 +482,22 @@ export default function ChatPageWrapper({
       dir={isAr ? "rtl" : "ltr"}
       className="w-full h-full rounded-b-xl overflow-hidden relative"
     >
+      {" "}
       {/* Admin Actions Header */}
       {session?.user.role === "admin" && (
         <div className="absolute z-30 top-0 end-0 start-0 backdrop-blur-sm border-b">
           <div className="flex items-center justify-between p-1">
-            <AdminStatus chatId={chatId} />
+            <div className="flex items-center gap-2">
+              <AdminStatus chatId={chatId} />
+              <ChatWebSocketManager
+                chatId={chatId}
+                showStatusIndicator={true}
+                statusIndicatorProps={{
+                  showText: true,
+                  className: "text-xs",
+                }}
+              />
+            </div>
             <div className="flex items-center gap-2">
               <AssignPackageDialog chatId={chatId} />
               <ChatDeleteDialog
@@ -544,7 +508,6 @@ export default function ChatPageWrapper({
           </div>
         </div>
       )}
-
       <div
         className={cn(
           `w-full h-full justify-between`,
@@ -663,8 +626,7 @@ export default function ChatPageWrapper({
                 aria-hidden="true"
               />
             </div>
-          </ScrollArea>
-
+          </ScrollArea>{" "}
           <div className="flex w-full items-center gap-2 justify-between p-2 rounded-t-xl border-t">
             {isLoading ? (
               <div className="flex w-full gap-2 items-center">
@@ -672,15 +634,29 @@ export default function ChatPageWrapper({
                 <div className="h-10 w-10 rounded bg-muted-foreground/20 shimmer animate-pulse" />
               </div>
             ) : (
-              <MessageComposer
-                className="w-full"
-                chatId={chatId}
-                senderId={session?.user?.id || 0}
-                clientId={clientId || undefined}
-                page={page}
-                disabled={wsConnectionStatus === "disconnected"}
-                placeholder={t("messageArea.placeholder")}
-              />
+              <>
+                <MessageComposer
+                  className="w-full"
+                  chatId={chatId}
+                  senderId={session?.user?.id || 0}
+                  clientId={clientId || undefined}
+                  page={page}
+                  disabled={wsConnectionStatus === "disconnected"}
+                  placeholder={t("messageArea.placeholder")}
+                />
+                {/* WebSocket status for non-admin users */}
+                {session?.user.role !== "admin" && (
+                  <ChatWebSocketManager
+                    chatId={chatId}
+                    showStatusIndicator={true}
+                    statusIndicatorProps={{
+                      showText: false,
+                      className: "text-xs",
+                    }}
+                    className="shrink-0"
+                  />
+                )}
+              </>
             )}
           </div>
         </div>
@@ -705,7 +681,6 @@ export default function ChatPageWrapper({
           </div>
         )}
       </div>
-
       <ScrollToBottomButton
         scrollAreaRef={scrollAreaRef}
         onClick={scrollToBottom}
