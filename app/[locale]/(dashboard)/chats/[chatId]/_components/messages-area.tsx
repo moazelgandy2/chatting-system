@@ -517,18 +517,9 @@ export const MessagesArea = forwardRef<
                   transition={{ delay: 0.6, duration: 0.3 }}
                   className="mt-2"
                 >
+                  {" "}
                   <ClientPackageItemStatus
                     clientPackageItem={message.client_package_item}
-                    packageId={
-                      message.client_package_item_id
-                        ? message.client_package_item_id
-                        : undefined
-                    }
-                    packageItemId={
-                      message.client_package_item_id !== null
-                        ? message.client_package_item_id
-                        : undefined
-                    }
                     isCompact={true}
                   />
                 </motion.div>

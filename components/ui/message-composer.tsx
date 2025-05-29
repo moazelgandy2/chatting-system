@@ -144,8 +144,17 @@ export function MessageComposer({
         : undefined,
       IsItem: packageSelection.isItem ? "1" : "0",
     };
-
-    console.log("MessageComposer - Sending message data:", messageData);
+    console.log("MessageComposer - Enhanced Send Message Debug:", {
+      messageData,
+      packageSelection,
+      hasPackageSelection,
+      packageItemIdPresent: !!messageData.package_item_id,
+      packageItemIdValue: messageData.package_item_id,
+      willSendPackageItemId:
+        packageSelection.isItem && !!packageSelection.packageItemId,
+      messageDataStringified: JSON.stringify(messageData, null, 2),
+      timestamp: new Date().toISOString(),
+    });
 
     try {
       await sendMessageMutation.mutateAsync(messageData); // Reset form
@@ -193,14 +202,44 @@ export function MessageComposer({
       packageItemId?: string;
       clientPackageId?: string;
     }) => {
+      console.log("MessageComposer - Enhanced Package Selection Change:", {
+        previousSelection: packageSelection,
+        newSelection: selection,
+        hasPackageItemId: !!selection.packageItemId,
+        packageItemIdValue: selection.packageItemId,
+        isItemType: selection.isItem,
+        itemType: selection.itemType,
+        clientPackageId: selection.clientPackageId,
+        timestamp: new Date().toISOString(),
+      });
+
       setPackageSelection({
         isItem: selection.isItem,
         itemType: selection.itemType || "",
         packageItemId: selection.packageItemId || "",
         clientPackageId: selection.clientPackageId || "",
       });
+
+      // Additional validation logging
+      if (selection.isItem && !selection.packageItemId) {
+        console.warn(
+          "MessageComposer - WARNING: Package selection is item but no packageItemId provided:",
+          selection
+        );
+      }
+
+      if (selection.isItem && selection.packageItemId) {
+        console.log(
+          "MessageComposer - SUCCESS: Package item ID will be sent to server:",
+          {
+            packageItemId: selection.packageItemId,
+            itemType: selection.itemType,
+            clientPackageId: selection.clientPackageId,
+          }
+        );
+      }
     },
-    []
+    [packageSelection]
   );
   const handleQuickFileAttach = (newFiles: File[]) => {
     setFiles((prev) => [...prev, ...newFiles]);

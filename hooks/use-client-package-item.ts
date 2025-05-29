@@ -8,11 +8,15 @@ const CLIENT_PACKAGE_ITEM_QUERY_KEY = "clientPackageItem";
 
 export function useClientPackageItem(
   packageId?: number,
-  packageItemId?: number
+  packageItemId?: number,
+  options?: { enabled?: boolean }
 ) {
   return useQuery<{ status: boolean; data: ClientPackageItem }>({
     queryKey: [CLIENT_PACKAGE_ITEM_QUERY_KEY, packageId, packageItemId],
     queryFn: () => getClientPackageItem(packageId!, packageItemId!),
-    enabled: !!packageId && !!packageItemId,
+    enabled:
+      (options?.enabled !== undefined ? options.enabled : true) &&
+      !!packageId &&
+      !!packageItemId,
   });
 }

@@ -18,6 +18,7 @@ TODOS.ts
 /out/
 
 /.cursor
+/.github
 
 # production
 /build

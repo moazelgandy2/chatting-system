@@ -25,7 +25,6 @@ import { AdminStatus } from "./_components/admin-status";
 import { cn } from "@/lib/utils";
 import { MessageComposer } from "@/components/ui/message-composer";
 import { useAssignedPackages } from "@/hooks/use-assign-package";
-import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
 import { useChatWebSocket } from "@/hooks/use-chat-websocket";
 import { ChatWebSocketManager } from "@/components/ui/chat-websocket-manager";
 
@@ -44,11 +43,9 @@ export default function ChatPageWrapper({
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [clientId, setClientId] = useState<string | null>(null);
-
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [hasNewMessages, setHasNewMessages] = useState(false);
   const [consecutiveLoads, setConsecutiveLoads] = useState(0);
   const [lastLoadTimestamp, setLastLoadTimestamp] = useState(0);
 
@@ -321,93 +318,54 @@ export default function ChatPageWrapper({
     consecutiveLoads,
   ]);
 
-  // Initialize smooth scroll hook
-  const { scrollToBottom: smoothScrollToBottom, scrollContainerToElement } =
-    useSmoothScroll();
-
-  // Enhanced scrollToBottom with smart animation based on message count and browser capability
   const scrollToBottom = (force = false) => {
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
     }
 
-    // Define animation duration based on force parameter and message count
-    const messageCount = messages.length;
-    const isLargeMessageList = messageCount > 100;
-
-    // Adjust duration based on message count and force flag
-    const duration = force ? 400 : isLargeMessageList ? 600 : 800;
-
-    const easing = force ? "easeOutCubic" : "easeInOutCubic";
-
-    // Use multiple approaches to ensure scrolling works with smooth animations
-    const attemptScroll = () => {
-      // Method 1: Use our custom smooth scroll to messagesEndRef
-      if (messagesEndRef.current && viewportElement) {
-        // Use custom smooth scroll for better animation
-        scrollContainerToElement(
-          viewportElement,
-          messagesEndRef.current,
-          duration,
-          -20, // Small offset to ensure it's fully visible
-          easing as any
-        );
-        return true;
-      }
-
-      // Method 2: Scroll viewport directly with animation
-      if (viewportElement) {
-        smoothScrollToBottom(viewportElement, duration, easing as any);
-        return true;
-      }
-
-      // Method 3: Try scrollAreaRef as fallback
-      if (scrollAreaRef.current) {
-        const viewport = scrollAreaRef.current.querySelector(
-          "[data-radix-scroll-area-viewport]"
-        );
-        if (viewport instanceof HTMLElement) {
-          smoothScrollToBottom(viewport, duration, easing as any);
-          return true;
-        }
-      }
-
-      // Fallback to standard methods if custom animation fails
+    const performScroll = () => {
       if (messagesEndRef.current) {
         messagesEndRef.current.scrollIntoView({
           behavior: force ? "auto" : "smooth",
           block: "end",
         });
-        return true;
+        return;
       }
 
-      return false;
+      // Fallback: Scroll viewport to bottom
+      if (viewportElement) {
+        viewportElement.scrollTo({
+          top: viewportElement.scrollHeight,
+          behavior: force ? "auto" : "smooth",
+        });
+        return;
+      }
+
+      // Last resort: Find viewport element manually
+      if (scrollAreaRef.current) {
+        const viewport = scrollAreaRef.current.querySelector(
+          "[data-radix-scroll-area-viewport]"
+        );
+        if (viewport instanceof HTMLElement) {
+          viewport.scrollTo({
+            top: viewport.scrollHeight,
+            behavior: force ? "auto" : "smooth",
+          });
+        }
+      }
     };
 
-    // Immediate attempt with animation
-    if (attemptScroll()) {
+    // For force scrolling, execute immediately
+    if (force) {
+      performScroll();
       return;
     }
 
-    // If immediate attempt failed, retry with delays
-    scrollTimeoutRef.current = setTimeout(
-      () => {
-        if (attemptScroll()) {
-          return;
-        }
-
-        // Final attempt with longer delay for DOM updates
-        setTimeout(() => {
-          attemptScroll();
-        }, 100);
-      },
-      force ? 0 : 50
-    );
+    // For smooth scrolling, add a small delay to ensure DOM is ready
+    scrollTimeoutRef.current = setTimeout(performScroll, 50);
   };
-
   useEffect(() => {
     if (messages.length > prevMessagesLengthRef.current && page === 1) {
-      setHasNewMessages(true);
       prevMessagesLengthRef.current = messages.length;
 
       // Auto-scroll if user is near the bottom (within 200px)
@@ -418,30 +376,16 @@ export default function ChatPageWrapper({
           viewportElement.clientHeight;
 
         if (distanceFromBottom <= 200) {
-          // User is near bottom, auto-scroll
-          setTimeout(() => {
-            scrollToBottom(false);
-          }, 150);
+          // User is near bottom, auto-scroll with a small delay
+          setTimeout(() => scrollToBottom(false), 100);
         }
       }
     }
   }, [messages.length, page, viewportElement]);
-
   useEffect(() => {
-    // Force scroll to bottom for new messages on page 1 or when new messages arrive
-    if (page === 1 && !isFetchingMore) {
-      // Use a longer delay for initial page load to ensure all animations complete
-      const delay = messages.length > 0 ? 200 : 50;
-      setTimeout(() => {
-        scrollToBottom(false);
-      }, delay);
-    }
-
-    // Handle new messages indicator
-    if (hasNewMessages) {
-      // Immediate scroll for new messages
-      scrollToBottom(false);
-      setHasNewMessages(false);
+    // Auto-scroll to bottom for initial load or when new messages arrive
+    if (page === 1 && !isFetchingMore && messages.length > 0) {
+      setTimeout(() => scrollToBottom(false), 100);
     }
 
     return () => {
@@ -449,15 +393,11 @@ export default function ChatPageWrapper({
         clearTimeout(scrollTimeoutRef.current);
       }
     };
-  }, [messages, isTyping, page, isFetchingMore, hasNewMessages]);
-
-  // Additional effect to handle typing indicator scrolling
+  }, [messages, page, isFetchingMore]);
+  // Simplified typing indicator scroll
   useEffect(() => {
     if (isTyping && page === 1) {
-      // Small delay to let typing indicator render
-      setTimeout(() => {
-        scrollToBottom(false);
-      }, 100);
+      setTimeout(() => scrollToBottom(false), 100);
     }
   }, [isTyping, page]);
 
@@ -680,11 +620,10 @@ export default function ChatPageWrapper({
             )}
           </div>
         )}
-      </div>
+      </div>{" "}
       <ScrollToBottomButton
         scrollAreaRef={scrollAreaRef}
         onClick={scrollToBottom}
-        hasNewMessages={hasNewMessages}
       />
     </div>
   );

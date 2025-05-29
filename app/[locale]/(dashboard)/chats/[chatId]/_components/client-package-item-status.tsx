@@ -13,38 +13,27 @@ import {
   Truck,
   Package,
   AlertCircle,
-  Loader2,
   Edit3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { useClientPackageItem } from "@/hooks/use-client-package-item";
 import { useUpdateClientPackageItemStatus } from "@/hooks/use-assign-package";
 import { ClientPackageItem } from "@/types/packages";
 
 interface ClientPackageItemStatusProps {
   clientPackageItem?: ClientPackageItem | null;
-  packageId?: number;
-  packageItemId?: number;
   isCompact?: boolean;
 }
 
 const ClientPackageItemStatus = ({
   clientPackageItem: propClientPackageItem,
-  packageId,
-  packageItemId,
   isCompact = false,
 }: ClientPackageItemStatusProps) => {
   const t = useTranslations("package");
-  const {
-    data: response,
-    isLoading,
-    error,
-  } = useClientPackageItem(packageId, packageItemId);
   const updateStatusMutation = useUpdateClientPackageItemStatus();
 
-  // Use the prop if provided, otherwise use the fetched data
-  const clientPackageItem = propClientPackageItem || response?.data;
+  // Use only the provided prop, no API fetching
+  const clientPackageItem = propClientPackageItem;
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -121,33 +110,7 @@ const ClientPackageItemStatus = ({
     } catch (error) {
       console.error("Failed to update status:", error);
     }
-  }; // Loading state
-  if (isLoading && !propClientPackageItem) {
-    return (
-      <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md">
-        <Loader2 className="w-4 h-4 animate-spin" />
-        <span className="text-sm text-muted-foreground">
-          {t("status.loading", { default: "Loading package item..." })}
-        </span>
-      </div>
-    );
-  }
-
-  // Error state
-  if (
-    (error || !clientPackageItem) &&
-    (packageId || packageItemId) &&
-    !propClientPackageItem
-  ) {
-    return (
-      <div className="flex items-center gap-2 p-2 bg-red-500/10 border border-red-500/20 rounded-md">
-        <AlertCircle className="w-4 h-4 text-red-500" />
-        <span className="text-sm text-red-500">
-          {t("status.error", { default: "Failed to load package item" })}
-        </span>
-      </div>
-    );
-  }
+  };
 
   // No data state
   if (!clientPackageItem) {

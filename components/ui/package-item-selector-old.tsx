@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -13,13 +13,9 @@ import {
 } from "@/components/ui/select";
 import { Loader2, Package, ShoppingCart, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  useEnhancedClientPackage,
-  useNewItemTypes,
-} from "@/hooks/use-new-client-package";
+import { useAvailableItemTypes } from "@/hooks/use-available-item-types";
+import { useClientPackageItems } from "@/hooks/use-client-package-items";
 import { useAssignedPackages } from "@/hooks/use-assign-package";
-import { ItemType } from "@/types/item-types";
-import { EnhancedPackageItem } from "@/types/new-client-package";
 
 interface PackageOnlySelectorProps {
   chatId: string | number;
@@ -40,6 +36,8 @@ export function PackageOnlySelector({
   className,
 }: PackageOnlySelectorProps) {
   const [selectedItemType, setSelectedItemType] = useState<string>("");
+  const [selectedPackageItemId, setSelectedPackageItemId] =
+    useState<string>("");
 
   // Fetch assigned packages for the chat
   const { data: assignedPackages, isLoading: isLoadingPackages } =
@@ -48,107 +46,64 @@ export function PackageOnlySelector({
   // Get the client package ID from assigned packages
   const clientPackageId = assignedPackages?.data?.id?.toString();
 
-  // Fetch item types using new API
-  const { data: itemTypes, isLoading: isLoadingTypes } = useNewItemTypes();
+  // Fetch available item types based on client limits
+  const { data: availableItemTypes, isLoading: isLoadingTypes } =
+    useAvailableItemTypes(clientPackageId || "");
 
-  // Fetch enhanced client package data using new API
-  const {
-    data: enhancedPackageData,
-    isLoading: isLoadingItems,
-    error: packageDataError,
-  } = useEnhancedClientPackage(clientPackageId || "");
+  // Fetch client package items for specific item selection
+  const { data: packageItems, isLoading: isLoadingItems } =
+    useClientPackageItems(clientPackageId || "");
 
-  // Enhanced debug logging for new data flow
-  console.log("PackageOnlySelector Enhanced Debug:", {
+  // Filter package items by selected type
+  const filteredPackageItems = useMemo(() => {
+    if (!packageItems || !Array.isArray(packageItems) || !selectedItemType)
+      return [];
+    return packageItems.filter(
+      (item: any) => item.item_type === selectedItemType
+    );
+  }, [packageItems, selectedItemType]); // Debug logging
+  console.log("PackageOnlySelector Debug:", {
     chatId,
     clientPackageId,
     assignedPackagesRaw: assignedPackages,
     assignedPackagesData: assignedPackages?.data,
-    itemTypes,
-    enhancedPackageData,
-    packageDataError,
+    availableItemTypes,
+    packageItems,
+    filteredPackageItems,
     selectedItemType,
     isLoadingTypes,
     isLoadingItems,
-    isLoadingPackages,
-  }); // Get available item types that have items in the package
-  const availableItemTypes = useMemo(() => {
-    // Add more defensive checks
-    if (
-      !enhancedPackageData?.package_items ||
-      !Array.isArray(enhancedPackageData.package_items)
-    ) {
-      console.log(
-        "No package items available or not an array:",
-        enhancedPackageData?.package_items
-      );
-      return [];
-    }
-
-    if (!itemTypes?.data || !Array.isArray(itemTypes.data)) {
-      console.log("No item types available or not an array:", itemTypes?.data);
-      return [];
-    } // Get unique type IDs from package items
-    const typeIdsInPackage = [
-      ...new Set(
-        enhancedPackageData.package_items.map(
-          (item: EnhancedPackageItem) => item.type_id
-        )
-      ),
-    ];
-
-    console.log("Type IDs in package:", typeIdsInPackage);
-    console.log("Available item types:", itemTypes.data); // Filter item types to only include those with items in the package
-    const filtered = itemTypes.data.filter((type: ItemType) =>
-      typeIdsInPackage.includes(type.id)
-    );
-    console.log("Filtered available item types:", filtered);
-
-    return filtered;
-  }, [enhancedPackageData?.package_items, itemTypes]);
-  // Remove the auto-selection logic and package item change handler since we only need type selection
+  });
   const handleItemTypeChange = (value: string) => {
-    console.log("Item type selected:", {
-      selectedType: value,
-      previousType: selectedItemType,
-      clientPackageId,
-    });
-
     setSelectedItemType(value);
+    setSelectedPackageItemId(""); // Reset package item selection
 
-    // Find the item type ID from the selected type name
-    const selectedItemTypeObj = itemTypes?.data?.find(
-      (type: ItemType) => type.name === value
-    );
-    const selectedTypeId = selectedItemTypeObj?.id;
+    // Filter items for this type to auto-select the first one
+    const itemsForType =
+      packageItems?.filter((item: any) => item.item_type.name === value) || [];
 
-    // Find the corresponding package item with matching type_id
-    let packageItemId: string | undefined = undefined;
-    if (selectedTypeId && enhancedPackageData?.package_items) {
-      const correspondingPackageItem = enhancedPackageData.package_items.find(
-        (item: EnhancedPackageItem) => item.type_id === selectedTypeId
-      );
-      packageItemId = correspondingPackageItem?.id?.toString();
+    // Auto-select the first item if available
+    const firstItemId =
+      itemsForType.length > 0 ? itemsForType[0].id.toString() : "";
+    if (firstItemId) {
+      setSelectedPackageItemId(firstItemId);
     }
 
-    console.log("Package item resolution:", {
-      selectedType: value,
-      selectedTypeId,
-      correspondingPackageItemId: packageItemId,
-      availablePackageItems: enhancedPackageData?.package_items?.map(
-        (item: EnhancedPackageItem) => ({
-          id: item.id,
-          type_id: item.type_id,
-          item_type_name: item.item_type_name,
-        })
-      ),
-    });
-
-    // Immediately notify parent with the item type selection and package item ID
     onSelectionChange({
       isItem: true,
-      itemType: value,
-      packageItemId: packageItemId,
+      itemType: value, // Send the type name directly
+      packageItemId: firstItemId || undefined, // Always send an item ID if available
+      clientPackageId: clientPackageId,
+    });
+  };
+
+  const handlePackageItemChange = (value: string) => {
+    setSelectedPackageItemId(value);
+
+    onSelectionChange({
+      isItem: true,
+      itemType: selectedItemType,
+      packageItemId: value,
       clientPackageId: clientPackageId,
     });
   };
@@ -165,7 +120,6 @@ export function PackageOnlySelector({
       </Card>
     );
   }
-
   if (!assignedPackages?.data) {
     return (
       <Card className={cn("w-full", className)}>
@@ -174,25 +128,6 @@ export function PackageOnlySelector({
           <span className="ml-2 text-sm text-muted-foreground">
             No packages assigned to this chat
           </span>
-        </CardContent>
-      </Card>
-    );
-  }
-  if (packageDataError) {
-    console.error("Package data error:", packageDataError);
-    return (
-      <Card className={cn("w-full", className)}>
-        <CardContent className="flex items-center justify-center p-6">
-          <AlertCircle className="w-6 h-6 text-destructive" />
-          <div className="ml-2 text-sm">
-            <span className="text-destructive">Error loading package data</span>
-            <div className="text-xs text-muted-foreground mt-1">
-              {packageDataError.message}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Check console for more details
-            </div>
-          </div>
         </CardContent>
       </Card>
     );
@@ -208,7 +143,6 @@ export function PackageOnlySelector({
             Package Selection
           </h3>
         </div>
-
         {/* Assigned Package Display */}
         <div className="p-3 rounded-md bg-primary/5 border border-primary/20">
           <h4 className="text-sm font-medium text-primary mb-2 flex items-center gap-2">
@@ -225,21 +159,12 @@ export function PackageOnlySelector({
               {assignedPackages.data.status}
             </Badge>
           </div>
-          {enhancedPackageData && (
-            <div className="mt-2 text-xs text-muted-foreground">
-              <div>Client Package ID: {enhancedPackageData.id}</div>
-              <div>
-                Total Items: {enhancedPackageData.package_items?.length || 0}
-              </div>
-            </div>
-          )}
-        </div>
-
+        </div>{" "}
         <div className="space-y-4">
           {/* Item Type Selection */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Item Type</Label>{" "}
-            {isLoadingTypes || isLoadingItems ? (
+            <Label className="text-sm font-medium">Item Type</Label>
+            {isLoadingTypes ? (
               <div className="flex items-center gap-2 p-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span className="text-sm text-muted-foreground">
@@ -256,7 +181,7 @@ export function PackageOnlySelector({
                   <SelectValue placeholder="Select item type..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableItemTypes.map((type: ItemType) => (
+                  {availableItemTypes.map((type: any) => (
                     <SelectItem
                       key={type.id}
                       value={type.name}
@@ -271,18 +196,66 @@ export function PackageOnlySelector({
                   ))}
                 </SelectContent>
               </Select>
-            ) : enhancedPackageData ? (
+            ) : (
               <div className="flex items-center gap-2 p-2 text-sm text-muted-foreground">
                 <AlertCircle className="w-4 h-4" />
                 No item types available for this package
               </div>
-            ) : (
-              <div className="flex items-center gap-2 p-2 text-sm text-muted-foreground">
-                <AlertCircle className="w-4 h-4" />
-                Package data not loaded yet
-              </div>
             )}
-          </div>{" "}
+          </div>
+
+          {/* Package Item Selection - Show when item type is selected */}
+          {selectedItemType && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                Specific Package Item (Optional)
+              </Label>
+              {isLoadingItems ? (
+                <div className="flex items-center gap-2 p-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm text-muted-foreground">
+                    Loading package items...
+                  </span>
+                </div>
+              ) : filteredPackageItems && filteredPackageItems.length > 0 ? (
+                <Select
+                  value={selectedPackageItemId}
+                  onValueChange={handlePackageItemChange}
+                  disabled={disabled}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select specific item (optional)..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredPackageItems.map((item: any) => (
+                      <SelectItem
+                        key={item.id}
+                        value={item.id.toString()}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            #{item.id}
+                          </Badge>
+                          <span className="text-sm">
+                            {item.notes || `${item.item_type.name} Item`}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="flex items-center gap-2 p-2 text-sm text-muted-foreground">
+                  <Package className="w-4 h-4" />
+                  No specific items available for this type
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Selection Summary */}
           {selectedItemType && (
             <div className="p-3 rounded-md bg-primary/5 border border-primary/20">
@@ -291,9 +264,8 @@ export function PackageOnlySelector({
               </h4>
               <div className="space-y-1 text-xs text-muted-foreground">
                 <div>Package ID: {assignedPackages.data.package_id}</div>
-                <div>Client Package ID: {clientPackageId}</div>
                 <div>
-                  Selected Item Type:{" "}
+                  Item Type:{" "}
                   <Badge
                     variant="outline"
                     className="text-xs"
@@ -301,14 +273,9 @@ export function PackageOnlySelector({
                     {selectedItemType}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant="default"
-                    className="text-xs"
-                  >
-                    ✓ Type selected - ready to send
-                  </Badge>
-                </div>
+                {selectedPackageItemId && (
+                  <div>Package Item ID: {selectedPackageItemId}</div>
+                )}
               </div>
             </div>
           )}

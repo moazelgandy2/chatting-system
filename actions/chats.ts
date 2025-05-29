@@ -163,7 +163,13 @@ export const sendMessageWithFiles = async (
     formData.append("item_type", data.item_type);
   }
   if (data.package_item_id) {
+    console.log(
+      "package_item_id from sendMessageWithFiles=>",
+      data.package_item_id
+    );
     formData.append("package_item_id", data.package_item_id);
+  } else {
+    console.log("package_item_id is not provided in sendMessageWithFiles");
   }
   if (data.client_package_id) {
     formData.append("client_package_id", data.client_package_id);
