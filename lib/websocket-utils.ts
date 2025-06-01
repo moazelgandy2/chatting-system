@@ -229,3 +229,53 @@ export function throttle<T extends (...args: any[]) => any>(
     }
   };
 }
+
+/**
+ * Process media files from WebSocket message data
+ */
+export function processMediaFiles(
+  mediaFiles: any[]
+): { url: string; type: string; name?: string }[] {
+  if (!mediaFiles || !Array.isArray(mediaFiles)) {
+    return [];
+  }
+
+  return mediaFiles.map((file) => ({
+    url: file.url || file.path || "",
+    type: file.type || file.mime_type || "unknown",
+    name: file.name || file.filename || undefined,
+  }));
+}
+
+/**
+ * Validate WebSocket message data for NewMessageEvent
+ */
+export function validateNewMessageData(data: any): boolean {
+  return (
+    data &&
+    typeof data === "object" &&
+    data.id &&
+    data.chat_id &&
+    data.sender_id &&
+    data.message &&
+    data.created_at
+  );
+}
+
+/**
+ * Extract sender information from WebSocket message or create default
+ */
+export function extractSenderInfo(data: any, defaultId?: number) {
+  const senderId = parseInt(
+    data.sender_id?.toString() || defaultId?.toString() || "0"
+  );
+
+  return {
+    id: senderId,
+    name: data.sender_name || data.sender?.name || "Unknown",
+    email: data.sender_email || data.sender?.email || "",
+    email_verified_at: data.sender?.email_verified_at || null,
+    created_at: data.created_at,
+    updated_at: data.created_at,
+  };
+}

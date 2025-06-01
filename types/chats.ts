@@ -64,3 +64,19 @@ export type ChatMessagesApiResponse = {
     data: ChatMessage[];
   };
 };
+
+// WebSocket event types
+export type NewMessageEventData = {
+  id: number;
+  chat_id: string | number;
+  sender_id: string | number;
+  message: string;
+  media_files?: any[];
+  created_at: string;
+};
+
+export type WebSocketMessageEvent = {
+  event: string;
+  data: NewMessageEventData | string;
+  channel: string;
+};

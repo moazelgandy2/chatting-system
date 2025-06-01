@@ -13,7 +13,6 @@ export const WEBSOCKET_CONFIG = {
     BACKOFF_MULTIPLIER: 2, // More aggressive backoff
     MAX_DELAY: 60000, // Maximum delay between reconnection attempts
   },
-
   // Event types
   EVENTS: {
     PING: "ping",
@@ -22,6 +21,7 @@ export const WEBSOCKET_CONFIG = {
     UNSUBSCRIBE: "pusher:unsubscribe",
     MESSAGE: "message",
     CHAT_MESSAGE: "chat.message",
+    NEW_MESSAGE_EVENT: "App\\Events\\NewMessageEvent",
     USER_JOINED: "user.joined",
     USER_LEFT: "user.left",
     TYPING_START: "typing.start",

@@ -198,11 +198,21 @@ export function useWebSocket(config: WebSocketConfig): WebSocketReturn {
           );
         }
       };
-
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
           console.log("WebSocket message received:", data);
+
+          // Handle events with string data that needs to be parsed
+          if (data.data && typeof data.data === "string") {
+            try {
+              const parsedData = JSON.parse(data.data);
+              data.data = parsedData;
+            } catch (parseError) {
+              console.warn("Could not parse event data as JSON:", parseError);
+            }
+          }
+
           onMessage?.(data);
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);

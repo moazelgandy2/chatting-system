@@ -17,7 +17,12 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { useUpdateClientPackageItemStatus } from "@/hooks/use-assign-package";
+import {
+  useUpdateClientPackageItemStatus,
+  useAcceptClientPackageItem,
+  useEditClientPackageItem,
+  useDeclineClientPackageItem,
+} from "@/hooks/use-assign-package";
 import { ClientPackageItem } from "@/types/packages";
 
 interface ClientPackageItemStatusProps {
@@ -31,69 +36,57 @@ const ClientPackageItemStatus = ({
 }: ClientPackageItemStatusProps) => {
   const t = useTranslations("package");
   const updateStatusMutation = useUpdateClientPackageItemStatus();
+  const acceptMutation = useAcceptClientPackageItem();
+  const editMutation = useEditClientPackageItem();
+  const declineMutation = useDeclineClientPackageItem();
 
-  // Use only the provided prop, no API fetching
   const clientPackageItem = propClientPackageItem;
-
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "pending":
         return {
-          bgColor: "bg-blue-500/20",
-          borderColor: "border-blue-500/30",
-          textColor: "text-blue-500",
+          bgColor: "bg-amber-500/10",
+          borderColor: "border-amber-500/20",
+          textColor: "text-amber-600",
           icon: <Clock className="w-3 h-3" />,
           label: t("status.pending", { default: "Pending" }),
         };
-      case "in_progress":
+      case "edited":
         return {
-          bgColor: "bg-amber-500/20",
-          borderColor: "border-amber-500/30",
-          textColor: "text-amber-500",
-          icon: <RotateCw className="w-3 h-3" />,
-          label: t("status.inProgress", { default: "In Progress" }),
+          bgColor: "bg-blue-500/10",
+          borderColor: "border-blue-500/20",
+          textColor: "text-blue-600",
+          icon: <Edit3 className="w-3 h-3" />,
+          label: t("status.edited", { default: "Edited" }),
         };
-      case "completed":
+      case "accepted":
         return {
-          bgColor: "bg-green-500/20",
-          borderColor: "border-green-500/30",
-          textColor: "text-green-500",
+          bgColor: "bg-emerald-500/10",
+          borderColor: "border-emerald-500/20",
+          textColor: "text-emerald-600",
           icon: <Check className="w-3 h-3" />,
-          label: t("status.completed", { default: "Completed" }),
+          label: t("status.accepted", { default: "Accepted" }),
         };
       case "declined":
         return {
-          bgColor: "bg-red-500/20",
-          borderColor: "border-red-500/30",
-          textColor: "text-red-500",
+          bgColor: "bg-red-500/10",
+          borderColor: "border-red-500/20",
+          textColor: "text-red-600",
           icon: <X className="w-3 h-3" />,
           label: t("status.declined", { default: "Declined" }),
         };
-      case "delivered":
-        return {
-          bgColor: "bg-purple-500/20",
-          borderColor: "border-purple-500/30",
-          textColor: "text-purple-500",
-          icon: <Truck className="w-3 h-3" />,
-          label: t("status.delivered", { default: "Delivered" }),
-        };
       default:
         return {
-          bgColor: "bg-gray-500/20",
-          borderColor: "border-gray-500/30",
-          textColor: "text-gray-500",
+          bgColor: "bg-slate-500/10",
+          borderColor: "border-slate-500/20",
+          textColor: "text-slate-600",
           icon: <AlertCircle className="w-3 h-3" />,
           label: t("status.unknown", { default: "Unknown" }),
         };
     }
   };
   const handleStatusUpdate = async (
-    newStatus:
-      | "pending"
-      | "in_progress"
-      | "completed"
-      | "declined"
-      | "delivered",
+    newStatus: "pending" | "accepted" | "completed" | "declined" | "delivered",
     notes?: string
   ) => {
     if (!clientPackageItem) {
@@ -109,6 +102,45 @@ const ClientPackageItemStatus = ({
       });
     } catch (error) {
       console.error("Failed to update status:", error);
+    }
+  };
+
+  const handleAccept = async () => {
+    if (!clientPackageItem) {
+      console.error("Cannot accept: No client package item available");
+      return;
+    }
+
+    try {
+      await acceptMutation.mutateAsync(clientPackageItem.id);
+    } catch (error) {
+      console.error("Failed to accept item:", error);
+    }
+  };
+
+  const handleEdit = async () => {
+    if (!clientPackageItem) {
+      console.error("Cannot request edit: No client package item available");
+      return;
+    }
+
+    try {
+      await editMutation.mutateAsync(clientPackageItem.id);
+    } catch (error) {
+      console.error("Failed to request edit:", error);
+    }
+  };
+
+  const handleDecline = async () => {
+    if (!clientPackageItem) {
+      console.error("Cannot decline: No client package item available");
+      return;
+    }
+
+    try {
+      await declineMutation.mutateAsync(clientPackageItem.id);
+    } catch (error) {
+      console.error("Failed to decline item:", error);
     }
   };
 
@@ -158,12 +190,11 @@ const ClientPackageItemStatus = ({
             {" "}
             {clientPackageItem.status === "pending" && (
               <>
-                {" "}
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => handleStatusUpdate("in_progress")}
-                  disabled={updateStatusMutation.isPending}
+                  onClick={handleAccept}
+                  disabled={acceptMutation.isPending}
                   className="h-6 text-[10px] px-1.5"
                 >
                   <Check className="w-3 h-3 mr-0.5" />
@@ -172,10 +203,8 @@ const ClientPackageItemStatus = ({
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() =>
-                    handleStatusUpdate("in_progress", "Requested edits")
-                  }
-                  disabled={updateStatusMutation.isPending}
+                  onClick={handleEdit}
+                  disabled={editMutation.isPending}
                   className="h-6 text-[10px] px-1.5 text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
                 >
                   <Edit3 className="w-3 h-3 mr-0.5" />
@@ -184,8 +213,8 @@ const ClientPackageItemStatus = ({
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => handleStatusUpdate("declined")}
-                  disabled={updateStatusMutation.isPending}
+                  onClick={handleDecline}
+                  disabled={declineMutation.isPending}
                   className="h-6 text-[10px] px-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   <X className="w-3 h-3 mr-0.5" />
@@ -273,16 +302,15 @@ const ClientPackageItemStatus = ({
                   </span>
                 </div>
               )}
-            </div>
-
+            </div>{" "}
             {/* Action Buttons - Only show for pending status */}
             {clientPackageItem.status === "pending" && (
               <div className="flex gap-2 pt-2 border-t">
                 <Button
                   size="sm"
                   variant="default"
-                  onClick={() => handleStatusUpdate("in_progress")}
-                  disabled={updateStatusMutation.isPending}
+                  onClick={handleAccept}
+                  disabled={acceptMutation.isPending}
                   className="text-xs"
                 >
                   <Check className="w-3 h-3 mr-1" />
@@ -292,8 +320,8 @@ const ClientPackageItemStatus = ({
                 <Button
                   size="sm"
                   variant="destructive"
-                  onClick={() => handleStatusUpdate("declined")}
-                  disabled={updateStatusMutation.isPending}
+                  onClick={handleDecline}
+                  disabled={declineMutation.isPending}
                   className="text-xs"
                 >
                   <X className="w-3 h-3 mr-1" />
@@ -303,10 +331,8 @@ const ClientPackageItemStatus = ({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() =>
-                    handleStatusUpdate("in_progress", "Requested edits")
-                  }
-                  disabled={updateStatusMutation.isPending}
+                  onClick={handleEdit}
+                  disabled={editMutation.isPending}
                   className="text-xs"
                 >
                   <Edit3 className="w-3 h-3 mr-1" />
@@ -314,7 +340,6 @@ const ClientPackageItemStatus = ({
                 </Button>
               </div>
             )}
-
             {/* Mark as Delivered button for completed items */}
             {clientPackageItem.status === "completed" && (
               <div className="flex gap-2 pt-2 border-t">

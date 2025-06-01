@@ -7,10 +7,14 @@ import {
   getAssignedPackages,
   getDetailedClientPackage,
   updateClientPackageItemStatus,
+  acceptClientPackageItem,
+  editClientPackageItem,
+  declineClientPackageItem,
 } from "@/actions/assign-package";
 import { showNotification } from "@/lib/show-notification";
 import { useTranslations } from "next-intl";
 import { PACKAGES_QUERY_KEY } from "./use-packages";
+import { CHATS_QUERY_KEY } from "./use-chats";
 import {
   AssignedPackagesListResponse,
   DetailedAssignedPackageResponse,
@@ -70,16 +74,14 @@ export function useUpdateClientPackageItemStatus() {
       notes,
     }: {
       clientPackageItemId: number;
-      status:
-        | "pending"
-        | "in_progress"
-        | "completed"
-        | "declined"
-        | "delivered";
+      status: "pending" | "accepted" | "completed" | "declined" | "delivered";
       notes?: string;
     }) => updateClientPackageItemStatus(clientPackageItemId, status, notes),
     onSuccess: () => {
+      // Invalidate multiple query keys for comprehensive revalidation
       queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+
       showNotification(
         t("package.itemStatusUpdated", {
           default: "Item status updated successfully!",
@@ -92,6 +94,99 @@ export function useUpdateClientPackageItemStatus() {
         error.message ||
           t("package.itemStatusUpdateError", {
             default: "Failed to update item status",
+          }),
+        "error"
+      );
+    },
+  });
+}
+
+export function useAcceptClientPackageItem() {
+  const queryClient = useQueryClient();
+  const t = useTranslations();
+
+  return useMutation({
+    mutationFn: (clientPackageItemId: number) =>
+      acceptClientPackageItem(clientPackageItemId),
+    onSuccess: () => {
+      // Invalidate multiple query keys for comprehensive revalidation
+      queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+
+      showNotification(
+        t("package.itemAccepted", {
+          default: "Item accepted successfully!",
+        }),
+        "success"
+      );
+    },
+    onError: (error: Error) => {
+      showNotification(
+        error.message ||
+          t("package.itemAcceptError", {
+            default: "Failed to accept item",
+          }),
+        "error"
+      );
+    },
+  });
+}
+
+export function useEditClientPackageItem() {
+  const queryClient = useQueryClient();
+  const t = useTranslations();
+
+  return useMutation({
+    mutationFn: (clientPackageItemId: number) =>
+      editClientPackageItem(clientPackageItemId),
+    onSuccess: () => {
+      // Invalidate multiple query keys for comprehensive revalidation
+      queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+
+      showNotification(
+        t("package.itemEditRequested", {
+          default: "Edit requested successfully!",
+        }),
+        "success"
+      );
+    },
+    onError: (error: Error) => {
+      showNotification(
+        error.message ||
+          t("package.itemEditError", {
+            default: "Failed to request edit",
+          }),
+        "error"
+      );
+    },
+  });
+}
+
+export function useDeclineClientPackageItem() {
+  const queryClient = useQueryClient();
+  const t = useTranslations();
+
+  return useMutation({
+    mutationFn: (clientPackageItemId: number) =>
+      declineClientPackageItem(clientPackageItemId),
+    onSuccess: () => {
+      // Invalidate multiple query keys for comprehensive revalidation
+      queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+
+      showNotification(
+        t("package.itemDeclined", {
+          default: "Item declined successfully!",
+        }),
+        "success"
+      );
+    },
+    onError: (error: Error) => {
+      showNotification(
+        error.message ||
+          t("package.itemDeclineError", {
+            default: "Failed to decline item",
           }),
         "error"
       );
