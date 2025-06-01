@@ -1,6 +1,5 @@
 "use client";
 
-import "./globals.css";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { ArrowLeftIcon, HomeIcon, RefreshCcwIcon } from "lucide-react";

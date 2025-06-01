@@ -21,6 +21,11 @@
       "online": "متصل",
       "offline": "غير متصل - إعادة الاتصال..."
     },
+    "media": "وسائط",
+    "imageModal": {
+      "download": "تحميل",
+      "clickOutsideToClose": "انقر خارج النافذة للإغلاق"
+    },
     "notifications": {
       "messageSent": "تم إرسال الرسالة",
       "messageDelivered": "تم استلام الرسالة",

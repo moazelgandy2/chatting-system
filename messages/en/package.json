@@ -51,6 +51,17 @@
       "rejected": "Rejected",
       "edited": "Edited"
     },
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "edited": "Edited"
+    },
+    "actions": {
+      "accept": "Accept",
+      "requestEdit": "Request Edit",
+      "reject": "Reject"
+    },
+    "itemAccepted": "Item accepted successfully",
     "notFound": "Package not found",
     "viewDetails": "View Details",
     "totalItems": "Total Items",

@@ -47,8 +47,21 @@ export function useWebSocket(config: WebSocketConfig): WebSocketReturn {
   const lastDisconnectTimeRef = useRef<number>(0);
   const connectionStartTimeRef = useRef<number>(0);
   const consecutiveFailuresRef = useRef(0);
+  const isUnmountingRef = useRef(false);
 
+  // Memoize the callback functions to prevent unnecessary reconnections
+  const stableOnMessage = useRef(onMessage);
+  const stableOnOpen = useRef(onOpen);
+  const stableOnClose = useRef(onClose);
+  const stableOnError = useRef(onError);
+
+  // Update refs when callbacks change
+  stableOnMessage.current = onMessage;
+  stableOnOpen.current = onOpen;
+  stableOnClose.current = onClose;
+  stableOnError.current = onError;
   const cleanup = useCallback(() => {
+    isUnmountingRef.current = true;
     if (pingIntervalRef.current) {
       clearInterval(pingIntervalRef.current);
       pingIntervalRef.current = null;
@@ -105,14 +118,50 @@ export function useWebSocket(config: WebSocketConfig): WebSocketReturn {
     [sendMessage]
   );
   const connect = useCallback(() => {
+    // Prevent connection if component is unmounting
+    if (isUnmountingRef.current) {
+      return;
+    }
+
     try {
-      cleanup();
+      // Inline cleanup to avoid circular dependency (but don't set unmounting flag)
+      if (pingIntervalRef.current) {
+        clearInterval(pingIntervalRef.current);
+        pingIntervalRef.current = null;
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+
+      console.log(`Attempting to connect to WebSocket: ${url}`);
       setStatus("connecting");
       connectionStartTimeRef.current = Date.now();
 
       const ws = new WebSocket(url);
       wsRef.current = ws;
+
+      // Set up connection timeout
+      const connectionTimeout = setTimeout(() => {
+        if (ws.readyState === WebSocket.CONNECTING) {
+          console.log("WebSocket connection timeout");
+          ws.close();
+        }
+      }, WEBSOCKET_CONFIG.TIMEOUTS.CONNECTION_TIMEOUT);
+
       ws.onopen = () => {
+        clearTimeout(connectionTimeout);
+
+        // Double-check we still want to be connected
+        if (isUnmountingRef.current) {
+          ws.close();
+          return;
+        }
+
         console.log("WebSocket connection opened");
         setStatus("connected");
         reconnectCountRef.current = 0;
@@ -121,14 +170,37 @@ export function useWebSocket(config: WebSocketConfig): WebSocketReturn {
 
         // Re-subscribe to all channels
         subscribedChannelsRef.current.forEach((channel) => {
-          subscribe(channel);
+          if (wsRef.current?.readyState === WebSocket.OPEN) {
+            wsRef.current.send(
+              JSON.stringify({
+                event: WEBSOCKET_CONFIG.EVENTS.SUBSCRIBE,
+                data: { channel },
+              })
+            );
+          }
         });
 
-        startPingInterval();
-        onOpen?.();
+        // Start ping interval inline to avoid circular dependency
+        if (pingIntervalRef.current) {
+          clearInterval(pingIntervalRef.current);
+        }
+        pingIntervalRef.current = setInterval(() => {
+          if (wsRef.current?.readyState === WebSocket.OPEN) {
+            wsRef.current.send(
+              JSON.stringify({ event: WEBSOCKET_CONFIG.EVENTS.PING })
+            );
+          }
+        }, pingInterval);
+        stableOnOpen.current?.();
       };
-      ws.onclose = () => {
-        console.log("WebSocket connection closed");
+
+      ws.onclose = (event) => {
+        clearTimeout(connectionTimeout);
+        console.log("WebSocket connection closed", {
+          code: event.code,
+          reason: event.reason,
+          wasClean: event.wasClean,
+        });
         setStatus("disconnected");
 
         const now = Date.now();
@@ -153,7 +225,12 @@ export function useWebSocket(config: WebSocketConfig): WebSocketReturn {
           pingIntervalRef.current = null;
         }
 
-        onClose?.();
+        stableOnClose.current?.();
+
+        // Prevent reconnection if component is unmounting
+        if (isUnmountingRef.current) {
+          return;
+        }
 
         // Prevent rapid reconnection attempts with debouncing
         if (isReconnectingRef.current) {
@@ -185,8 +262,8 @@ export function useWebSocket(config: WebSocketConfig): WebSocketReturn {
           reconnectTimeoutRef.current = setTimeout(() => {
             // Double-check we still want to reconnect (prevent race conditions)
             if (
-              Date.now() - lastDisconnectTimeRef.current >=
-              totalDelay - 1000
+              !isUnmountingRef.current &&
+              Date.now() - lastDisconnectTimeRef.current >= totalDelay - 1000
             ) {
               isReconnectingRef.current = false;
               connect();
@@ -198,6 +275,7 @@ export function useWebSocket(config: WebSocketConfig): WebSocketReturn {
           );
         }
       };
+
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
@@ -213,46 +291,86 @@ export function useWebSocket(config: WebSocketConfig): WebSocketReturn {
             }
           }
 
-          onMessage?.(data);
+          stableOnMessage.current?.(data);
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
         }
       };
-
       ws.onerror = (error) => {
+        clearTimeout(connectionTimeout);
         console.error("WebSocket error:", error);
-        onError?.(error);
+        console.error("WebSocket readyState:", ws.readyState);
+        console.error("WebSocket URL:", url);
+        stableOnError.current?.(error);
       };
     } catch (error) {
       console.error("Error creating WebSocket connection:", error);
       setStatus("disconnected");
     }
-  }, [
-    url,
-    onMessage,
-    onOpen,
-    onClose,
-    onError,
-    reconnectAttempts,
-    reconnectDelay,
-    cleanup,
-    startPingInterval,
-    subscribe,
-  ]);
+  }, [url, reconnectAttempts, reconnectDelay, pingInterval]); // Added pingInterval dependency
   const reconnect = useCallback(() => {
     reconnectCountRef.current = 0;
     consecutiveFailuresRef.current = 0;
     isReconnectingRef.current = false;
     connect();
   }, [connect]);
-
   const close = useCallback(() => {
     reconnectCountRef.current = reconnectAttempts; // Prevent auto-reconnection
-    cleanup();
+    isUnmountingRef.current = true;
+    // Inline cleanup to avoid circular dependency
+    if (pingIntervalRef.current) {
+      clearInterval(pingIntervalRef.current);
+      pingIntervalRef.current = null;
+    }
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
     setStatus("disconnected");
-  }, [cleanup, reconnectAttempts]);
-
+  }, [reconnectAttempts]); // Handle channel changes separately
   useEffect(() => {
+    // Update subscribed channels when channels prop changes
+    const currentChannels = new Set(subscribedChannelsRef.current);
+    const newChannels = new Set(channels);
+
+    // Subscribe to new channels
+    channels.forEach((channel) => {
+      if (!currentChannels.has(channel)) {
+        subscribedChannelsRef.current.add(channel);
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send(
+            JSON.stringify({
+              event: WEBSOCKET_CONFIG.EVENTS.SUBSCRIBE,
+              data: { channel },
+            })
+          );
+        }
+      }
+    });
+
+    // Unsubscribe from removed channels
+    currentChannels.forEach((channel) => {
+      if (!newChannels.has(channel)) {
+        subscribedChannelsRef.current.delete(channel);
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send(
+            JSON.stringify({
+              event: WEBSOCKET_CONFIG.EVENTS.UNSUBSCRIBE,
+              data: { channel },
+            })
+          );
+        }
+      }
+    });
+  }, [channels]);
+  useEffect(() => {
+    // Reset unmounting flag on mount (important for React Strict Mode)
+    isUnmountingRef.current = false;
+
     connect();
 
     // Subscribe to initial channels
@@ -260,8 +378,23 @@ export function useWebSocket(config: WebSocketConfig): WebSocketReturn {
       subscribedChannelsRef.current.add(channel);
     });
 
-    return cleanup;
-  }, []);
+    return () => {
+      // Inline cleanup on unmount
+      isUnmountingRef.current = true;
+      if (pingIntervalRef.current) {
+        clearInterval(pingIntervalRef.current);
+        pingIntervalRef.current = null;
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, []); // Only run on mount/unmount
 
   return {
     status,

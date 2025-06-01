@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 import { MessageComposer } from "@/components/ui/message-composer";
 import { useAssignedPackages } from "@/hooks/use-assign-package";
 import { useChatWebSocket } from "@/hooks/use-chat-websocket";
-import { ChatWebSocketManager } from "@/components/ui/chat-websocket-manager";
+import { WebSocketStatusIndicator } from "@/components/ui/websocket-status-indicator";
 
 interface ChatPageWrapperProps {
   chatId: string;
@@ -51,14 +51,12 @@ export default function ChatPageWrapper({
 
   // Get assigned packages for this chat to extract clientId
   const { data: assignedPackages } = useAssignedPackages(chatId);
-
   // Define refs with proper TypeScript types
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const prevMessagesLengthRef = useRef<number>(0);
-
-  // Use the new WebSocket hook
+  // WebSocket connection - single instance for the entire chat
   const { status: wsConnectionStatus } = useChatWebSocket({
     chatId,
     enabled: true,
@@ -126,7 +124,6 @@ export default function ChatPageWrapper({
             client_package_item: msg.client_package_item,
           };
 
-          console.log("Mapped message:", mappedMessage);
           return mappedMessage;
         })
         .filter((msg): msg is MessageType => msg !== null); // Type-safe filter to remove null entries
@@ -142,20 +139,6 @@ export default function ChatPageWrapper({
       const currentPage = data.data.current_page;
       const lastPage = Math.ceil(data.data.total / data.data.per_page);
       const moreAvailable = currentPage < lastPage;
-
-      console.log("Pagination info:", {
-        currentPage,
-        lastPage,
-        total: data.data.total,
-        perPage: data.data.per_page,
-        hasMore: moreAvailable,
-        messagesCount: mapped.length,
-        viewportAvailable: !!viewportElement,
-        isInitialLoading,
-        isFetchingMore,
-        page,
-        consecutiveLoads,
-      });
 
       setHasMore(moreAvailable);
 
@@ -202,8 +185,6 @@ export default function ChatPageWrapper({
       console.log("Waiting for viewport element to be available");
       return;
     }
-
-    console.log("Got viewport element:", viewportElement);
 
     let isScrolling = false;
     let scrollTimeout: NodeJS.Timeout | null = null;
@@ -427,15 +408,13 @@ export default function ChatPageWrapper({
       {session?.user.role === "admin" && (
         <div className="absolute z-30 top-0 end-0 start-0 backdrop-blur-sm border-b">
           <div className="flex items-center justify-between p-1">
+            {" "}
             <div className="flex items-center gap-2">
               <AdminStatus chatId={chatId} />
-              <ChatWebSocketManager
-                chatId={chatId}
-                showStatusIndicator={true}
-                statusIndicatorProps={{
-                  showText: true,
-                  className: "text-xs",
-                }}
+              <WebSocketStatusIndicator
+                status={wsConnectionStatus}
+                showText={true}
+                className="text-xs"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -583,17 +562,13 @@ export default function ChatPageWrapper({
                   page={page}
                   disabled={wsConnectionStatus === "disconnected"}
                   placeholder={t("messageArea.placeholder")}
-                />
+                />{" "}
                 {/* WebSocket status for non-admin users */}
                 {session?.user.role !== "admin" && (
-                  <ChatWebSocketManager
-                    chatId={chatId}
-                    showStatusIndicator={true}
-                    statusIndicatorProps={{
-                      showText: false,
-                      className: "text-xs",
-                    }}
-                    className="shrink-0"
+                  <WebSocketStatusIndicator
+                    status={wsConnectionStatus}
+                    showText={false}
+                    className="text-xs shrink-0"
                   />
                 )}
               </>

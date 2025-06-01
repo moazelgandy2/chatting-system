@@ -1,22 +1,11 @@
 import { useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWebSocket, WebSocketStatus } from "./use-websocket";
-import { useChatRevalidate } from "./use-chat";
 import { useWebSocketNotifications } from "./use-websocket-notifications";
 import { WEBSOCKET_CONFIG } from "@/lib/websocket-config";
-import {
-  processMediaFiles,
-  validateNewMessageData,
-  extractSenderInfo,
-} from "@/lib/websocket-utils";
+import { validateNewMessageData } from "@/lib/websocket-utils";
 import { CHATS_QUERY_KEY } from "@/hooks/use-chats";
-import {
-  ChatMessage,
-  ChatMessagesApiResponse,
-  NewMessageEventData,
-  WebSocketMessageEvent,
-} from "@/types/chats";
+import { NewMessageEventData, WebSocketMessageEvent } from "@/types/chats";
 
 interface UseChatWebSocketConfig {
   chatId: string;
@@ -35,9 +24,8 @@ export function useChatWebSocket({
   enabled = true,
   showNotifications = false, // Disabled by default to prevent UI spam
 }: UseChatWebSocketConfig): UseChatWebSocketReturn {
-  const router = useRouter();
   const queryClient = useQueryClient();
-  const revalidate = useChatRevalidate(chatId);
+
   // Debounce query invalidation to prevent excessive refetching
   const invalidationTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
@@ -52,105 +40,49 @@ export function useChatWebSocket({
       });
     }, 500); // 500ms debounce
   }, [queryClient, chatId]);
-
   const handleMessage = useCallback(
     (data: WebSocketMessageEvent) => {
+      console.log("new event");
       console.log("WebSocket message received in chat:", data);
 
       try {
-        // Handle different types of messages here
+        // Revalidate messages on any WebSocket event received
+        debouncedInvalidateQueries();
+
+        // Handle NewMessageEvent specifically for additional logging
         if (
-          data.event === WEBSOCKET_CONFIG.EVENTS.MESSAGE ||
-          data.event === WEBSOCKET_CONFIG.EVENTS.CHAT_MESSAGE ||
-          data.event === WEBSOCKET_CONFIG.EVENTS.NEW_MESSAGE_EVENT ||
-          data.event === "chat.message"
+          data.event === WEBSOCKET_CONFIG.EVENTS.NEW_MESSAGE_EVENT &&
+          data.data
         ) {
-          // Handle NewMessageEvent specifically
-          if (
-            data.event === WEBSOCKET_CONFIG.EVENTS.NEW_MESSAGE_EVENT &&
-            data.data
-          ) {
-            const messageData = data.data as NewMessageEventData;
+          const messageData = data.data as NewMessageEventData;
 
-            // Validate message data structure
-            if (!validateNewMessageData(messageData)) {
-              console.warn("Invalid message data received:", messageData);
-              return;
-            }
-
+          // Validate message data structure
+          if (validateNewMessageData(messageData)) {
             // Check if this message is for the current chat
             if (
               messageData.chat_id &&
               messageData.chat_id.toString() === chatId
             ) {
               console.log("New message for current chat:", messageData);
-
-              // Update all pages of the chat query cache optimistically
-              queryClient.setQueriesData(
-                { queryKey: [CHATS_QUERY_KEY, chatId] },
-                (oldData: ChatMessagesApiResponse | undefined) => {
-                  if (!oldData || !oldData.data) return oldData;
-
-                  // Process media files and sender information
-                  const processedMediaFiles = processMediaFiles(
-                    messageData.media_files || []
-                  );
-                  const senderInfo = extractSenderInfo(messageData);
-
-                  // Create a proper ChatMessage object from the websocket data
-                  const newMessage: ChatMessage = {
-                    id: messageData.id,
-                    chat_id: parseInt(messageData.chat_id.toString()),
-                    sender_id: parseInt(messageData.sender_id.toString()),
-                    message: messageData.message,
-                    file_path: null,
-                    created_at: messageData.created_at,
-                    updated_at: messageData.created_at,
-                    client_package_item_id: null,
-                    sender: senderInfo,
-                    media_files: messageData.media_files || [],
-                    media: processedMediaFiles,
-                  };
-
-                  // Check if message already exists to avoid duplicates
-                  const messageExists = oldData.data.data.some(
-                    (msg) => msg.id === newMessage.id
-                  );
-
-                  if (!messageExists) {
-                    return {
-                      ...oldData,
-                      data: {
-                        ...oldData.data,
-                        data: [...oldData.data.data, newMessage],
-                        total: oldData.data.total + 1,
-                      },
-                    };
-                  }
-                  return oldData;
-                }
-              );
-
-              // Use debounced invalidation to prevent excessive refetching
-              debouncedInvalidateQueries();
             }
+          } else {
+            console.warn("Invalid message data received:", messageData);
           }
-
-          // For other message types, just refresh
-          router.refresh();
-          revalidate();
         }
       } catch (error) {
         console.error("Error handling WebSocket message:", error);
       }
-      // Add more message type handling as needed
     },
-    [router, revalidate, queryClient, chatId, debouncedInvalidateQueries]
+    [chatId, debouncedInvalidateQueries]
   );
-
   const handleOpen = useCallback(() => {
     console.log(`Connected to chat ${chatId}`);
-  }, [chatId]);
+
+    // Invalidate queries to fetch any missed messages when connecting/reconnecting
+    queryClient.invalidateQueries({
+      queryKey: [CHATS_QUERY_KEY, chatId],
+    });
+  }, [chatId, queryClient]);
 
   const handleClose = useCallback(() => {
     console.log(`Disconnected from chat ${chatId}`);

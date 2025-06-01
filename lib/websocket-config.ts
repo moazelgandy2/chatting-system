@@ -3,10 +3,8 @@ export const WEBSOCKET_CONFIG = {
   DEFAULT_URL:
     process.env.NEXT_PUBLIC_WEBSOCKET_URL ||
     "wss://ws.droplo.cloud/app/980e9rlf318lalrzdks4",
-  // Ping interval to keep connection alive (55 seconds - less aggressive)
   PING_INTERVAL: 55000,
 
-  // Reconnection settings
   RECONNECT: {
     MAX_ATTEMPTS: 3, // Reduced attempts to prevent rapid cycling
     DELAY: 5000, // Increased initial delay

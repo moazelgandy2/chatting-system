@@ -21,6 +21,11 @@
       "online": "Online",
       "offline": "Offline - Reconnecting..."
     },
+    "media": "Media",
+    "imageModal": {
+      "download": "Download",
+      "clickOutsideToClose": "Click outside to close"
+    },
     "notifications": {
       "messageSent": "Message sent",
       "messageDelivered": "Message delivered",

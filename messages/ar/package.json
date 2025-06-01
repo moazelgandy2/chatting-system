@@ -51,6 +51,17 @@
       "rejected": "مرفوض",
       "edited": "تم تعديله"
     },
+    "status": {
+      "pending": "قيد الانتظار",
+      "accepted": "مقبول",
+      "edited": "تم تعديله"
+    },
+    "actions": {
+      "accept": "قبول",
+      "requestEdit": "طلب تعديل",
+      "reject": "رفض"
+    },
+    "itemAccepted": "تم قبول العنصر بنجاح",
     "notFound": "الحزمة غير موجودة",
     "viewDetails": "عرض التفاصيل",
     "totalItems": "إجمالي العناصر",
