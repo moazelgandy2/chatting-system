@@ -25,7 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Package, Loader2, PackagePlus } from "lucide-react";
+import { Loader2, PackagePlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { usePackages } from "@/hooks/use-packages";

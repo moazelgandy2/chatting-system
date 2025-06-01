@@ -88,8 +88,10 @@ export function ClientLimitsDialog({
 
       setOpen(false);
       form.reset();
-    } catch (e: any) {
-      setError(e?.message || "Failed to store client limits");
+    } catch (e) {
+      const errorMessage =
+        e instanceof Error ? e.message : t("clientLimits.form.error.generic");
+      setError(errorMessage);
     }
   };
 

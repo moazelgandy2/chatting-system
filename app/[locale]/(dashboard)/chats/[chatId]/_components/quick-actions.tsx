@@ -1,24 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  RefreshCw,
-  Download,
-  FileText,
-  BarChart3,
-  Settings2,
-  Zap,
-} from "lucide-react";
+import { RefreshCw, Download, BarChart3, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { showNotification } from "@/lib/show-notification";
 
-interface QuickActionsProps {
-  chatId: string;
-}
-
-export function QuickActions({ chatId }: QuickActionsProps) {
+export function QuickActions() {
   const t = useTranslations();
   const [isExporting, setIsExporting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -34,7 +22,7 @@ export function QuickActions({ chatId }: QuickActionsProps) {
         }),
         "success"
       );
-    } catch (error) {
+    } catch (_error) {
       showNotification(
         t("quickActions.exportError", {
           default: "Failed to export chat data.",

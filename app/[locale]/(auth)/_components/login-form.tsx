@@ -5,11 +5,9 @@ import { useForm } from "react-hook-form";
 import { LoginFormSchema, createLoginFormSchema } from "@/forms/login.schema";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -58,7 +56,7 @@ export function LoginForm() {
 
       console.log(data);
 
-      toast.custom((t) => (
+      toast.custom(() => (
         <Notification
           message={data.message}
           type="success"
@@ -68,11 +66,13 @@ export function LoginForm() {
       router.push("/");
 
       console.log(values);
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.custom((t) => (
+      const errorMessage =
+        error instanceof Error ? error.message : t("auth.login.error.unknown");
+      toast.custom(() => (
         <Notification
-          message={error.message}
+          message={errorMessage}
           type="error"
         />
       ));

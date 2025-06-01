@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
-import { getLocalizedData, getLocaleFromRequest } from "@/lib/i18n-api";
-import { ApiErrorType, SessionType } from "@/types";
+import { SessionType } from "@/types";
 import { createSession } from "@/lib/session";
 
 type SupportedLocale = (typeof routing.locales)[number];
-type RouteParams = { params: Promise<{ locale: string }> };
 
-export async function POST(request: Request, { params }: RouteParams) {
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ locale: string }> }
+) {
+  const localeParam = (await params).locale as SupportedLocale;
   try {
-    const localeParam = (await params).locale as SupportedLocale;
     const t = await getTranslations({
       locale: localeParam,
       namespace: "auth",
@@ -64,8 +65,6 @@ export async function POST(request: Request, { params }: RouteParams) {
         "Login failed",
         res.statusText
       );
-      console.log("data=>", data);
-      ``;
       return NextResponse.json({ error: data.message }, { status: 401 });
     }
     console.log("[AUTH_LOGIN_API_SUCCESS]", data);
@@ -78,31 +77,34 @@ export async function POST(request: Request, { params }: RouteParams) {
     await createSession(session);
 
     return NextResponse.json({ message: t("login.success") });
-  } catch (error: any) {
+  } catch (error) {
     console.error("[AUTH_LOGIN_API_ERROR_]", error);
 
     try {
-      const localeParam = (await params).locale as SupportedLocale;
       const t = await getTranslations({
         locale: localeParam,
         namespace: "auth",
       });
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      const errorMessage =
+        error instanceof Error ? error.message : t("login.error");
+      return NextResponse.json({ error: errorMessage }, { status: 500 });
     } catch (translationError) {
       console.error("[TRANSLATION_ERROR]", translationError);
       return NextResponse.json(
-        { error: "Authentication failed" },
+        { error: "Authentication failed and failed to load translations" },
         { status: 500 }
       );
     }
   }
 }
 
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ locale: string }> }
+) {
+  const localeParam = (await params).locale as SupportedLocale;
   try {
-    console.log("API Route Locale from params:", (await params).locale);
-
-    const localeParam = (await params).locale as SupportedLocale;
+    console.log("API Route Locale from params:", localeParam);
 
     if (!routing.locales.includes(localeParam)) {
       return NextResponse.json({ error: "Invalid locale" }, { status: 400 });

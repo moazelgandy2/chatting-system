@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Box, Package, Plus, Grid3X3 } from "lucide-react";
+import { Box, Package } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export const EmptyPackageContent = () => {

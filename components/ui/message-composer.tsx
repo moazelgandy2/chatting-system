@@ -474,7 +474,7 @@ export function MessageComposer({
                           <div className="text-center py-4 text-muted-foreground">
                             <Package className="w-6 h-6 mx-auto mb-1.5 opacity-50" />
                             <p className="text-xs">
-                              Enable "Include Package Item" toggle above
+                              {`Enable "Include Package Item" toggle above`}
                             </p>
                           </div>
                         )}

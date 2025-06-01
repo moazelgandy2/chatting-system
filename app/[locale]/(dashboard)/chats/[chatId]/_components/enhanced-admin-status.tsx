@@ -19,7 +19,6 @@ import {
   Activity,
   AlertCircle,
   TrendingUp,
-  Eye,
   Settings,
 } from "lucide-react";
 import { useAssignedPackages } from "@/hooks/use-assign-package";
@@ -41,11 +40,15 @@ export function EnhancedAdminStatus({
   const t = useTranslations();
   const { data: assignedPackagesResponse, isLoading } =
     useAssignedPackages(chatId);
-  const assignedPackages = Array.isArray(assignedPackagesResponse?.data)
-    ? assignedPackagesResponse.data
-    : assignedPackagesResponse?.data
-    ? [assignedPackagesResponse.data]
-    : [];
+  const assignedPackages = useMemo(() => {
+    const packagesData = Array.isArray(assignedPackagesResponse?.data)
+      ? assignedPackagesResponse.data
+      : assignedPackagesResponse?.data
+      ? [assignedPackagesResponse.data]
+      : [];
+    return packagesData;
+  }, [assignedPackagesResponse?.data]);
+
   const activePackage = assignedPackages.find((pkg) => pkg.status === "active");
 
   const { data: packageResponse, isLoading: packageLoading } = usePackage(
@@ -241,7 +244,7 @@ export function EnhancedAdminStatus({
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {assignedPackages.map((pkg, index) => (
+              {assignedPackages.map((pkg) => (
                 <div
                   key={pkg.id}
                   className="flex items-center justify-between text-xs"

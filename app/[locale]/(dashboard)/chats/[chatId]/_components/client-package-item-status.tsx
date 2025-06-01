@@ -9,7 +9,6 @@ import {
   Check,
   X,
   Clock,
-  RotateCw,
   Truck,
   Package,
   AlertCircle,

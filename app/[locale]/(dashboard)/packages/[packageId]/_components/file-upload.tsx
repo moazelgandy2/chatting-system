@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  AlertCircleIcon,
-  FileIcon,
-  ImageIcon,
-  UploadIcon,
-  XIcon,
-} from "lucide-react";
+import { AlertCircleIcon, ImageIcon, UploadIcon, XIcon } from "lucide-react";
 
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { Button } from "@/components/ui/button";

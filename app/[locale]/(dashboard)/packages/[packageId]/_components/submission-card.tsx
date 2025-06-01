@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Submission } from "@/types";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import {
   Calendar,
   Eye,
@@ -87,10 +88,11 @@ const SubmissionCard = ({ submission, index }: SubmissionCardProps) => {
     >
       <div className="flex gap-3">
         <div className="relative flex-shrink-0 w-16 h-16 bg-muted rounded-md overflow-hidden border border-border shadow-sm">
-          <img
+          <Image
             src={submission.thumbnailUrl}
             alt={submission.title}
-            className="w-full h-full object-cover"
+            layout="fill"
+            objectFit="cover"
           />
           {submission.featured && (
             <div className="absolute top-0 right-0 bg-amber-500/90 p-0.5 rounded-bl-md">

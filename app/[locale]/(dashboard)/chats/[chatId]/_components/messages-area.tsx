@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import UserAvatar from "./user-avatar";
 import ClientPackageItemStatus from "./client-package-item-status";
 import { ClientPackageItem } from "@/types/packages";
+import Image from "next/image"; // Import next/image
 
 export type MessageType = {
   id: string;
@@ -146,11 +147,13 @@ const ImageExpansionModal = ({
               className="relative max-w-[90vw] max-h-[85vh] group"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
+              <Image
                 src={imageUrl}
                 alt={imageName || "Expanded image"}
-                className="w-full h-full object-contain rounded-xl shadow-2xl ring-1 ring-border/20 transition-transform duration-300 group-hover:scale-[1.02]"
-                loading="eager"
+                layout="fill" // Use layout="fill" for responsive images that fill the parent
+                objectFit="contain" // Equivalent to object-contain
+                className="rounded-xl shadow-2xl ring-1 ring-border/20 transition-transform duration-300 group-hover:scale-[1.02]"
+                priority // Equivalent to loading="eager"
                 draggable={false}
               />
 
@@ -206,14 +209,17 @@ const MediaFileComponent = ({
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
-        <div className="relative overflow-hidden rounded-lg ring-1 ring-border/20 group-hover:ring-border/40 transition-all duration-300">
-          <img
+        <div className="relative overflow-hidden rounded-lg ring-1 ring-border/20 group-hover:ring-border/40 transition-all duration-300 aspect-[4/3]">
+          {" "}
+          {/* Added aspect ratio for Image */}
+          <Image
             src={mediaFile.url}
             alt={mediaFile.name || "Image"}
-            className="max-w-xs max-h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            layout="fill" // Use layout="fill"
+            objectFit="cover" // Equivalent to object-cover
+            className="transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
-
           {/* Enhanced hover overlay with smooth animations */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -230,7 +236,6 @@ const MediaFileComponent = ({
               <ZoomIn className="h-6 w-6 text-white" />
             </motion.div>
           </motion.div>
-
           {/* Enhanced image name overlay */}
           {mediaFile.name && (
             <motion.div
@@ -301,7 +306,6 @@ export const MessagesArea = forwardRef<
     message: MessageType | string;
     name: string;
     role: "admin" | "team" | "client";
-    isLoading?: boolean;
     appearAnimation?: boolean;
     previousMessage?: MessageType | null;
     isGrouped?: boolean;
@@ -312,7 +316,6 @@ export const MessagesArea = forwardRef<
       message,
       name,
       role,
-      isLoading,
       appearAnimation = true,
       previousMessage = null,
       isGrouped = false,

@@ -6,7 +6,7 @@ export async function GET(req: Request) {
   try {
     const cookie = (await cookies()).get("session")?.value;
 
-    const session: SessionType = cookie ? JSON.parse(cookie) : null;
+    const session: SessionType | null = cookie ? JSON.parse(cookie) : null;
 
     if (!session) {
       console.error("[SESSION_FROM_AUTH_HOOK] No session found", session);

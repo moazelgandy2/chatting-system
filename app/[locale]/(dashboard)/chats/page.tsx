@@ -6,20 +6,31 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Simulate recent chats data
 const getRecentChats = (locale: string) => {
-  const titles = {
-    en: {
-      "1": "Sales Inquiry",
-      "2": "Technical Support",
-      "3": "Product Feedback",
-    },
-    ar: {
-      "1": "استفسار المبيعات",
-      "2": "الدعم الفني",
-      "3": "تعليقات المنتج",
-    },
-  };
-
-  const localizedTitles = titles[locale as keyof typeof titles] || titles.en;
+  const localizedTitles =
+    {
+      en: {
+        "1": "Sales Inquiry",
+        "2": "Technical Support",
+        "3": "Product Feedback",
+      },
+      ar: {
+        "1": "استفسار المبيعات",
+        "2": "الدعم الفني",
+        "3": "تعليقات المنتج",
+      },
+    }[locale as "en" | "ar"] ||
+    {
+      en: {
+        "1": "Sales Inquiry",
+        "2": "Technical Support",
+        "3": "Product Feedback",
+      },
+      ar: {
+        "1": "استفسار المبيعات",
+        "2": "الدعم الفني",
+        "3": "تعليقات المنتج",
+      },
+    }.en;
 
   return [
     {
@@ -44,10 +55,11 @@ const getRecentChats = (locale: string) => {
 };
 
 export default async function ChatsPage({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const t = await getTranslations("chat");
   const recentChats = getRecentChats(locale);
 

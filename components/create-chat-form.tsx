@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { User, Loader2, Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,6 +22,7 @@ import Notification from "./kokonutui/notification";
 import { useUsers } from "@/hooks/use-users";
 import { useChatsRevalidate } from "@/hooks/use-chats";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface ChatFormProps {
   onSubmit: (data: ChatFormType) => void;
@@ -69,7 +70,7 @@ export function ChatForm({
   };
 
   if (error) {
-    toast.custom((t) => (
+    toast.custom(() => (
       <Notification
         message={error}
         type="error"
@@ -175,14 +176,14 @@ export function ChatForm({
                   data.data.map((user, idx) => (
                     <tr
                       key={user.id}
-                      className={
-                        (selectedUser === user.id
-                          ? "bg-blue-900/60 border-l-2 border-blue-500"
-                          : idx % 2 === 0
-                          ? "bg-[#18181b]"
-                          : "bg-[#23232a]") +
-                        " transition-colors hover:bg-blue-900/40"
-                      }
+                      className={cn("transition-colors hover:bg-blue-900/40", {
+                        "bg-blue-900/60 border-l-2 border-blue-500":
+                          selectedUser === user.id,
+                        "bg-[#18181b]":
+                          selectedUser !== user.id && idx % 2 === 0,
+                        "bg-[#23232a]":
+                          selectedUser !== user.id && idx % 2 !== 0,
+                      })}
                       style={{ height: 28 }}
                     >
                       <td className="px-2 py-1 whitespace-nowrap text-gray-100">

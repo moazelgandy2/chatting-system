@@ -9,7 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Info, Trash2, TrashIcon } from "lucide-react";
+import { Info, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CreatePackageItemDialog } from "./_components/create-package-item";

@@ -3,14 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Settings,
-  Plus,
-  Loader2,
-  Package,
-  Eye,
-  AlertCircle,
-} from "lucide-react";
+import { Settings, Loader2, Package, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ClientLimitsDialog } from "./client-limits-dialog";
 import { useAssignedPackages } from "@/hooks/use-assign-package";

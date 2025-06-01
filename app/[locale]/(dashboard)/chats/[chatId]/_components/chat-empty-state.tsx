@@ -1,6 +1,5 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import StarFieldCanvas from "./star-field-canvas";
 import NebulaGlow from "./nebula-glow";
@@ -10,7 +9,6 @@ import PulsingDots from "./pulsing-dots";
 import ChatEmptyText from "./chat-empty-text";
 
 export default function ChatEmptyState() {
-  const t = useTranslations("chat.messageArea");
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);

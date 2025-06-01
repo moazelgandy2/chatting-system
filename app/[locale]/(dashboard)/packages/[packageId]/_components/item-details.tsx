@@ -45,7 +45,7 @@ const ItemDetailDrawer = ({ item, onClose, isOpen }: ItemDetailDrawerProps) => {
 
     return counts;
   };
-  const statusInfo = {
+  const statusInfo: { [key in SubmissionStatus | "all"]: string } = {
     all: t("itemDetails.all"),
     accepted: t("itemDetails.accepted"),
     rejected: t("itemDetails.rejected"),

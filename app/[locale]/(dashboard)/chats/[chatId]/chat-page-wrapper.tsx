@@ -35,13 +35,12 @@ interface ChatPageWrapperProps {
 
 export default function ChatPageWrapper({
   chatId,
-  locale: propLocale,
-}: ChatPageWrapperProps) {
+}: // locale: _propLocale, // Renamed to indicate it's unused if not needed elsewhere
+ChatPageWrapperProps) {
   const locale = useLocale();
   const t = useTranslations("chat");
   const isAr = useMemo(() => locale === "ar", [locale]);
   const [messages, setMessages] = useState<MessageType[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
   const [clientId, setClientId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -166,19 +165,14 @@ export default function ChatPageWrapper({
     consecutiveLoads,
   ]);
 
-  const { getViewportElement, viewportElement } =
+  const { viewportElement } =
     useScrollAreaViewport<HTMLDivElement>(scrollAreaRef);
-  const {
-    virtualizedMessages,
-    startOffset,
-    endPadding,
-    isVirtualized,
-    visibleRange,
-  } = useVirtualizedMessages({
-    messages,
-    viewportElement,
-    overscan: 5,
-  });
+  const { virtualizedMessages, startOffset, endPadding, isVirtualized } =
+    useVirtualizedMessages({
+      messages,
+      viewportElement,
+      overscan: 5,
+    });
 
   useEffect(() => {
     if (!viewportElement) {
@@ -299,52 +293,56 @@ export default function ChatPageWrapper({
     consecutiveLoads,
   ]);
 
-  const scrollToBottom = (force = false) => {
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-
-    const performScroll = () => {
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({
-          behavior: force ? "auto" : "smooth",
-          block: "end",
-        });
-        return;
+  const scrollToBottom = useCallback(
+    (force = false) => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
       }
 
-      // Fallback: Scroll viewport to bottom
-      if (viewportElement) {
-        viewportElement.scrollTo({
-          top: viewportElement.scrollHeight,
-          behavior: force ? "auto" : "smooth",
-        });
-        return;
-      }
+      const performScroll = () => {
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({
+            behavior: force ? "auto" : "smooth",
+            block: "end",
+          });
+          return;
+        }
 
-      // Last resort: Find viewport element manually
-      if (scrollAreaRef.current) {
-        const viewport = scrollAreaRef.current.querySelector(
-          "[data-radix-scroll-area-viewport]"
-        );
-        if (viewport instanceof HTMLElement) {
-          viewport.scrollTo({
-            top: viewport.scrollHeight,
+        // Fallback: Scroll viewport to bottom
+        if (viewportElement) {
+          viewportElement.scrollTo({
+            top: viewportElement.scrollHeight,
             behavior: force ? "auto" : "smooth",
           });
+          return;
         }
+
+        // Last resort: Find viewport element manually
+        if (scrollAreaRef.current) {
+          const viewport = scrollAreaRef.current.querySelector(
+            "[data-radix-scroll-area-viewport]"
+          );
+          if (viewport instanceof HTMLElement) {
+            viewport.scrollTo({
+              top: viewport.scrollHeight,
+              behavior: force ? "auto" : "smooth",
+            });
+          }
+        }
+      };
+
+      // For force scrolling, execute immediately
+      if (force) {
+        performScroll();
+        return;
       }
-    };
 
-    // For force scrolling, execute immediately
-    if (force) {
-      performScroll();
-      return;
-    }
+      // For smooth scrolling, add a small delay to ensure DOM is ready
+      scrollTimeoutRef.current = setTimeout(performScroll, 50);
+    },
+    [viewportElement]
+  ); // Added useCallback and viewportElement dependency
 
-    // For smooth scrolling, add a small delay to ensure DOM is ready
-    scrollTimeoutRef.current = setTimeout(performScroll, 50);
-  };
   useEffect(() => {
     if (messages.length > prevMessagesLengthRef.current && page === 1) {
       prevMessagesLengthRef.current = messages.length;
@@ -362,7 +360,7 @@ export default function ChatPageWrapper({
         }
       }
     }
-  }, [messages.length, page, viewportElement]);
+  }, [messages.length, page, viewportElement, scrollToBottom]);
   useEffect(() => {
     // Auto-scroll to bottom for initial load or when new messages arrive
     if (page === 1 && !isFetchingMore && messages.length > 0) {
@@ -374,13 +372,13 @@ export default function ChatPageWrapper({
         clearTimeout(scrollTimeoutRef.current);
       }
     };
-  }, [messages, page, isFetchingMore]);
+  }, [messages, page, isFetchingMore, scrollToBottom]);
   // Simplified typing indicator scroll
   useEffect(() => {
-    if (isTyping && page === 1) {
-      setTimeout(() => scrollToBottom(false), 100);
-    }
-  }, [isTyping, page]);
+    // if (isTyping && page === 1) { // isTyping was removed
+    //   setTimeout(() => scrollToBottom(false), 100);
+    // }
+  }, [page, scrollToBottom]);
 
   const onDeleteChat = async (id: string) => {
     try {
@@ -531,7 +529,7 @@ export default function ChatPageWrapper({
                 ))
               )}
 
-              {isTyping && !isLoading && (
+              {!isLoading && (
                 <div className="flex items-center gap-2 text-muted-foreground text-sm pl-12 animate-in fade-in-50">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   <span>{t("messageArea.typing")}</span>

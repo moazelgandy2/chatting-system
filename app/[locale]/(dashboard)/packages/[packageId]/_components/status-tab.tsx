@@ -15,6 +15,7 @@ interface StatusTabsProps {
     accepted: number;
     rejected: number;
     edited: number;
+    [key: string]: number; // Add index signature
   };
 }
 
@@ -24,7 +25,11 @@ const StatusTabs = ({
   counts,
 }: StatusTabsProps) => {
   const t = useTranslations("package");
-  const tabs = [
+  const tabs: {
+    value: SubmissionStatus | "all";
+    label: string;
+    icon: React.ReactNode;
+  }[] = [
     { value: "all" as const, label: t("itemDetails.items"), icon: null },
     {
       value: "accepted" as const,
@@ -68,7 +73,7 @@ const StatusTabs = ({
               activeStatus === tab.value ? "bg-primary/20" : "bg-muted"
             )}
           >
-            {counts[tab.value]}
+            {counts[tab.value as keyof typeof counts]}
           </span>
           {activeStatus === tab.value && (
             <motion.div

@@ -5,13 +5,10 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Tooltip,
   TooltipContent,
@@ -20,7 +17,6 @@ import {
 } from "@/components/ui/tooltip";
 import { PlusCircleIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import PackageImageUploader from "./file-upload";
 import { CreatePackageForm } from "./create-package-form";
 import { PackageFormType } from "@/forms/create-package.schema";
 import { useState } from "react";

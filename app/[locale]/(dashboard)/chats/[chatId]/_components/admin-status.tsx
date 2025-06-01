@@ -43,7 +43,7 @@ export function AdminStatus({ chatId }: AdminStatusProps) {
       return {
         status: "none",
         text: t("adminStatus.noPackage", { default: "No Package" }),
-        variant: "secondary" as "secondary",
+        variant: "secondary" as const,
         icon: <AlertCircle className="h-3 w-3" />,
       };
     }
@@ -62,7 +62,7 @@ export function AdminStatus({ chatId }: AdminStatusProps) {
     return {
       status: assignedPackages[0]?.status || "inactive",
       text: t("adminStatus.inactivePackage", { default: "Inactive Package" }),
-      variant: "secondary" as "secondary",
+      variant: "secondary" as const,
       icon: <AlertCircle className="h-3 w-3" />,
     };
   };

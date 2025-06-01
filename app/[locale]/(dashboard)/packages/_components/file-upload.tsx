@@ -1,12 +1,7 @@
 "use client";
 
-import {
-  AlertCircleIcon,
-  FileIcon,
-  ImageIcon,
-  UploadIcon,
-  XIcon,
-} from "lucide-react";
+import { AlertCircleIcon, ImageIcon, UploadIcon, XIcon } from "lucide-react";
+import Image from "next/image"; // Imported next/image
 
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { Button } from "@/components/ui/button";
@@ -52,9 +47,11 @@ export default function PackageFileUploader() {
           />
           {previewUrl ? (
             <div className="absolute inset-0 flex items-center justify-center p-4">
-              <img
+              <Image // Replaced <img> with <Image>
                 src={previewUrl}
                 alt={files[0]?.file?.name || "Uploaded image"}
+                layout="fill" // Added layout prop
+                objectFit="contain" // Added objectFit prop
                 className="mx-auto max-h-full rounded object-contain"
               />
             </div>
