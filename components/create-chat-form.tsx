@@ -130,22 +130,6 @@ export function ChatForm({
               )}
             />
           </div>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="relative w-64">
-              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
-                <Search className="w-4 h-4" />
-              </span>
-              <Input
-                placeholder="Search users by name or email"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-                className="pl-8 w-64"
-              />
-            </div>
-          </div>
           <div className="overflow-x-auto border border-gray-700 rounded-md bg-[#18181b]">
             <table className="min-w-full text-[11px]">
               <thead className="bg-[#23232a]">

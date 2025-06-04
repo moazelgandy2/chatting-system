@@ -4,6 +4,7 @@ const withNextIntl = createNextIntlPlugin();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone",
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -11,7 +12,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "www.cult-ui.com",
+        hostname: "backend.chatting.marketopiateam.com",
       },
       {
         protocol: "https",

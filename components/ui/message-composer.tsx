@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { FileUpload, FileAttachButton } from "@/components/ui/file-upload";
 import { PackageOnlySelector } from "@/components/ui/package-item-selector";
 import { useSendMessageWithFiles } from "@/hooks/use-chat";
+import { useAuth } from "@/hooks/useAuth";
 
 interface MessageComposerProps {
   chatId: string | number;
@@ -66,7 +67,7 @@ export function MessageComposer({
   const [filePreviewUrls, setFilePreviewUrls] = useState<
     Record<string, string>
   >({});
-
+  const { session } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const sendMessageMutation = useSendMessageWithFiles(chatId, page, senderId);
 
@@ -464,7 +465,9 @@ export function MessageComposer({
                         value="package"
                         className="mt-2"
                       >
-                        {packageSelection.isItem ? (
+                        {packageSelection.isItem &&
+                        (session?.user.role == "admin" ||
+                          session?.user.role == "team") ? (
                           <PackageOnlySelector
                             chatId={chatId}
                             onSelectionChange={handlePackageSelectionChange}
