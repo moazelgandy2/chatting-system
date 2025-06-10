@@ -144,14 +144,14 @@ const ImageExpansionModal = ({
                 damping: 20,
                 delay: 0.1,
               }}
-              className="relative max-w-[90vw] max-h-[85vh] group"
+              className="relative max-w-[90vw] max-h-[85vh] group aspect-video" // Added aspect-video
               onClick={(e) => e.stopPropagation()}
             >
               <Image
                 src={imageUrl}
                 alt={imageName || "Expanded image"}
                 layout="fill" // Use layout="fill" for responsive images that fill the parent
-                objectFit="contain" // Equivalent to object-contain
+                objectFit="cover" // Changed from contain to cover
                 className="rounded-xl shadow-2xl ring-1 ring-border/20 transition-transform duration-300 group-hover:scale-[1.02]"
                 priority // Equivalent to loading="eager"
                 draggable={false}
@@ -196,7 +196,11 @@ const MediaFileComponent = ({
   onImageClick: (url: string, name: string) => void;
 }) => {
   const t = useTranslations("chat.media");
-  const isImage = mediaFile.type?.startsWith("image/");
+  const typeIsImage = mediaFile.type?.startsWith("image/");
+  const urlLooksLikeImage = mediaFile.url
+    ? /\.(png|jpe?g|gif|webp|svg)$/i.test(mediaFile.url)
+    : false;
+  const isImage = typeIsImage || urlLooksLikeImage;
 
   if (isImage) {
     return (
@@ -204,12 +208,12 @@ const MediaFileComponent = ({
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3, type: "spring", stiffness: 100 }}
-        className="relative group cursor-pointer rounded-lg overflow-hidden bg-muted/50"
+        className="relative group cursor-pointer rounded-lg overflow-hidden bg-muted/50 w-full" // Added w-full
         onClick={() => onImageClick(mediaFile.url, mediaFile.name || "Image")}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
-        <div className="relative overflow-hidden rounded-lg ring-1 ring-border/20 group-hover:ring-border/40 transition-all duration-300 aspect-[4/3]">
+        <div className="relative overflow-hidden rounded-lg ring-1 ring-border/20 group-hover:ring-border/40 transition-all duration-300 aspect-video">
           {" "}
           {/* Added aspect ratio for Image */}
           <Image

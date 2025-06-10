@@ -20,13 +20,13 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "via.placeholder.com",
+        hostname: "media.marketopiateam.com",
       },
     ],
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: "20000000mb",
+      bodySizeLimit: "3072mb",
     },
   },
 };
