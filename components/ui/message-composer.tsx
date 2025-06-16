@@ -497,7 +497,7 @@ export function MessageComposer({
                           onFilesChange={setFiles}
                           disabled={disabled || sendMessageMutation.isPending}
                           maxFiles={10}
-                          maxFileSize={50 * 1024 * 1024} // 50MB
+                          maxFileSize={2024 * 1024 * 1024} // 2GB
                         />
                       </TabsContent>{" "}
                       <TabsContent
