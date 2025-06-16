@@ -167,12 +167,6 @@ const ClientPackageItemStatus = ({
               {clientPackageItem.item_type ||
                 t("packageItem.unknown", { default: "Item" })}
             </span>
-            <Badge
-              variant={"default"}
-              className="text-xs mx-3 bg-amber-500"
-            >
-              {`DEV_ONLY(${clientPackageItem.id})`}
-            </Badge>
           </div>
           <Badge
             variant="outline"
