@@ -29,18 +29,22 @@ interface ClientPackageItemStatusProps {
   clientPackageItem?: ClientPackageItem | null;
   isCompact?: boolean;
   role: RoleType | undefined;
+  chatId: number;
 }
 
 const ClientPackageItemStatus = ({
   clientPackageItem: propClientPackageItem,
   isCompact = false,
   role,
+  chatId,
 }: ClientPackageItemStatusProps) => {
   const t = useTranslations("package");
-  const updateStatusMutation = useUpdateClientPackageItemStatus();
-  const acceptMutation = useAcceptClientPackageItem();
-  const editMutation = useEditClientPackageItem();
-  const declineMutation = useDeclineClientPackageItem();
+  const updateStatusMutation = useUpdateClientPackageItemStatus({
+    chatId: String(chatId),
+  });
+  const acceptMutation = useAcceptClientPackageItem({ chatId });
+  const editMutation = useEditClientPackageItem({ chatId });
+  const declineMutation = useDeclineClientPackageItem({ chatId });
 
   const clientPackageItem = propClientPackageItem;
   const getStatusConfig = (status: string) => {
@@ -285,7 +289,6 @@ const ClientPackageItemStatus = ({
             {/* Item Details */}
             <div className="space-y-2">
               <div className="text-sm">
-                {" "}
                 <span className="text-muted-foreground">Type: </span>
                 <Badge
                   variant="secondary"
@@ -312,7 +315,7 @@ const ClientPackageItemStatus = ({
                   </span>
                 </div>
               )}
-            </div>{" "}
+            </div>
             {/* Action Buttons - Only show for pending status */}
             {clientPackageItem.status === "pending" && (
               <div className="flex gap-2 pt-2 border-t">
@@ -350,7 +353,7 @@ const ClientPackageItemStatus = ({
                 </Button>
               </div>
             )}
-            {/* Mark as Delivered button for completed items */}
+
             {clientPackageItem.status === "completed" && (
               <div className="flex gap-2 pt-2 border-t">
                 <Button

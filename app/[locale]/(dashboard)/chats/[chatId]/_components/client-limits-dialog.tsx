@@ -60,7 +60,9 @@ export function ClientLimitsDialog({
 }: ClientLimitsDialogProps) {
   const [open, setOpen] = useState(trigger === null ? true : false);
   const [error, setError] = useState<string | null>(null);
-  const { mutateAsync: storeClientLimits, isPending } = useStoreClientLimits();
+  const { mutateAsync: storeClientLimits, isPending } = useStoreClientLimits({
+    chatId,
+  });
   const t = useTranslations();
 
   const form = useForm<ClientLimitsFormType>({

@@ -49,6 +49,7 @@ export const MessagesArea = forwardRef<
     message: MessageType | string;
     name: string;
     role: "admin" | "team" | "client";
+    chatId: number;
     appearAnimation?: boolean;
     previousMessage?: MessageType | null;
     isGrouped?: boolean;
@@ -62,6 +63,7 @@ export const MessagesArea = forwardRef<
       appearAnimation = true,
       previousMessage = null,
       isGrouped = false,
+      chatId,
     },
     ref
   ) => {
@@ -264,6 +266,7 @@ export const MessagesArea = forwardRef<
                   className="mt-2"
                 >
                   <ClientPackageItemStatus
+                    chatId={chatId}
                     role={session?.user.role}
                     clientPackageItem={message.client_package_item}
                     isCompact={true}

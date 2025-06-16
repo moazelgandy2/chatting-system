@@ -62,7 +62,9 @@ export function AssignPackageDialog({
   const { session } = useAuth();
   const { data: packagesResponse, isLoading: isLoadingPackages } =
     usePackages();
-  const { mutateAsync: assignPackage, isPending } = useAssignPackage();
+  const { mutateAsync: assignPackage, isPending } = useAssignPackage({
+    chatId,
+  });
 
   const packages = packagesResponse?.data || [];
   const clientId = session?.user?.id;

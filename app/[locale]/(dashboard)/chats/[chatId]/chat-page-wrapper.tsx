@@ -27,16 +27,17 @@ import { MessageComposer } from "@/components/ui/message-composer";
 import { useAssignedPackages } from "@/hooks/use-assign-package";
 import { useChatWebSocket } from "@/hooks/use-chat-websocket";
 import { WebSocketStatusIndicator } from "@/components/ui/websocket-status-indicator";
+import { PackageLimitsCard } from "./_components/limits-rate";
+import {
+  useClientRemainingLimits,
+  useClientRemainingLimitsRevalidate,
+} from "@/hooks/use-client-remaining-limits";
 
 interface ChatPageWrapperProps {
   chatId: string;
-  locale: string;
 }
 
-export default function ChatPageWrapper({
-  chatId,
-}: // locale: _propLocale, // Renamed to indicate it's unused if not needed elsewhere
-ChatPageWrapperProps) {
+export default function ChatPageWrapper({ chatId }: ChatPageWrapperProps) {
   const locale = useLocale();
   const t = useTranslations("chat");
   const isAr = useMemo(() => locale === "ar", [locale]);
@@ -55,14 +56,53 @@ ChatPageWrapperProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const prevMessagesLengthRef = useRef<number>(0);
+
+  const { session } = useAuth(); // Moved session declaration earlier
+  const currentUserId = session?.user?.id;
+
   // WebSocket connection - single instance for the entire chat
   const { status: wsConnectionStatus } = useChatWebSocket({
     chatId,
     enabled: true,
   });
 
-  const { session } = useAuth();
-  const currentUserId = session?.user?.id;
+  // Fetch client remaining limits
+  const {
+    data: clientLimitsApiResponse,
+    isLoading: isLoadingClientLimits,
+    isError: isErrorClientLimits,
+  } = useClientRemainingLimits(chatId, {
+    enabled: true,
+  });
+
+  // Extracted array of limits for mapping and conditions
+  const clientLimitsToRender = clientLimitsApiResponse;
+
+  useEffect(() => {
+    console.log(
+      "[ChatPageWrapper] clientLimitsApiResponse:",
+      clientLimitsApiResponse
+    );
+    console.log(
+      "[ChatPageWrapper] clientLimitsToRender (the array):",
+      clientLimitsToRender
+    );
+    console.log(
+      "[ChatPageWrapper] isLoadingClientLimits:",
+      isLoadingClientLimits
+    );
+    console.log("[ChatPageWrapper] isErrorClientLimits:", isErrorClientLimits);
+  }, [
+    clientLimitsApiResponse,
+    clientLimitsToRender,
+    isLoadingClientLimits,
+    isErrorClientLimits,
+  ]);
+
+  const revalidateClientLimits = useClientRemainingLimitsRevalidate({
+    chatId,
+  });
+
   const router = useRouter();
   const revalidate = useChatRevalidate(chatId);
   const chatsRevalidate = useChatsRevalidate();
@@ -386,6 +426,7 @@ ChatPageWrapperProps) {
         onSuccess: () => {
           chatsRevalidate();
           revalidate();
+          revalidateClientLimits();
           setTimeout(() => {
             router.push("/");
           }, 500);
@@ -416,7 +457,16 @@ ChatPageWrapperProps) {
               />
             </div>
             <div className="flex items-center gap-2">
-              <AssignPackageDialog chatId={chatId} />
+              <AssignPackageDialog
+                chatId={chatId}
+                // @ts-ignore // Temporarily ignore if type definition is not updated yet
+                onSuccess={() => {
+                  console.log(
+                    "Package assigned, revalidating client limits..."
+                  );
+                  revalidateClientLimits();
+                }}
+              />
               <ChatDeleteDialog
                 onDeleteChat={onDeleteChat}
                 chatId={chatId}
@@ -428,17 +478,13 @@ ChatPageWrapperProps) {
       <div
         className={cn(
           `w-full h-full justify-between`,
-          session?.user.role == "admin"
-            ? "grid grid-cols-1 md:grid-cols-6 pt-8"
-            : "grid grid-cols-1"
+          "grid grid-cols-1 md:grid-cols-6 pt-8"
         )}
       >
         <div
           className={cn(
             `w-full h-full flex flex-col col-span-2 justify-between items-center`,
-            session?.user.role == "admin"
-              ? "col-span-1 md:col-span-4 pt-4"
-              : "col-span-1"
+            "col-span-1 md:col-span-4 pt-4"
           )}
         >
           <ScrollArea
@@ -495,6 +541,7 @@ ChatPageWrapperProps) {
 
                   {virtualizedMessages.map((msg, index) => (
                     <MemoizedMessagesArea
+                      chatId={+chatId}
                       role={session?.user.role || "client"}
                       name={session?.user.name || ""}
                       key={msg.id}
@@ -516,6 +563,7 @@ ChatPageWrapperProps) {
               ) : (
                 messages.map((msg, index) => (
                   <MemoizedMessagesArea
+                    chatId={+chatId}
                     role={session?.user.role || "client"}
                     name={session?.user.name || ""}
                     key={msg.id}
@@ -554,7 +602,6 @@ ChatPageWrapperProps) {
                   disabled={wsConnectionStatus === "disconnected"}
                   placeholder={t("messageArea.placeholder")}
                 />{" "}
-                {/* WebSocket status for non-admin users */}
                 {session?.user.role !== "admin" && (
                   <WebSocketStatusIndicator
                     status={wsConnectionStatus}
@@ -566,27 +613,47 @@ ChatPageWrapperProps) {
             )}
           </div>
         </div>
-        {session?.user.role == "admin" && (
-          <div
-            className={cn(
-              `hidden md:flex flex-col gap-4 w-full items-start px-4 py-2 rounded-t-xl bg-muted/30 border-l`,
-              session?.user.role == "admin"
-                ? "col-span-1 md:col-span-2"
-                : "col-span-1"
-            )}
-          >
-            {session?.user.role === "admin" && (
-              <>
-                <ScrollArea className="h-[75dvh] w-full py-4">
-                  <div className="w-full">
-                    <ManageClientLimits chatId={chatId} />
+        <div
+          className={cn(
+            `hidden md:flex flex-col gap-4 w-full items-start px-4 py-2 rounded-t-xl bg-muted/30 border-l`,
+            "col-span-1 md:col-span-2"
+          )}
+        >
+          <div className="w-full flex items-center justify-between py-2">
+            <ScrollArea className="h-[75dvh] w-full py-4">
+              {session?.user.role === "admin" && (
+                <div className="w-full">
+                  <ManageClientLimits chatId={chatId} />
+                </div>
+              )}
+              {isLoadingClientLimits && (
+                <div className="flex justify-center items-center h-20">
+                  <Loader2
+                    className="animate-spin text-primary"
+                    size={24}
+                  />
+                </div>
+              )}
+              {isErrorClientLimits && (
+                <p className="text-red-500 text-center p-4">
+                  {t("limits.loadError", {
+                    defaultValue: "Failed to load limits.",
+                  })}
+                </p>
+              )}
+              {clientLimitsToRender &&
+                clientLimitsToRender.map((item) => (
+                  <div>
+                    <PackageLimitsCard
+                      key={item.id}
+                      data={item}
+                    />
                   </div>
-                </ScrollArea>
-              </>
-            )}
+                ))}
+            </ScrollArea>
           </div>
-        )}
-      </div>{" "}
+        </div>
+      </div>
       <ScrollToBottomButton
         scrollAreaRef={scrollAreaRef}
         onClick={scrollToBottom}

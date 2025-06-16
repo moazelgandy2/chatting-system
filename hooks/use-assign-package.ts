@@ -19,15 +19,20 @@ import {
   AssignedPackagesListResponse,
   DetailedAssignedPackageResponse,
 } from "@/types/packages";
+import { useClientRemainingLimitsRevalidate } from "./use-client-remaining-limits";
 
-export function useAssignPackage() {
+export function useAssignPackage({ chatId }: { chatId: string }) {
   const queryClient = useQueryClient();
   const t = useTranslations();
-
+  const clientLimitsRevalidate = useClientRemainingLimitsRevalidate({
+    chatId,
+  });
   return useMutation({
     mutationFn: (data: AssignPackageData) => assignPackage(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
+      clientLimitsRevalidate();
+
       showNotification(
         t("package.assigned", {
           default: "Package assigned successfully!",
@@ -63,9 +68,17 @@ export function useDetailedClientPackage(clientPackageId?: number) {
   });
 }
 
-export function useUpdateClientPackageItemStatus() {
+export function useUpdateClientPackageItemStatus({
+  chatId,
+}: {
+  chatId: string;
+}) {
   const queryClient = useQueryClient();
   const t = useTranslations();
+
+  const clientLimitsRevalidate = useClientRemainingLimitsRevalidate({
+    chatId,
+  });
 
   return useMutation({
     mutationFn: ({
@@ -81,6 +94,8 @@ export function useUpdateClientPackageItemStatus() {
       // Invalidate multiple query keys for comprehensive revalidation
       queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+
+      clientLimitsRevalidate();
 
       showNotification(
         t("package.itemStatusUpdated", {
@@ -102,9 +117,12 @@ export function useUpdateClientPackageItemStatus() {
   });
 }
 
-export function useAcceptClientPackageItem() {
+export function useAcceptClientPackageItem({ chatId }: { chatId: number }) {
   const queryClient = useQueryClient();
   const t = useTranslations();
+  const clientLimitsRevalidate = useClientRemainingLimitsRevalidate({
+    chatId: String(chatId), // Convert number to string
+  });
 
   return useMutation({
     mutationFn: (clientPackageItemId: number) =>
@@ -113,6 +131,7 @@ export function useAcceptClientPackageItem() {
       // Invalidate multiple query keys for comprehensive revalidation
       queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+      clientLimitsRevalidate();
 
       showNotification(
         data?.message ||
@@ -142,10 +161,12 @@ export function useAcceptClientPackageItem() {
   });
 }
 
-export function useEditClientPackageItem() {
+export function useEditClientPackageItem({ chatId }: { chatId: number }) {
   const queryClient = useQueryClient();
   const t = useTranslations();
-
+  const clientLimitsRevalidate = useClientRemainingLimitsRevalidate({
+    chatId: String(chatId), // Convert number to string
+  });
   return useMutation({
     mutationFn: (clientPackageItemId: number) =>
       editClientPackageItem(clientPackageItemId),
@@ -153,6 +174,7 @@ export function useEditClientPackageItem() {
       // Invalidate multiple query keys for comprehensive revalidation
       queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+      clientLimitsRevalidate();
 
       showNotification(
         data?.message ||
@@ -181,9 +203,13 @@ export function useEditClientPackageItem() {
   });
 }
 
-export function useDeclineClientPackageItem() {
+export function useDeclineClientPackageItem({ chatId }: { chatId: number }) {
   const queryClient = useQueryClient();
   const t = useTranslations();
+
+  const clientLimitsRevalidate = useClientRemainingLimitsRevalidate({
+    chatId: String(chatId), // Convert number to string
+  });
 
   return useMutation({
     mutationFn: (clientPackageItemId: number) =>
@@ -192,6 +218,7 @@ export function useDeclineClientPackageItem() {
       // Invalidate multiple query keys for comprehensive revalidation
       queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+      clientLimitsRevalidate();
 
       showNotification(
         data?.message ||
