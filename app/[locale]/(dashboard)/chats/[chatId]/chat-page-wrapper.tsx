@@ -387,7 +387,7 @@ ChatPageWrapperProps) {
           chatsRevalidate();
           revalidate();
           setTimeout(() => {
-            router.push("/chats");
+            router.push("/");
           }, 500);
         },
       });
@@ -528,8 +528,6 @@ ChatPageWrapperProps) {
                   />
                 ))
               )}
-
-
 
               {/* Enhanced scroll target with padding for better scrolling */}
               <div

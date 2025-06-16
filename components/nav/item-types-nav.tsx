@@ -19,7 +19,7 @@ import { PackageTypeFormType } from "@/forms/create-package-type";
 export const ItemTypesNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutate, isPending } = useCreatePackageItemType();
-  const t = useTranslations();
+  const t = useTranslations("chat.itemTypesNav"); // Updated namespace
 
   const handleSubmit = (values: PackageTypeFormType) => {
     mutate(values, {
@@ -38,16 +38,16 @@ export const ItemTypesNav = () => {
         <SidebarMenuSubItem>
           <SidebarMenuSubButton className="cursor-pointer">
             <FileStack className="w-3 h-3" />
-            <span>Add Package Type</span>
+            <span>{t("addPackageTypeButton")}</span>
           </SidebarMenuSubButton>
         </SidebarMenuSubItem>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Package Type</DialogTitle>
+          <DialogTitle>{t("dialogTitle")}</DialogTitle>
           <DialogDescription>
             <p className="text-sm text-muted-foreground">
-              Fill out the form below to create a new package type.
+              {t("dialogDescription")}
             </p>
           </DialogDescription>
         </DialogHeader>

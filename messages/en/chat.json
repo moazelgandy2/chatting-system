@@ -21,16 +21,27 @@
       "online": "Online",
       "offline": "Offline - Reconnecting..."
     },
-    "media": "Media",
+    "media": {
+      "unnamedFile": "Unnamed File",
+      "file": "File",
+      "unnamedImage": "Unnamed Image",
+      "viewImage": "View {name}",
+      "imageAlt": "Uploaded image: {default}",
+      "downloadFile": "Download {name}",
+      "videoPlayer": "Video Player",
+      "pdfPreview": "PDF Preview"
+    },
     "imageModal": {
       "download": "Download",
-      "clickOutsideToClose": "Click outside to close"
+      "clickOutsideToClose": "Click outside to close",
+      "closeModal": "Close"
     },
     "notifications": {
       "messageSent": "Message sent",
       "messageDelivered": "Message delivered",
       "messageRead": "Message read",
-      "connectionLost": "Connection lost, reconnecting..."
+      "connectionLost": "Connection lost, reconnecting...",
+      "deletedSuccess": "Chat deleted successfully!"
     },
     "available": {
       "title": "Available Chats",
@@ -64,7 +75,77 @@
       "usage": "Usage Information",
       "close": "Close"
     },
-    "created": "Chat created successfully"
+    "created": "Chat created successfully",
+    "videoPlayer": {
+      "videoPlayer": "Video Player",
+      "videoContent": "Video content",
+      "videoNotSupported": "Your browser does not support the video tag.",
+      "progressBar": "Progress bar",
+      "rewind10s": "Rewind 10 seconds",
+      "pause": "Pause",
+      "play": "Play",
+      "fastForward10s": "Fast-forward 10 seconds",
+      "unmute": "Unmute",
+      "mute": "Mute",
+      "volumeControl": "Volume control",
+      "exitFullscreen": "Exit full-screen",
+      "enterFullscreen": "Enter full-screen"
+    },
+    "userFormDialog": {
+      "addUser": "Add User",
+      "createUser": "Create User",
+      "description": "Fill in the details to create a new user account.",
+      "error": "Something went wrong!"
+    },
+    "assignTeamDialog": {
+      "assignTeam": "Assign Team",
+      "assignTeamMembers": "Assign Team Members",
+      "description": "Select a chat and team members to assign.",
+      "chatLabel": "Chat:",
+      "loading": "Loading...",
+      "chatIdFallback": "Chat #{chatId}",
+      "searchPlaceholder": "Search team members",
+      "nameHeader": "Name",
+      "emailHeader": "Email",
+      "noTeamMembers": "No team members found",
+      "previousButton": "Previous",
+      "nextButton": "Next",
+      "pageInfo": "Page {currentPage} of {lastPage}",
+      "assigningButton": "Assigning...",
+      "error": "Something went wrong!"
+    },
+    "itemTypesNav": {
+      "addPackageTypeButton": "Add Package Type",
+      "dialogTitle": "Add Package Type",
+      "dialogDescription": "Fill out the form below to create a new package type."
+    },
+    "createChatDialog": {
+      "title": "Create Chat",
+      "description": "Select a user to start a new chat.",
+      "genericError": "Something went wrong!"
+    },
+    "chatForm": {
+      "genericError": "Something went wrong!",
+      "chatNameLabel": "Chat Name",
+      "chatNamePlaceholder": "Enter chat name",
+      "chatDescriptionLabel": "Chat Description",
+      "chatDescriptionPlaceholder": "Enter chat description",
+      "table": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "selectedButton": "Selected",
+        "selectButton": "Select",
+        "noUsers": "No users found"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "pageInfo": "Page {currentPage} of {lastPage}",
+        "next": "Next"
+      },
+      "creatingButton": "Creating Chat...",
+      "createButton": "Create Chat"
+    }
   },
   "form": {
     "client_id": {

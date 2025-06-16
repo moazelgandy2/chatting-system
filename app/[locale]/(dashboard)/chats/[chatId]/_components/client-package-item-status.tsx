@@ -23,15 +23,18 @@ import {
   useDeclineClientPackageItem,
 } from "@/hooks/use-assign-package";
 import { ClientPackageItem } from "@/types/packages";
+import { RoleType } from "@/types";
 
 interface ClientPackageItemStatusProps {
   clientPackageItem?: ClientPackageItem | null;
   isCompact?: boolean;
+  role: RoleType | undefined;
 }
 
 const ClientPackageItemStatus = ({
   clientPackageItem: propClientPackageItem,
   isCompact = false,
+  role,
 }: ClientPackageItemStatusProps) => {
   const t = useTranslations("package");
   const updateStatusMutation = useUpdateClientPackageItemStatus();
@@ -160,6 +163,12 @@ const ClientPackageItemStatus = ({
               {clientPackageItem.item_type ||
                 t("packageItem.unknown", { default: "Item" })}
             </span>
+            <Badge
+              variant={"default"}
+              className="text-xs mx-3 bg-amber-500"
+            >
+              {`DEV_ONLY(${clientPackageItem.id})`}
+            </Badge>
           </div>
           <Badge
             variant="outline"
@@ -183,58 +192,60 @@ const ClientPackageItemStatus = ({
         )}
 
         {/* Action buttons - only for actionable statuses */}
-        {(clientPackageItem.status === "pending" ||
-          clientPackageItem.status === "completed") && (
-          <div className="flex flex-wrap gap-1 pt-1">
-            {" "}
-            {clientPackageItem.status === "pending" && (
-              <>
+        {role &&
+          role == "client" &&
+          (clientPackageItem.status === "pending" ||
+            clientPackageItem.status === "completed") && (
+            <div className="flex flex-wrap gap-1 pt-1">
+              {" "}
+              {clientPackageItem.status === "pending" && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleAccept}
+                    disabled={acceptMutation.isPending}
+                    className="h-6 text-[10px] px-1.5"
+                  >
+                    <Check className="w-3 h-3 mr-0.5" />
+                    {t("actions.accept", { default: "Accept" })}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleEdit}
+                    disabled={editMutation.isPending}
+                    className="h-6 text-[10px] px-1.5 text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
+                  >
+                    <Edit3 className="w-3 h-3 mr-0.5" />
+                    {t("actions.requestEdit", { default: "Edit" })}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleDecline}
+                    disabled={declineMutation.isPending}
+                    className="h-6 text-[10px] px-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <X className="w-3 h-3 mr-0.5" />
+                    {t("actions.reject", { default: "Reject" })}
+                  </Button>
+                </>
+              )}
+              {clientPackageItem.status === "completed" && (
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={handleAccept}
-                  disabled={acceptMutation.isPending}
-                  className="h-6 text-[10px] px-1.5"
+                  onClick={() => handleStatusUpdate("delivered")}
+                  disabled={updateStatusMutation.isPending}
+                  className="h-6 text-[10px] px-2"
                 >
-                  <Check className="w-3 h-3 mr-0.5" />
-                  {t("actions.accept", { default: "Accept" })}
+                  <Truck className="w-3 h-3 mr-1" />
+                  {t("actions.markDelivered", { default: "Delivered" })}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleEdit}
-                  disabled={editMutation.isPending}
-                  className="h-6 text-[10px] px-1.5 text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
-                >
-                  <Edit3 className="w-3 h-3 mr-0.5" />
-                  {t("actions.requestEdit", { default: "Edit" })}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleDecline}
-                  disabled={declineMutation.isPending}
-                  className="h-6 text-[10px] px-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <X className="w-3 h-3 mr-0.5" />
-                  {t("actions.reject", { default: "Reject" })}
-                </Button>
-              </>
-            )}
-            {clientPackageItem.status === "completed" && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleStatusUpdate("delivered")}
-                disabled={updateStatusMutation.isPending}
-                className="h-6 text-[10px] px-2"
-              >
-                <Truck className="w-3 h-3 mr-1" />
-                {t("actions.markDelivered", { default: "Delivered" })}
-              </Button>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
       </div>
     );
   }

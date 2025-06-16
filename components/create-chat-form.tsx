@@ -35,7 +35,7 @@ export function ChatForm({
   isSubmitting = false,
   error,
 }: ChatFormProps) {
-  const t = useTranslations();
+  const t = useTranslations("chat"); // Changed from useTranslations()
   const formSchema = createChatFormSchema(t);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -62,7 +62,7 @@ export function ChatForm({
       console.log("[ERROR_CREATING_CHAT_FORM]", e);
       toast.custom(() => (
         <Notification
-          message={error || "Something went wrong!"}
+          message={error || t("chatForm.genericError")}
           type="error"
         />
       ));
@@ -97,12 +97,12 @@ export function ChatForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xs text-gray-300">
-                    Chat Name
+                    {t("chatForm.chatNameLabel")}
                   </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="Enter chat name"
+                      placeholder={t("chatForm.chatNamePlaceholder")}
                       className="w-full bg-[#18181b] border border-gray-700 rounded text-xs text-gray-100"
                     />
                   </FormControl>
@@ -116,12 +116,12 @@ export function ChatForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xs text-gray-300">
-                    Chat Description
+                    {t("chatForm.chatDescriptionLabel")}
                   </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="Enter chat description"
+                      placeholder={t("chatForm.chatDescriptionPlaceholder")}
                       className="w-full bg-[#18181b] border border-gray-700 rounded text-xs text-gray-100"
                     />
                   </FormControl>
@@ -135,13 +135,13 @@ export function ChatForm({
               <thead className="bg-[#23232a]">
                 <tr>
                   <th className="px-2 py-1 text-left font-semibold text-gray-200 uppercase">
-                    Name
+                    {t("chatForm.table.name")}
                   </th>
                   <th className="px-2 py-1 text-left font-semibold text-gray-200 uppercase">
-                    Email
+                    {t("chatForm.table.email")}
                   </th>
                   <th className="px-2 py-1 text-left font-semibold text-gray-200 uppercase">
-                    Role
+                    {t("chatForm.table.role")}
                   </th>
                   <th className="px-2 py-1"></th>
                 </tr>
@@ -189,7 +189,9 @@ export function ChatForm({
                           onClick={() => handleUserSelect(user.id)}
                           className="h-5 px-1 text-[10px]"
                         >
-                          {selectedUser === user.id ? "Selected" : "Select"}
+                          {selectedUser === user.id
+                            ? t("chatForm.table.selectedButton")
+                            : t("chatForm.table.selectButton")}
                         </Button>
                       </td>
                     </tr>
@@ -200,7 +202,7 @@ export function ChatForm({
                       colSpan={4}
                       className="text-center py-2 text-gray-500"
                     >
-                      No users found
+                      {t("chatForm.table.noUsers")}
                     </td>
                   </tr>
                 )}
@@ -215,10 +217,13 @@ export function ChatForm({
               disabled={!data?.prev_page_url || page === 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
-              Previous
+              {t("chatForm.pagination.previous")}
             </Button>
             <span className="text-xs text-gray-500">
-              Page {data?.current_page || 1} of {data?.last_page || 1}
+              {t("chatForm.pagination.pageInfo", {
+                currentPage: data?.current_page || 1,
+                lastPage: data?.last_page || 1,
+              })}
             </span>
             <Button
               type="button"
@@ -231,7 +236,7 @@ export function ChatForm({
                 )
               }
             >
-              Next
+              {t("chatForm.pagination.next")}
             </Button>
           </div>
         </div>
@@ -243,10 +248,10 @@ export function ChatForm({
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating Chat...
+              {t("chatForm.creatingButton")}
             </>
           ) : (
-            "Create Chat"
+            t("chatForm.createButton")
           )}
         </Button>
       </form>

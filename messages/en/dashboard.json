@@ -36,7 +36,8 @@
       },
       "admin": {
         "title": "Management",
-        "description": "System management"
+        "description": "System management",
+        "packages": "Packages"
       },
       "dashboard": "Dashboard",
       "packages": "Packages"

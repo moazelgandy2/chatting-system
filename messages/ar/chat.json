@@ -21,10 +21,20 @@
       "online": "متصل",
       "offline": "غير متصل - إعادة الاتصال..."
     },
-    "media": "وسائط",
+    "media": {
+      "unnamedFile": "ملف غير مسمى",
+      "file": "ملف",
+      "unnamedImage": "صورة غير مسماة",
+      "viewImage": "عرض {name}",
+      "imageAlt": "الصورة المرفوعة: {default}",
+      "downloadFile": "تحميل {name}",
+      "videoPlayer": "مشغل الفيديو",
+      "pdfPreview": "معاينة PDF"
+    },
     "imageModal": {
       "download": "تحميل",
-      "clickOutsideToClose": "انقر خارج النافذة للإغلاق"
+      "clickOutsideToClose": "انقر خارج النافذة للإغلاق",
+      "closeModal": "إغلاق"
     },
     "notifications": {
       "messageSent": "تم إرسال الرسالة",
@@ -65,6 +75,76 @@
       "rejected": "مرفوض",
       "usage": "معلومات الاستخدام",
       "close": "إغلاق"
+    },
+    "videoPlayer": {
+      "videoPlayer": "مشغل الفيديو",
+      "videoContent": "محتوى الفيديو",
+      "videoNotSupported": "متصفحك لا يدعم وسم الفيديو.",
+      "progressBar": "شريط التقدم",
+      "rewind10s": "إرجاع 10 ثواني",
+      "pause": "إيقاف مؤقت",
+      "play": "تشغيل",
+      "fastForward10s": "تقديم سريع 10 ثواني",
+      "unmute": "إلغاء كتم الصوت",
+      "mute": "كتم الصوت",
+      "volumeControl": "التحكم في مستوى الصوت",
+      "exitFullscreen": "الخروج من وضع ملء الشاشة",
+      "enterFullscreen": "الدخول في وضع ملء الشاشة"
+    },
+    "userFormDialog": {
+      "addUser": "إضافة مستخدم",
+      "createUser": "إنشاء مستخدم",
+      "description": "املأ التفاصيل لإنشاء حساب مستخدم جديد.",
+      "error": "حدث خطأ ما!"
+    },
+    "assignTeamDialog": {
+      "assignTeam": "تعيين فريق",
+      "assignTeamMembers": "تعيين أعضاء الفريق",
+      "description": "حدد محادثة وأعضاء الفريق لتعيينهم.",
+      "chatLabel": "المحادثة:",
+      "loading": "جاري التحميل...",
+      "chatIdFallback": "محادثة #{chatId}",
+      "searchPlaceholder": "البحث عن أعضاء الفريق",
+      "nameHeader": "الاسم",
+      "emailHeader": "البريد الإلكتروني",
+      "noTeamMembers": "لم يتم العثور على أعضاء فريق",
+      "previousButton": "السابق",
+      "nextButton": "التالي",
+      "pageInfo": "صفحة {currentPage} من {lastPage}",
+      "assigningButton": "جاري التعيين...",
+      "error": "حدث خطأ ما!"
+    },
+    "itemTypesNav": {
+      "addPackageTypeButton": "إضافة نوع حزمة",
+      "dialogTitle": "إضافة نوع حزمة",
+      "dialogDescription": "املأ النموذج أدناه لإنشاء نوع حزمة جديد."
+    },
+    "createChatDialog": {
+      "title": "إنشاء محادثة",
+      "description": "حدد مستخدمًا لبدء محادثة جديدة.",
+      "genericError": "حدث خطأ ما!"
+    },
+    "chatForm": {
+      "genericError": "حدث خطأ ما!",
+      "chatNameLabel": "اسم المحادثة",
+      "chatNamePlaceholder": "أدخل اسم المحادثة",
+      "chatDescriptionLabel": "وصف المحادثة",
+      "chatDescriptionPlaceholder": "أدخل وصف المحادثة",
+      "table": {
+        "name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "role": "الدور",
+        "selectedButton": "محدد",
+        "selectButton": "تحديد",
+        "noUsers": "لم يتم العثور على مستخدمين"
+      },
+      "pagination": {
+        "previous": "السابق",
+        "pageInfo": "صفحة {currentPage} من {lastPage}",
+        "next": "التالي"
+      },
+      "creatingButton": "جاري إنشاء المحادثة...",
+      "createButton": "إنشاء محادثة"
     }
   },
   "form": {

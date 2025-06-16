@@ -223,7 +223,7 @@ export const acceptClientPackageItem = async (clientPackageItemId: number) => {
     const res = await fetch(
       `${apiBaseUrl}/api/client-package-items/${clientPackageItemId}/accept`,
       {
-        method: "POST",
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${session.token}`,
           "Content-Type": "application/json",
@@ -289,9 +289,13 @@ export const editClientPackageItem = async (clientPackageItemId: number) => {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error("Failed to request edit for client package item", {
-        cause: data,
-      });
+      console.error("Edit request failed:", data.message);
+      throw new Error(
+        data.message || "Failed to request edit for client package item",
+        {
+          cause: data,
+        }
+      );
     }
 
     return data;
@@ -323,6 +327,7 @@ export const declineClientPackageItem = async (clientPackageItemId: number) => {
         },
       }
     );
+    console.log("Declining client package item:", res);
 
     const data = await res.json();
 

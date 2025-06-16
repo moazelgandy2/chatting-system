@@ -17,8 +17,10 @@ import { useAssignTeamToChat } from "@/hooks/use-chat";
 import { Loader2, Search } from "lucide-react";
 import { useChats } from "@/hooks/use-chats";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export function AssignTeamDialog() {
+  const t = useTranslations("chat.assignTeamDialog");
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -51,7 +53,7 @@ export function AssignTeamDialog() {
       setSelected([]);
       router.refresh();
     } catch (e: any) {
-      setError(e?.message || "Something went wrong!");
+      setError(e?.message || t("error"));
     }
   };
 
@@ -64,18 +66,16 @@ export function AssignTeamDialog() {
         <SidebarMenuSubItem>
           <SidebarMenuSubButton className="cursor-pointer">
             <Users className="w-3 h-3" />
-            <span>Assign Team</span>
+            <span>{t("assignTeam")}</span>
           </SidebarMenuSubButton>
         </SidebarMenuSubItem>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold bg-gradient-to-r from-violet-500 to-indigo-500 bg-clip-text text-transparent">
-            Assign Team Members
+            {t("assignTeamMembers")}
           </DialogTitle>
-          <DialogDescription>
-            Select a chat and team members to assign.
-          </DialogDescription>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2">
@@ -83,7 +83,7 @@ export function AssignTeamDialog() {
               htmlFor="chat-select"
               className="text-xs text-gray-400"
             >
-              Chat:
+              {t("chatLabel")}
             </label>
             <select
               id="chat-select"
@@ -92,13 +92,13 @@ export function AssignTeamDialog() {
               onChange={(e) => setChatId(Number(e.target.value))}
               disabled={chatsLoading || chatOptions.length === 0}
             >
-              {chatsLoading && <option>Loading...</option>}
+              {chatsLoading && <option>{t("loading")}</option>}
               {chatOptions.map((chat) => (
                 <option
                   key={chat.id}
                   value={chat.id}
                 >
-                  {chat.name || `Chat #${chat.id}`}
+                  {chat.name || t("chatIdFallback", { chatId: chat.id })}
                 </option>
               ))}
             </select>
@@ -109,7 +109,7 @@ export function AssignTeamDialog() {
                 <Search className="w-4 h-4" />
               </span>
               <input
-                placeholder="Search team members"
+                placeholder={t("searchPlaceholder")}
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -124,10 +124,10 @@ export function AssignTeamDialog() {
               <thead className="bg-[#23232a]">
                 <tr>
                   <th className="px-2 py-1 text-left font-semibold text-gray-200 uppercase">
-                    Name
+                    {t("nameHeader")}
                   </th>
                   <th className="px-2 py-1 text-left font-semibold text-gray-200 uppercase">
-                    Email
+                    {t("emailHeader")}
                   </th>
                   <th className="px-2 py-1"></th>
                 </tr>
@@ -178,7 +178,7 @@ export function AssignTeamDialog() {
                       colSpan={3}
                       className="text-center py-2 text-gray-500"
                     >
-                      No team members found
+                      {t("noTeamMembers")}
                     </td>
                   </tr>
                 )}
@@ -193,10 +193,13 @@ export function AssignTeamDialog() {
               disabled={!data?.prev_page_url || page === 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
-              Previous
+              {t("previousButton")}
             </Button>
             <span className="text-xs text-gray-500">
-              Page {data?.current_page || 1} of {data?.last_page || 1}
+              {t("pageInfo", {
+                currentPage: data?.current_page || 1,
+                lastPage: data?.last_page || 1,
+              })}
             </span>
             <Button
               type="button"
@@ -209,7 +212,7 @@ export function AssignTeamDialog() {
                 )
               }
             >
-              Next
+              {t("nextButton")}
             </Button>
           </div>
           <Button
@@ -221,10 +224,10 @@ export function AssignTeamDialog() {
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Assigning...
+                {t("assigningButton")}
               </>
             ) : (
-              "Assign Team"
+              t("assignTeam")
             )}
           </Button>
           {error && <div className="text-red-500 text-xs mt-2">{error}</div>}

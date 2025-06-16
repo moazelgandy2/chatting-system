@@ -33,6 +33,7 @@ import { FileUpload, FileAttachButton } from "@/components/ui/file-upload";
 import { PackageOnlySelector } from "@/components/ui/package-item-selector";
 import { useSendMessageWithFiles } from "@/hooks/use-chat";
 import { useAuth } from "@/hooks/useAuth";
+import { Progress } from "@/components/ui/progress"; // Import Progress component
 
 interface MessageComposerProps {
   chatId: string | number;
@@ -58,6 +59,9 @@ export function MessageComposer({
   const [message, setMessage] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [fileUploadProgress, setFileUploadProgress] = useState<
+    Record<string, number>
+  >({}); // State for file upload progress
   const [packageSelection, setPackageSelection] = useState({
     isItem: false,
     itemType: "",
@@ -70,6 +74,11 @@ export function MessageComposer({
   const { session } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const sendMessageMutation = useSendMessageWithFiles(chatId, page, senderId);
+
+  // Helper to generate a unique ID for a file
+  const getFileId = (file: File): string => {
+    return `${file.name}-${file.size}-${file.lastModified}`;
+  };
 
   // Create preview URLs for images
   useEffect(() => {
@@ -130,6 +139,30 @@ export function MessageComposer({
 
   const handleSendMessage = useCallback(async () => {
     if (!hasContent || disabled) return;
+
+    // Simulate progress updates for UI development
+    const newFileUploadProgress: Record<string, number> = {};
+    files.forEach((file) => {
+      const fileId = getFileId(file);
+      newFileUploadProgress[fileId] = 0; // Initialize progress
+    });
+    setFileUploadProgress(newFileUploadProgress);
+
+    // Simulate actual upload and progress reporting
+    for (const file of files) {
+      const fileId = getFileId(file);
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 10;
+        if (progress <= 100) {
+          setFileUploadProgress((prev) => ({ ...prev, [fileId]: progress }));
+        } else {
+          clearInterval(interval);
+        }
+      }, 200); // Simulate progress update every 200ms
+    }
+    // End of simulation block
+
     const messageData = {
       message: message.trim(),
       media: files.length > 0 ? files : undefined,
@@ -161,6 +194,7 @@ export function MessageComposer({
       await sendMessageMutation.mutateAsync(messageData); // Reset form
       setMessage("");
       setFiles([]);
+      setFileUploadProgress({}); // Reset progress on send
 
       // Cleanup preview URLs
       Object.values(filePreviewUrls).forEach((url) => {
@@ -250,7 +284,9 @@ export function MessageComposer({
   };
 
   const handleRemoveFile = (index: number) => {
-    const fileKey = `${files[index].name}-${index}`;
+    const fileToRemove = files[index];
+    const fileKey = `${fileToRemove.name}-${index}`;
+    const fileId = getFileId(fileToRemove);
 
     // Cleanup preview URL if it exists
     if (filePreviewUrls[fileKey]) {
@@ -262,6 +298,11 @@ export function MessageComposer({
       });
     }
     setFiles((prev) => prev.filter((_, i) => i !== index));
+    setFileUploadProgress((prev) => {
+      const updatedProgress = { ...prev };
+      delete updatedProgress[fileId];
+      return updatedProgress;
+    });
   };
 
   return (
@@ -271,50 +312,48 @@ export function MessageComposer({
         <div className="flex-1 space-y-2 w-full">
           {/* Quick File Preview */}
           {files.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-2 p-2 border rounded-md bg-muted/50">
               {files.slice(0, 3).map((file, index) => {
                 const fileKey = `${file.name}-${index}`;
+                const fileId = getFileId(file);
                 const isImage = file.type.startsWith("image/");
                 const previewUrl = filePreviewUrls[fileKey];
+                const progress = fileUploadProgress[fileId];
 
                 return (
                   <div
                     key={fileKey}
-                    className="relative group"
+                    className="relative group w-16 h-16 flex flex-col items-center justify-center"
                   >
                     {isImage && previewUrl ? (
-                      <div className="relative">
-                        <img
-                          src={previewUrl}
-                          alt={file.name}
-                          className="w-12 h-12 object-cover rounded-md border"
-                        />
-                        <div className="absolute inset-0 bg-black/50 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Eye className="w-3 h-3 text-white" />
-                        </div>
-                        <button
-                          onClick={() => handleRemoveFile(index)}
-                          className="absolute -top-1 -right-1 bg-destructive hover:bg-destructive/80 text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
+                      <img
+                        src={previewUrl}
+                        alt={file.name}
+                        className="w-full h-full object-cover rounded-md border"
+                      />
                     ) : (
-                      <Badge
-                        variant="secondary"
-                        className="text-xs flex items-center gap-1 pr-1"
-                      >
-                        <FileText className="w-3 h-3" />
-                        {file.name.length > 15
-                          ? `${file.name.slice(0, 15)}...`
-                          : file.name}
-                        <button
-                          onClick={() => handleRemoveFile(index)}
-                          className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </Badge>
+                      <FileText className="w-8 h-8 text-muted-foreground" />
+                    )}
+                    <button
+                      onClick={() => handleRemoveFile(index)}
+                      className="absolute -top-1 -right-1 bg-destructive hover:bg-destructive/80 text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                      aria-label={`Remove ${file.name}`}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                    {progress !== undefined && progress < 100 && (
+                      <div className="absolute bottom-0 left-0 right-0 h-1.5 w-full px-0.5">
+                        <Progress
+                          value={progress}
+                          className="h-1.5 w-full"
+                        />
+                      </div>
+                    )}
+                    {/* Overlay for image zoom/preview icon */}
+                    {isImage && previewUrl && (
+                      <div className="absolute inset-0 bg-black/30 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Eye className="w-4 h-4 text-white" />
+                      </div>
                     )}
                   </div>
                 );
@@ -525,3 +564,115 @@ export function MessageComposer({
     </div>
   );
 }
+
+const FileUploadArea = ({
+  files,
+  setFiles, // Added setFiles to handle direct file input change
+  onRemoveFile,
+  filePreviewUrls,
+  fileUploadProgress, // Receive progress state
+  getFileId, // Receive getFileId helper
+}: {
+  files: File[];
+  setFiles: React.Dispatch<React.SetStateAction<File[]>>;
+  onRemoveFile: (index: number) => void;
+  filePreviewUrls: Record<string, string>;
+  fileUploadProgress: Record<string, number>;
+  getFileId: (file: File) => string;
+}) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const newFiles = Array.from(event.target.files);
+      setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <Label
+          htmlFor="file-upload-dialog"
+          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80 transition-colors"
+        >
+          <ImagePlus className="w-10 h-10 text-muted-foreground mb-2" />
+          <p className="text-sm text-muted-foreground">
+            Drag & drop files here, or click to select files
+          </p>
+          <input
+            id="file-upload-dialog"
+            type="file"
+            className="sr-only"
+            multiple
+            onChange={handleFileChange}
+          />
+        </Label>
+      </div>
+
+      {files.length > 0 && (
+        <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+          <h4 className="text-md font-medium">Selected Files:</h4>
+          {files.map((file, index) => {
+            const fileKey = `${file.name}-${index}`;
+            const fileId = getFileId(file);
+            const isImage = file.type.startsWith("image/");
+            const previewUrl = filePreviewUrls[fileKey];
+            const progress = fileUploadProgress[fileId];
+
+            return (
+              <Card
+                key={fileKey}
+                className="p-3 flex items-center gap-3 group hover:bg-muted/50 transition-colors"
+              >
+                {isImage && previewUrl ? (
+                  <img
+                    src={previewUrl}
+                    alt={file.name}
+                    className="w-12 h-12 object-cover rounded-md border"
+                  />
+                ) : (
+                  <FileText className="w-10 h-10 text-muted-foreground" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p
+                    className="text-sm font-medium truncate"
+                    title={file.name}
+                  >
+                    {file.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {Math.round(file.size / 1024)} KB
+                  </p>
+                  {progress !== undefined && progress < 100 && (
+                    <div className="mt-1">
+                      <Progress
+                        value={progress}
+                        className="h-1.5 w-full"
+                      />
+                      <p className="text-xs text-muted-foreground text-right">
+                        {progress.toFixed(0)}%
+                      </p>
+                    </div>
+                  )}
+                  {progress === 100 && (
+                    <p className="text-xs text-green-600 dark:text-green-500">
+                      Uploaded
+                    </p>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onRemoveFile(index)}
+                  className="opacity-50 group-hover:opacity-100 transition-opacity"
+                  aria-label={`Remove ${file.name}`}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};

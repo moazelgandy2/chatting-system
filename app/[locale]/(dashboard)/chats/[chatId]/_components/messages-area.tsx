@@ -2,7 +2,6 @@
 
 import { memo, useState, forwardRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, X, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MediaFile } from "@/types/chats";
 import { cn } from "@/lib/utils";
@@ -10,7 +9,11 @@ import { useTranslations } from "next-intl";
 import UserAvatar from "./user-avatar";
 import ClientPackageItemStatus from "./client-package-item-status";
 import { ClientPackageItem } from "@/types/packages";
-import Image from "next/image"; // Import next/image
+import ImageExpansionModal, {
+  ExpandedImageState,
+} from "./image-expansion-modal";
+import MediaFileItem from "./media-file-item";
+import { useAuth } from "@/hooks/useAuth";
 
 export type MessageType = {
   id: string;
@@ -21,270 +24,6 @@ export type MessageType = {
   media?: MediaFile[];
   client_package_item_id?: number | null;
   client_package_item?: ClientPackageItem | null;
-};
-
-interface ExpandedImageState {
-  isOpen: boolean;
-  imageUrl: string;
-  imageName: string;
-}
-
-// Enhanced Image Expansion Modal Component with improved theming and interactions
-const ImageExpansionModal = ({
-  isOpen,
-  imageUrl,
-  imageName,
-  onClose,
-}: ExpandedImageState & { onClose: () => void }) => {
-  const t = useTranslations("chat.imageModal");
-
-  // Handle ESC key press to close modal
-  useEffect(() => {
-    const handleEscapeKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isOpen) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscapeKey);
-      // Prevent background scrolling when modal is open
-      document.body.style.overflow = "hidden";
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleEscapeKey);
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen, onClose]);
-
-  const handleDownload = async () => {
-    try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = imageName || "image";
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error("Failed to download image:", error);
-    }
-  };
-
-  return (
-    <AnimatePresence mode="wait">
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-lg dark:bg-background/95"
-          onClick={onClose}
-          style={{ backdropFilter: "blur(12px)" }}
-        >
-          {/* Enhanced header bar with proper theming */}
-          <motion.div
-            initial={{ y: -40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -40, opacity: 0 }}
-            transition={{ delay: 0.1, duration: 0.4, ease: "easeOut" }}
-            className="absolute top-0 left-0 right-0 z-20 bg-card/90 backdrop-blur-md border-b border-border"
-          >
-            <div className="flex items-center justify-between p-6">
-              <motion.h3
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.3 }}
-                className="text-xl font-semibold truncate mr-4 text-foreground"
-              >
-                {imageName || t("defaultTitle", { default: "Image Preview" })}
-              </motion.h3>
-              <motion.div
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.3 }}
-                className="flex items-center gap-3"
-              >
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDownload}
-                  className="h-10 px-4 bg-background/50 hover:bg-accent hover:text-accent-foreground transition-all duration-200 hover:scale-105 active:scale-95"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  {t("download", { default: "Download" })}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onClose}
-                  className="h-10 w-10 p-0 hover:bg-destructive/10 hover:text-destructive transition-all duration-200 hover:scale-105 active:scale-95"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </motion.div>
-            </div>
-          </motion.div>
-
-          {/* Enhanced image container with responsive scaling */}
-          <div className="flex items-center justify-center h-full pt-24 pb-12 px-8">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 20 }}
-              transition={{
-                duration: 0.4,
-                type: "spring",
-                stiffness: 100,
-                damping: 20,
-                delay: 0.1,
-              }}
-              className="relative max-w-[90vw] max-h-[85vh] group aspect-video" // Added aspect-video
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Image
-                src={imageUrl}
-                alt={imageName || "Expanded image"}
-                layout="fill" // Use layout="fill" for responsive images that fill the parent
-                objectFit="cover" // Changed from contain to cover
-                className="rounded-xl shadow-2xl ring-1 ring-border/20 transition-transform duration-300 group-hover:scale-[1.02]"
-                priority // Equivalent to loading="eager"
-                draggable={false}
-              />
-
-              {/* Loading state overlay */}
-              <motion.div
-                initial={{ opacity: 1 }}
-                animate={{ opacity: 0 }}
-                transition={{ delay: 0.5, duration: 0.3 }}
-                className="absolute inset-0 bg-muted/50 rounded-xl flex items-center justify-center backdrop-blur-sm"
-              >
-                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              </motion.div>
-            </motion.div>
-          </div>
-
-          {/* Click outside hint */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ delay: 0.8, duration: 0.3 }}
-            className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-muted-foreground text-sm bg-card/80 backdrop-blur-sm px-4 py-2 rounded-full border border-border/50"
-          >
-            {t("clickOutsideToClose", {
-              default: "Click outside or press ESC to close",
-            })}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
-
-// Enhanced Media File Component with improved hover states and animations
-const MediaFileComponent = ({
-  mediaFile,
-  onImageClick,
-}: {
-  mediaFile: MediaFile;
-  onImageClick: (url: string, name: string) => void;
-}) => {
-  const t = useTranslations("chat.media");
-  const typeIsImage = mediaFile.type?.startsWith("image/");
-  const urlLooksLikeImage = mediaFile.url
-    ? /\.(png|jpe?g|gif|webp|svg)$/i.test(mediaFile.url)
-    : false;
-  const isImage = typeIsImage || urlLooksLikeImage;
-
-  if (isImage) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3, type: "spring", stiffness: 100 }}
-        className="relative group cursor-pointer rounded-lg overflow-hidden bg-muted/50 w-full" // Added w-full
-        onClick={() => onImageClick(mediaFile.url, mediaFile.name || "Image")}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        <div className="relative overflow-hidden rounded-lg ring-1 ring-border/20 group-hover:ring-border/40 transition-all duration-300 aspect-video">
-          {" "}
-          {/* Added aspect ratio for Image */}
-          <Image
-            src={mediaFile.url}
-            alt={mediaFile.name || "Image"}
-            layout="fill" // Use layout="fill"
-            objectFit="cover" // Equivalent to object-cover
-            className="transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-          />
-          {/* Enhanced hover overlay with smooth animations */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-center justify-center"
-            whileHover={{ opacity: 1 }}
-            transition={{ duration: 0.2 }}
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              whileHover={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.2, delay: 0.1 }}
-              className="bg-white/20 backdrop-blur-sm rounded-full p-3"
-            >
-              <ZoomIn className="h-6 w-6 text-white" />
-            </motion.div>
-          </motion.div>
-          {/* Enhanced image name overlay */}
-          {mediaFile.name && (
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              whileHover={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.2 }}
-              className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3"
-            >
-              <p className="text-white text-xs font-medium truncate">
-                {mediaFile.name}
-              </p>
-            </motion.div>
-          )}
-        </div>
-      </motion.div>
-    );
-  }
-
-  // Enhanced non-image media files with better theming
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3 }}
-      className="flex items-center gap-3 p-4 bg-card rounded-lg max-w-xs hover:bg-accent/50 transition-all duration-200 border border-border/50 hover:border-border group"
-      whileHover={{ scale: 1.01 }}
-    >
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate text-foreground">
-          {mediaFile.name || t("unknownFile", { default: "Unknown File" })}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {mediaFile.type || t("unknownType", { default: "Unknown type" })}
-        </p>
-      </div>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => window.open(mediaFile.url, "_blank")}
-        className="h-9 w-9 p-0 flex-shrink-0 hover:bg-primary/10 hover:text-primary transition-all duration-200 group-hover:scale-110"
-      >
-        <Download className="h-4 w-4" />
-      </Button>
-    </motion.div>
-  );
 };
 
 // Helper function to determine if messages should be grouped
@@ -340,6 +79,7 @@ export const MessagesArea = forwardRef<
         imageName: name,
       });
     };
+    const { session } = useAuth();
 
     const closeExpandedImage = () => {
       setExpandedImage({
@@ -368,7 +108,7 @@ export const MessagesArea = forwardRef<
           >
             {" "}
             {!isGrouped && (
-              <div className="ring-2 ring-border/20">
+              <div className="ring-2 ring-border/20 rounded-full">
                 <UserAvatar
                   role={role}
                   userName={name}
@@ -378,7 +118,7 @@ export const MessagesArea = forwardRef<
             <div
               className={cn(
                 "flex flex-col gap-1 max-w-[85%]",
-                isGrouped && "ml-12"
+                isGrouped && "ml-12" // Assuming avatar + gap is roughly 48px (12 * 4 units)
               )}
             >
               {!isGrouped && (
@@ -494,7 +234,6 @@ export const MessagesArea = forwardRef<
                   : "bg-card text-foreground border border-border/50"
               )}
             >
-              {" "}
               <div className="whitespace-pre-wrap break-words">
                 {message.content}
               </div>
@@ -504,10 +243,10 @@ export const MessagesArea = forwardRef<
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5, duration: 0.3 }}
-                  className="space-y-1.5 mt-2"
+                  className="w-full space-y-1.5 mt-2" // Ensure this container takes full width
                 >
                   {message.media.map((mediaFile, index) => (
-                    <MediaFileComponent
+                    <MediaFileItem
                       key={`${message.id}-media-${index}`}
                       mediaFile={mediaFile}
                       onImageClick={handleImageClick}
@@ -524,8 +263,8 @@ export const MessagesArea = forwardRef<
                   transition={{ delay: 0.6, duration: 0.3 }}
                   className="mt-2"
                 >
-                  {" "}
                   <ClientPackageItemStatus
+                    role={session?.user.role}
                     clientPackageItem={message.client_package_item}
                     isCompact={true}
                   />

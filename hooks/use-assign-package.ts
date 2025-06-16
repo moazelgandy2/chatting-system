@@ -90,6 +90,7 @@ export function useUpdateClientPackageItemStatus() {
       );
     },
     onError: (error: Error) => {
+      console.error("Error updating item status:", error);
       showNotification(
         error.message ||
           t("package.itemStatusUpdateError", {
@@ -108,26 +109,35 @@ export function useAcceptClientPackageItem() {
   return useMutation({
     mutationFn: (clientPackageItemId: number) =>
       acceptClientPackageItem(clientPackageItemId),
-    onSuccess: () => {
+    onSuccess: (data) => {
       // Invalidate multiple query keys for comprehensive revalidation
       queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
 
       showNotification(
-        t("package.itemAccepted", {
-          default: "Item accepted successfully!",
-        }),
+        data?.message ||
+          t("package.itemAccepted", {
+            default: "Item accepted successfully!",
+          }),
         "success"
       );
     },
     onError: (error: Error) => {
-      showNotification(
-        error.message ||
-          t("package.itemAcceptError", {
-            default: "Failed to accept item",
-          }),
-        "error"
-      );
+      const cause = error.cause as any;
+      let finalMessage: string;
+
+      if (cause && (cause.status === 429 || cause.statusCode === 429)) {
+        finalMessage = t("package.maxAcceptReached", {
+          default: "Maximum accept requests reached.",
+        });
+      } else if (cause && cause.message) {
+        finalMessage = cause.message;
+      } else {
+        finalMessage =
+          error.message ||
+          t("package.itemAcceptError", { default: "Failed to accept item" });
+      }
+      showNotification(finalMessage, "error");
     },
   });
 }
@@ -139,26 +149,34 @@ export function useEditClientPackageItem() {
   return useMutation({
     mutationFn: (clientPackageItemId: number) =>
       editClientPackageItem(clientPackageItemId),
-    onSuccess: () => {
+    onSuccess: (data) => {
       // Invalidate multiple query keys for comprehensive revalidation
       queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
 
       showNotification(
-        t("package.itemEditRequested", {
-          default: "Edit requested successfully!",
-        }),
+        data?.message ||
+          t("package.itemEditRequested", {
+            default: "Edit requested successfully!",
+          }),
         "success"
       );
     },
     onError: (error: Error) => {
-      showNotification(
-        error.message ||
-          t("package.itemEditError", {
-            default: "Failed to request edit",
-          }),
-        "error"
-      );
+      const cause = error.cause as any;
+      let finalMessage: string;
+
+      if (cause && (cause.status === 429 || cause.statusCode === 429)) {
+        finalMessage = t("package.maxEditReached", {
+          default: "Maximum edit requests reached.",
+        });
+      } else {
+        // For this action, error.message already prefers cause.message if available
+        finalMessage =
+          error.message ||
+          t("package.itemEditError", { default: "Failed to request edit" });
+      }
+      showNotification(finalMessage, "error");
     },
   });
 }
@@ -170,26 +188,35 @@ export function useDeclineClientPackageItem() {
   return useMutation({
     mutationFn: (clientPackageItemId: number) =>
       declineClientPackageItem(clientPackageItemId),
-    onSuccess: () => {
+    onSuccess: (data) => {
       // Invalidate multiple query keys for comprehensive revalidation
       queryClient.invalidateQueries({ queryKey: [PACKAGES_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
 
       showNotification(
-        t("package.itemDeclined", {
-          default: "Item declined successfully!",
-        }),
+        data?.message ||
+          t("package.itemDeclined", {
+            default: "Item declined successfully!",
+          }),
         "success"
       );
     },
     onError: (error: Error) => {
-      showNotification(
-        error.message ||
-          t("package.itemDeclineError", {
-            default: "Failed to decline item",
-          }),
-        "error"
-      );
+      const cause = error.cause as any;
+      let finalMessage: string;
+
+      if (cause && (cause.status === 429 || cause.statusCode === 429)) {
+        finalMessage = t("package.maxDeclineReached", {
+          default: "Maximum decline requests reached.",
+        });
+      } else if (cause && cause.message) {
+        finalMessage = cause.message;
+      } else {
+        finalMessage =
+          error.message ||
+          t("package.itemDeclineError", { default: "Failed to decline item" });
+      }
+      showNotification(finalMessage, "error");
     },
   });
 }

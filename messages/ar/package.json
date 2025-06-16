@@ -74,7 +74,8 @@
     "limitId": "معرف الحد",
     "editLimit": "حد التعديل",
     "declineLimit": "حد الرفض",
-    "created": "تم إنشاء الحزمة بنجاح"
+    "created": "تم إنشاء الحزمة بنجاح",
+    "assigned": "تم تعيين الباقة بنجاح!"
   },
   "packages": {
     "available": "الحزم المتاحة",
@@ -184,7 +185,8 @@
     "activePackage": "باقة نشطة",
     "packageId": "المعرف",
     "manageHint": "انقر على زر الباقة أعلاه لتكوين حدود التعديل والرفض لكل نوع عنصر.",
-    "itemsCount": "عناصر"
+    "itemsCount": "عناصر",
+    "stored": "تم تخزين حدود العميل بنجاح!"
   },
   "enhancedAdminStatus": {
     "title": "لوحة الإدارة المحسنة",

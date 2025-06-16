@@ -74,7 +74,8 @@
     "limitId": "Limit ID",
     "editLimit": "Edit Limit",
     "declineLimit": "Decline Limit",
-    "created": "Package created successfully"
+    "created": "Package created successfully",
+    "assigned": "Package assigned successfully!"
   },
   "packages": {
     "available": "Available Packages",
@@ -184,7 +185,8 @@
     "activePackage": "Active Package",
     "packageId": "ID",
     "manageHint": "Click the package button above to configure edit and decline limits for each item type.",
-    "itemsCount": "items"
+    "itemsCount": "items",
+    "stored": "Client limits stored successfully!"
   },
   "deleteChat": {
     "buttonText": "Delete Chat",

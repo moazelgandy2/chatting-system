@@ -40,7 +40,7 @@ export function ChatFormDialog() {
         }
       );
     } catch (e: any) {
-      setError(e?.message || "Something went wrong!");
+      setError(e?.message || t("createChatDialog.genericError"));
     }
   };
 
@@ -62,10 +62,10 @@ export function ChatFormDialog() {
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold bg-gradient-to-r from-violet-500 to-indigo-500 bg-clip-text text-transparent">
-            Create Chat
+            {t("createChatDialog.title")}
           </DialogTitle>
           <DialogDescription>
-            Select a user to start a new chat.
+            {t("createChatDialog.description")}
           </DialogDescription>
         </DialogHeader>
         <ChatForm

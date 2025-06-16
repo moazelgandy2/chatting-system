@@ -22,8 +22,10 @@ import {
   SidebarMenuSubItem,
 } from "../ui/sidebar";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export function UserFormDialog() {
+  const t = useTranslations("chat.userFormDialog");
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { mutateAsync, isPending } = useCreateUser();
@@ -34,7 +36,7 @@ export function UserFormDialog() {
       await mutateAsync(data);
       setOpen(false);
     } catch (e: any) {
-      setError(e?.message || "Something went wrong!");
+      setError(e?.message || t("error"));
     }
   };
 
@@ -47,18 +49,16 @@ export function UserFormDialog() {
         <SidebarMenuSubItem>
           <SidebarMenuSubButton className="cursor-pointer">
             <UserPlus className="w-3 h-3" />
-            <span>Add User</span>
+            <span>{t("addUser")}</span>
           </SidebarMenuSubButton>
         </SidebarMenuSubItem>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold bg-gradient-to-r from-violet-500 to-indigo-500 bg-clip-text text-transparent">
-            Create User
+            {t("createUser")}
           </DialogTitle>
-          <DialogDescription>
-            Fill in the details to create a new user account.
-          </DialogDescription>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <UserForm
           onSubmit={handleSubmit}

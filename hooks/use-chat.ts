@@ -226,20 +226,20 @@ import { useTranslations } from "next-intl";
 import { showNotification } from "@/lib/show-notification";
 
 export function useDeleteChat() {
-  const t = useTranslations("chat");
+  const t = useTranslations();
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: deleteChat,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
       if (typeof showNotification !== "undefined") {
-        showNotification(t("notifications.deletedSuccess"), "success");
+        showNotification(t("chat.notifications.deletedSuccess"), "success");
       }
     },
     onError: (error: Error) => {
       if (typeof showNotification !== "undefined") {
         showNotification(
-          error.message || t("notifications.deletedError"),
+          error.message || t("chat.notifications.deletedError"),
           "error"
         );
       }

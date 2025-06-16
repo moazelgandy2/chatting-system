@@ -63,7 +63,7 @@ export const AdminNav = () => {
                   href={"/packages"}
                 >
                   <Package2Icon className="w-3 h-3" />
-                  <span>Packages</span>
+                  <span>{t("dashboard.navigation.admin.packages")}</span>
                   <LinkStatus />
                 </Link>
               </SidebarMenuSubButton>

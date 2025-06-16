@@ -37,7 +37,8 @@
       },
       "admin": {
         "title": "إدارة",
-        "description": "إدارة النظام"
+        "description": "إدارة النظام",
+        "packages": "الباقات"
       },
       "packages": "الباقات",
       "notFound": "غير موجود"
