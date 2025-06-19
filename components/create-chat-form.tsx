@@ -19,13 +19,13 @@ import { useTranslations } from "next-intl";
 import { z } from "zod";
 import { toast } from "sonner";
 import Notification from "./kokonutui/notification";
-import { useUsers } from "@/hooks/use-users";
-import { useChatsRevalidate } from "@/hooks/use-chats";
+import { useClients } from "@/hooks/use-users";
+import { CHATS_QUERY_KEY, useChatsRevalidate } from "@/hooks/use-chats";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 interface ChatFormProps {
-  onSubmit: (data: ChatFormType) => void;
+  onSubmit: (data: ChatFormType) => Promise<any>;
   isSubmitting?: boolean;
   error?: string | null;
 }
@@ -40,8 +40,8 @@ export function ChatForm({
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
-  const { data, isLoading } = useUsers(page, search);
-  const revalidateChats = useChatsRevalidate();
+  const { data, isLoading } = useClients(page, search);
+  const { revalidate: revalidateChats, queryClient } = useChatsRevalidate();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -54,9 +54,9 @@ export function ChatForm({
 
   const handleFormSubmit = async (data: ChatFormType) => {
     try {
-      onSubmit(data);
+      await onSubmit(data);
 
-      revalidateChats();
+      await queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
       router.refresh();
     } catch (e) {
       console.log("[ERROR_CREATING_CHAT_FORM]", e);

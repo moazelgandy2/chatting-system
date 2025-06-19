@@ -21,5 +21,5 @@ export function useChatsRevalidate() {
     });
   };
 
-  return revalidate;
+  return { revalidate, queryClient };
 }

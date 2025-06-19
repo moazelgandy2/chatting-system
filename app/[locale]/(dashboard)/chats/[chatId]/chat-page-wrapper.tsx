@@ -424,7 +424,7 @@ export default function ChatPageWrapper({ chatId }: ChatPageWrapperProps) {
     try {
       mutateDeleteChat(id, {
         onSuccess: () => {
-          chatsRevalidate();
+          chatsRevalidate.revalidate();
           revalidate();
           revalidateClientLimits();
           setTimeout(() => {
@@ -636,9 +636,9 @@ export default function ChatPageWrapper({ chatId }: ChatPageWrapperProps) {
               )}
               {isErrorClientLimits && (
                 <p className="text-red-500 text-center p-4">
-                  {t("limits.loadError", {
+                  {/* {t("limits.loadError", {
                     defaultValue: "Failed to load limits.",
-                  })}
+                  })} */}
                 </p>
               )}
               {clientLimitsToRender &&

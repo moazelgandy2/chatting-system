@@ -42,6 +42,9 @@ export const fetchClientRemainingLimitsAction = async (
       },
     }
   );
+
+  console.error("Network response was not ok:", response);
+
   const data = await response.json();
   console.log("Fetched remaining limits:", data);
   if (!response.ok) {

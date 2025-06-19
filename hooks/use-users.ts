@@ -47,3 +47,16 @@ export function useTeamMembers(page = 1, search = "") {
       : undefined,
   };
 }
+
+export function useClients(page = 1, search = "") {
+  const query = useUsers(page, search);
+  return {
+    ...query,
+    data: query.data
+      ? {
+          ...query.data,
+          data: query.data.data.filter((u) => u.role === "client"),
+        }
+      : undefined,
+  };
+}

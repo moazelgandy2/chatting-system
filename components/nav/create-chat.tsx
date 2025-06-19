@@ -12,33 +12,35 @@ import {
 } from "@/components/ui/dialog";
 
 import { MessageCirclePlus } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 import { ChatForm } from "../create-chat-form";
 import { useCreateChat } from "@/hooks/use-chat";
 import { useTranslations } from "next-intl";
 import { ChatFormType } from "@/forms/create-chat.schema";
+import { CHATS_QUERY_KEY } from "@/hooks/use-chats";
 
 export function ChatFormDialog() {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { mutate, isPending } = useCreateChat();
+  const { mutateAsync, isPending } = useCreateChat();
   const t = useTranslations("chat");
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   const handleSubmit = async (data: ChatFormType) => {
     setError(null);
     try {
-      mutate(
-        {
-          client_id: data.client_id,
-          name: data.name,
-          description: data.description,
-        },
-        {
-          onSuccess: () => {
-            setOpen(false);
-          },
-        }
-      );
+      await mutateAsync({
+        client_id: data.client_id,
+        name: data.name,
+        description: data.description,
+      });
+
+      await queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+      router.refresh();
+      setOpen(false);
     } catch (e: any) {
       setError(e?.message || t("createChatDialog.genericError"));
     }
